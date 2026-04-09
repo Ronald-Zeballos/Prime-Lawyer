@@ -6,3 +6,138 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum UserRole {
+  ADMIN
+  LAWYER
+}
+
+enum CaseStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+  ARCHIVED
+}
+
+enum ConfidentialityLevel {
+  STANDARD
+  CONFIDENTIAL
+  HIGHLY_CONFIDENTIAL
+}
+
+enum OCRStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum AuditEntityType {
+  AUTH
+  CLIENT
+  CASE_FILE
+  DOCUMENT
+}
+
+model Role {
+  id        String   @id @default(uuid())
+  code      UserRole @unique
+  name      String
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id                   String     @id @default(uuid())
+  email                String     @unique
+  passwordHash         String
+  firstName            String
+  lastName             String
+  roleId               String
+  isActive             Boolean    @default(true)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  role                 Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  responsibleCaseFiles CaseFile[] @relation("CaseFileResponsibleUser")
+  uploadedDocuments    Document[] @relation("DocumentUploadedByUser")
+  auditLogs            AuditLog[] @relation("AuditPerformedByUser")
+
+  @@index([roleId])
+}
+
+model Client {
+  id             String     @id @default(uuid())
+  firstName      String
+  lastName       String
+  documentNumber String     @unique
+  phone          String?
+  email          String?
+  address        String?
+  notes          String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  caseFiles      CaseFile[]
+
+  @@index([lastName, firstName])
+}
+
+model CaseFile {
+  id                   String               @id @default(uuid())
+  internalCode         String               @unique
+  clientId             String
+  subject              String
+  processType          String
+  status               CaseStatus           @default(OPEN)
+  responsibleUserId    String?
+  openedAt             DateTime             @default(now())
+  closedAt             DateTime?
+  confidentialityLevel ConfidentialityLevel @default(STANDARD)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  client               Client               @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  responsibleUser      User?                @relation("CaseFileResponsibleUser", fields: [responsibleUserId], references: [id], onDelete: SetNull)
+  documents            Document[]
+  auditLogs            AuditLog[]           @relation("AuditCaseFile")
+
+  @@index([clientId])
+  @@index([responsibleUserId])
+  @@index([status])
+}
+
+model Document {
+  id           String    @id @default(uuid())
+  caseFileId   String
+  originalName String
+  fileType     String
+  storagePath  String    @unique
+  hash         String
+  uploadSource String
+  ocrStatus    OCRStatus @default(PENDING)
+  uploadedById String
+  uploadedAt   DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  caseFile     CaseFile  @relation(fields: [caseFileId], references: [id], onDelete: Cascade)
+  uploadedBy   User      @relation("DocumentUploadedByUser", fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([caseFileId, uploadedAt])
+  @@index([uploadedById])
+  @@index([ocrStatus])
+}
+
+model AuditLog {
+  id            String          @id @default(uuid())
+  entityType    AuditEntityType
+  entityId      String
+  caseFileId    String?
+  action        String
+  performedById String?
+  metadata      Json?
+  createdAt     DateTime        @default(now())
+  caseFile      CaseFile?       @relation("AuditCaseFile", fields: [caseFileId], references: [id], onDelete: SetNull)
+  performedBy   User?           @relation("AuditPerformedByUser", fields: [performedById], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([caseFileId, createdAt])
+  @@index([performedById, createdAt])
+}

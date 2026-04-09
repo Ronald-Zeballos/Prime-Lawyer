@@ -9,6 +9,10 @@ export abstract class AggregateRoot<TId> extends BaseEntity<TId> {
   }
 
   pullDomainEvents(): DomainEvent[] {
-    return [...this.domainEvents];
+    const events = [...this.domainEvents];
+
+    this.domainEvents.length = 0;
+
+    return events;
   }
 }

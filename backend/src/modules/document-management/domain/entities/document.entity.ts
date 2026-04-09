@@ -1,1 +1,126 @@
-export {};
+import { BaseEntity } from '../../../../shared/domain/base-entity';
+import { DomainValidationError } from '../../../../shared/domain/errors/domain-validation.error';
+import { DocumentId } from '../value-objects/document-id.vo';
+import { FileHash } from '../value-objects/file-hash.vo';
+import { MimeType } from '../value-objects/mime-type.vo';
+
+export enum OCRStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+}
+
+type DocumentEntityProps = {
+  caseFileId: string;
+  originalName: string;
+  fileType: MimeType;
+  storagePath: string;
+  hash: FileHash;
+  uploadSource: string;
+  ocrStatus: OCRStatus;
+  uploadedById: string;
+  uploadedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type CreateDocumentEntityProps = {
+  id: string;
+  caseFileId: string;
+  originalName: string;
+  fileType: string;
+  storagePath: string;
+  hash: string;
+  uploadSource: string;
+  ocrStatus?: string;
+  uploadedById: string;
+  uploadedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export class DocumentEntity extends BaseEntity<DocumentId> {
+  private constructor(id: DocumentId, private readonly props: DocumentEntityProps) {
+    super(id);
+  }
+
+  static create(props: CreateDocumentEntityProps): DocumentEntity {
+    return new DocumentEntity(DocumentId.create(props.id), {
+      caseFileId: this.normalizeRequiredText(props.caseFileId, 'Case file id'),
+      originalName: this.normalizeRequiredText(props.originalName, 'Original name'),
+      fileType: MimeType.create(props.fileType),
+      storagePath: this.normalizeRequiredText(props.storagePath, 'Storage path'),
+      hash: FileHash.create(props.hash),
+      uploadSource: this.normalizeRequiredText(props.uploadSource, 'Upload source'),
+      ocrStatus: this.normalizeOcrStatus(props.ocrStatus ?? OCRStatus.PENDING),
+      uploadedById: this.normalizeRequiredText(props.uploadedById, 'Uploaded by'),
+      uploadedAt: props.uploadedAt,
+      createdAt: props.createdAt,
+      updatedAt: props.updatedAt,
+    });
+  }
+
+  get caseFileId(): string {
+    return this.props.caseFileId;
+  }
+
+  get originalName(): string {
+    return this.props.originalName;
+  }
+
+  get fileType(): MimeType {
+    return this.props.fileType;
+  }
+
+  get storagePath(): string {
+    return this.props.storagePath;
+  }
+
+  get hash(): FileHash {
+    return this.props.hash;
+  }
+
+  get uploadSource(): string {
+    return this.props.uploadSource;
+  }
+
+  get ocrStatus(): OCRStatus {
+    return this.props.ocrStatus;
+  }
+
+  get uploadedById(): string {
+    return this.props.uploadedById;
+  }
+
+  get uploadedAt(): Date {
+    return this.props.uploadedAt;
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this.props.updatedAt;
+  }
+
+  private static normalizeRequiredText(value: string, fieldName: string): string {
+    const normalizedValue = value.trim();
+
+    if (!normalizedValue) {
+      throw new DomainValidationError(`${fieldName} is required.`);
+    }
+
+    return normalizedValue;
+  }
+
+  private static normalizeOcrStatus(value: string): OCRStatus {
+    const normalizedValue = value.trim().toUpperCase() as OCRStatus;
+
+    if (!Object.values(OCRStatus).includes(normalizedValue)) {
+      throw new DomainValidationError('OCR status is invalid.');
+    }
+
+    return normalizedValue;
+  }
+}
