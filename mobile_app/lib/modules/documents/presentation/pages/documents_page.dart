@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../../document_capture/domain/usecases/pick_document_use_case.dart';
 import '../../domain/usecases/get_case_documents_use_case.dart';
 import '../../domain/usecases/register_document_use_case.dart';
@@ -50,14 +51,15 @@ class _DocumentsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<DocumentsController>();
+    final strings = context.strings;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Documents'),
+        title: Text(strings.documentsTitle),
         actions: [
           IconButton(
             onPressed: controller.isLoading ? null : controller.refresh,
-            tooltip: 'Refresh documents',
+            tooltip: strings.refreshDocuments,
             icon: const Icon(Icons.refresh_rounded),
           ),
         ],
@@ -65,7 +67,7 @@ class _DocumentsView extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openRegisterDocumentSheet(context),
         icon: const Icon(Icons.upload_file_rounded),
-        label: const Text('Upload'),
+        label: Text(strings.upload),
       ),
       body: Column(
         children: [
@@ -79,7 +81,7 @@ class _DocumentsView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Text(
-                'Case file: ${args.caseFileTitle}',
+                strings.caseFileNameLabel(args.caseFileTitle),
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -129,7 +131,7 @@ class _DocumentsView extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No documents yet',
+                          strings.noDocumentsTitle,
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
@@ -137,8 +139,8 @@ class _DocumentsView extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Upload the first document for this case file to complete the MVP flow.',
+                        Text(
+                          strings.noDocumentsDescription,
                           textAlign: TextAlign.center,
                         ),
                       ],

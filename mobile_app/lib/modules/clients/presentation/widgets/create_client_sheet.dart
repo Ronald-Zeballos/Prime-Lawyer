@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../domain/repositories/client_repository.dart';
 
 class CreateClientSheet extends StatefulWidget {
@@ -42,6 +43,8 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.strings;
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -58,7 +61,7 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Create client',
+                  strings.createClientTitle,
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge
@@ -67,10 +70,10 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: const InputDecoration(labelText: 'First name'),
+                  decoration: InputDecoration(labelText: strings.firstNameLabel),
                   validator: (value) {
                     if ((value ?? '').trim().isEmpty) {
-                      return 'First name is required.';
+                      return strings.firstNameRequiredError;
                     }
 
                     return null;
@@ -79,10 +82,10 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _lastNameController,
-                  decoration: const InputDecoration(labelText: 'Last name'),
+                  decoration: InputDecoration(labelText: strings.lastNameLabel),
                   validator: (value) {
                     if ((value ?? '').trim().isEmpty) {
-                      return 'Last name is required.';
+                      return strings.lastNameRequiredError;
                     }
 
                     return null;
@@ -91,10 +94,12 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _documentNumberController,
-                  decoration: const InputDecoration(labelText: 'Document number'),
+                  decoration: InputDecoration(
+                    labelText: strings.documentNumberLabel,
+                  ),
                   validator: (value) {
                     if ((value ?? '').trim().isEmpty) {
-                      return 'Document number is required.';
+                      return strings.documentNumberRequiredError;
                     }
 
                     return null;
@@ -103,13 +108,13 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _phoneController,
-                  decoration: const InputDecoration(labelText: 'Phone'),
+                  decoration: InputDecoration(labelText: strings.phoneLabel),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email'),
+                  decoration: InputDecoration(labelText: strings.emailLabel),
                   validator: (value) {
                     final normalizedValue = (value ?? '').trim();
 
@@ -118,7 +123,7 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
                     }
 
                     if (!normalizedValue.contains('@')) {
-                      return 'Email format looks invalid.';
+                      return strings.emailInvalidError;
                     }
 
                     return null;
@@ -127,14 +132,14 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _addressController,
-                  decoration: const InputDecoration(labelText: 'Address'),
+                  decoration: InputDecoration(labelText: strings.addressLabel),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _notesController,
                   minLines: 3,
                   maxLines: 5,
-                  decoration: const InputDecoration(labelText: 'Notes'),
+                  decoration: InputDecoration(labelText: strings.notesLabel),
                 ),
                 if (widget.errorMessage != null) ...[
                   const SizedBox(height: 16),
@@ -156,7 +161,9 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
                 FilledButton(
                   onPressed: widget.isSubmitting ? null : _submit,
                   child: Text(
-                    widget.isSubmitting ? 'Creating...' : 'Create client',
+                    widget.isSubmitting
+                        ? strings.creating
+                        : strings.createClientAction,
                   ),
                 ),
               ],

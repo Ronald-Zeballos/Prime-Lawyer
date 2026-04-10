@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../domain/usecases/create_client_use_case.dart';
 import '../../domain/usecases/get_clients_use_case.dart';
 import '../controllers/clients_controller.dart';
@@ -28,14 +29,15 @@ class _ClientsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<ClientsController>();
+    final strings = context.strings;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Clients'),
+        title: Text(strings.clientsTitle),
         actions: [
           IconButton(
             onPressed: controller.isLoading ? null : controller.refresh,
-            tooltip: 'Refresh clients',
+            tooltip: strings.refreshClients,
             icon: const Icon(Icons.refresh_rounded),
           ),
         ],
@@ -43,7 +45,7 @@ class _ClientsView extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openCreateClientSheet(context),
         icon: const Icon(Icons.person_add_alt_1_rounded),
-        label: const Text('New client'),
+        label: Text(strings.newClient),
       ),
       body: Column(
         children: [
@@ -89,7 +91,7 @@ class _ClientsView extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No clients yet',
+                          strings.noClientsListTitle,
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
@@ -97,8 +99,8 @@ class _ClientsView extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Create your first client to start the MVP legal flow.',
+                        Text(
+                          strings.noClientsListDescription,
                           textAlign: TextAlign.center,
                         ),
                       ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../../document_capture/domain/entities/captured_document.dart';
 
 class RegisterDocumentSheet extends StatelessWidget {
@@ -22,6 +23,8 @@ class RegisterDocumentSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.strings;
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -35,7 +38,7 @@ class RegisterDocumentSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Register document',
+              strings.registerDocumentTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -46,7 +49,9 @@ class RegisterDocumentSheet extends StatelessWidget {
               onPressed: isSubmitting ? null : onPickDocument,
               icon: const Icon(Icons.attach_file_rounded),
               label: Text(
-                selectedDocument == null ? 'Choose file' : 'Change file',
+                selectedDocument == null
+                    ? strings.chooseFile
+                    : strings.changeFile,
               ),
             ),
             if (selectedDocument != null) ...[
@@ -68,11 +73,11 @@ class RegisterDocumentSheet extends StatelessWidget {
                           ?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 6),
-                    Text('Size: ${selectedDocument!.bytes.length} bytes'),
+                    Text(strings.sizeBytes(selectedDocument!.bytes.length)),
                     const SizedBox(height: 10),
                     TextButton(
                       onPressed: isSubmitting ? null : onClearSelection,
-                      child: const Text('Remove selection'),
+                      child: Text(strings.removeSelection),
                     ),
                   ],
                 ),
@@ -108,7 +113,7 @@ class RegisterDocumentSheet extends StatelessWidget {
                       Navigator.of(context).pop();
                     },
               child: Text(
-                isSubmitting ? 'Uploading...' : 'Upload document',
+                isSubmitting ? strings.uploading : strings.uploadDocument,
               ),
             ),
           ],

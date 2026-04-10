@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../../clients/domain/entities/client.dart';
 import '../../domain/repositories/case_file_repository.dart';
 
@@ -54,6 +55,8 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.strings;
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -70,7 +73,7 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Create case file',
+                  strings.createCaseFileTitle,
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge
@@ -84,14 +87,14 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                       color: const Color(0xFFF3E8D6),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Text(
-                      'Create at least one client before registering a case file.',
+                    child: Text(
+                      strings.createClientBeforeCaseFile,
                     ),
                   )
                 else
                   DropdownButtonFormField<String>(
                     initialValue: _selectedClientId,
-                    decoration: const InputDecoration(labelText: 'Client'),
+                    decoration: InputDecoration(labelText: strings.clientLabel),
                     items: widget.availableClients
                         .map(
                           (client) => DropdownMenuItem<String>(
@@ -109,7 +112,7 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                           },
                     validator: (value) {
                       if ((value ?? '').isEmpty) {
-                        return 'Client is required.';
+                        return strings.clientRequiredError;
                       }
 
                       return null;
@@ -118,10 +121,12 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _internalCodeController,
-                  decoration: const InputDecoration(labelText: 'Internal code'),
+                  decoration: InputDecoration(
+                    labelText: strings.internalCodeLabel,
+                  ),
                   validator: (value) {
                     if ((value ?? '').trim().isEmpty) {
-                      return 'Internal code is required.';
+                      return strings.internalCodeRequiredError;
                     }
 
                     return null;
@@ -130,10 +135,10 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _subjectController,
-                  decoration: const InputDecoration(labelText: 'Subject'),
+                  decoration: InputDecoration(labelText: strings.subjectLabel),
                   validator: (value) {
                     if ((value ?? '').trim().isEmpty) {
-                      return 'Subject is required.';
+                      return strings.subjectRequiredError;
                     }
 
                     return null;
@@ -142,10 +147,12 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _processTypeController,
-                  decoration: const InputDecoration(labelText: 'Process type'),
+                  decoration: InputDecoration(
+                    labelText: strings.processTypeLabel,
+                  ),
                   validator: (value) {
                     if ((value ?? '').trim().isEmpty) {
-                      return 'Process type is required.';
+                      return strings.processTypeRequiredError;
                     }
 
                     return null;
@@ -154,14 +161,14 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedConfidentialityLevel,
-                  decoration: const InputDecoration(
-                    labelText: 'Confidentiality level',
+                  decoration: InputDecoration(
+                    labelText: strings.confidentialityLevelLabel,
                   ),
                   items: _confidentialityOptions
                       .map(
                         (level) => DropdownMenuItem<String>(
                           value: level,
-                          child: Text(level),
+                          child: Text(strings.confidentialityLevel(level)),
                         ),
                       )
                       .toList(),
@@ -199,7 +206,9 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                       ? null
                       : _submit,
                   child: Text(
-                    widget.isSubmitting ? 'Creating...' : 'Create case file',
+                    widget.isSubmitting
+                        ? strings.creating
+                        : strings.createCaseFileAction,
                   ),
                 ),
               ],

@@ -43,6 +43,6 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
       useClass: JwtAccessTokenIssuer,
     },
   ],
-  exports: [JwtAuthGuard, USER_REPOSITORY],
+  exports: [JwtModule, JwtAuthGuard, USER_REPOSITORY],
 })
 export class IdentityAccessModule {}

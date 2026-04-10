@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../domain/entities/document.dart';
 
 class DocumentListItem extends StatelessWidget {
@@ -12,6 +13,8 @@ class DocumentListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.strings;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -31,27 +34,18 @@ class DocumentListItem extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _DocumentChip(label: document.fileType),
-                _DocumentChip(label: document.ocrStatus),
+                _DocumentChip(label: strings.ocrStatus(document.ocrStatus)),
                 _DocumentChip(label: document.uploadSource),
               ],
             ),
             const SizedBox(height: 12),
-            Text('Uploaded at: ${_formatDateTime(document.uploadedAt)}'),
+            Text(strings.uploadedAt(strings.formatDateTime(document.uploadedAt))),
             const SizedBox(height: 4),
-            Text('Hash: ${document.hash}'),
+            Text(strings.hashLabel(document.hash)),
           ],
         ),
       ),
     );
-  }
-
-  String _formatDateTime(DateTime value) {
-    final month = value.month.toString().padLeft(2, '0');
-    final day = value.day.toString().padLeft(2, '0');
-    final hour = value.hour.toString().padLeft(2, '0');
-    final minute = value.minute.toString().padLeft(2, '0');
-
-    return '${value.year}-$month-$day $hour:$minute';
   }
 }
 

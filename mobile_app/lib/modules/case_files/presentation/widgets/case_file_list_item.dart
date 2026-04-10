@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../domain/entities/case_file.dart';
 
 class CaseFileListItem extends StatelessWidget {
@@ -16,6 +17,8 @@ class CaseFileListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.strings;
+
     return Card(
       child: InkWell(
         onTap: onTap,
@@ -40,7 +43,7 @@ class CaseFileListItem extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   _InfoChip(label: clientLabel),
-                  _InfoChip(label: caseFile.status),
+                  _InfoChip(label: strings.caseStatus(caseFile.status)),
                   _InfoChip(label: caseFile.processType),
                 ],
               ),

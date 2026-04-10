@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { IdentityAccessModule } from '../identity-access/identity-access.module';
 import { AuditLogsController } from './presentation/controllers/audit-logs.controller';
 import { GetCaseHistoryUseCase } from './application/use-cases/get-case-history/get-case-history.use-case';
 import { GetEntityHistoryUseCase } from './application/use-cases/get-entity-history/get-entity-history.use-case';
@@ -8,6 +9,7 @@ import { PrismaAuditLogRepository } from './infrastructure/persistence/repositor
 
 @Global()
 @Module({
+  imports: [IdentityAccessModule],
   controllers: [AuditLogsController],
   providers: [
     RegisterAuditEventUseCase,

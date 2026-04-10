@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../../clients/domain/usecases/get_clients_use_case.dart';
 import '../../../documents/presentation/pages/documents_page.dart';
 import '../../domain/usecases/get_case_file_detail_use_case.dart';
@@ -34,10 +35,11 @@ class _CaseFileDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<CaseFileDetailController>();
     final caseFile = controller.caseFile;
+    final strings = context.strings;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Case file detail'),
+        title: Text(strings.caseFileDetailTitle),
       ),
       body: Builder(
         builder: (context) {
@@ -60,8 +62,8 @@ class _CaseFileDetailView extends StatelessWidget {
           }
 
           if (caseFile == null) {
-            return const Center(
-              child: Text('Case file not available.'),
+            return Center(
+              child: Text(strings.caseFileUnavailable),
             );
           }
 
@@ -85,27 +87,32 @@ class _CaseFileDetailView extends StatelessWidget {
                       Text(caseFile.subject),
                       const SizedBox(height: 16),
                       _DetailLine(
-                        label: 'Client',
+                        label: strings.clientLabel,
                         value: controller.clientLabel ?? caseFile.clientId,
                       ),
                       _DetailLine(
-                        label: 'Process type',
+                        label: strings.processTypeDetailLabel,
                         value: caseFile.processType,
                       ),
-                      _DetailLine(label: 'Status', value: caseFile.status),
                       _DetailLine(
-                        label: 'Confidentiality',
-                        value: caseFile.confidentialityLevel,
+                        label: strings.statusLabel,
+                        value: strings.caseStatus(caseFile.status),
                       ),
                       _DetailLine(
-                        label: 'Opened at',
-                        value: _formatDateTime(caseFile.openedAt),
+                        label: strings.confidentialityLabel,
+                        value: strings.confidentialityLevel(
+                          caseFile.confidentialityLevel,
+                        ),
                       ),
                       _DetailLine(
-                        label: 'Closed at',
+                        label: strings.openedAtLabel,
+                        value: strings.formatDateTime(caseFile.openedAt),
+                      ),
+                      _DetailLine(
+                        label: strings.closedAtLabel,
                         value: caseFile.closedAt == null
-                            ? 'Not closed'
-                            : _formatDateTime(caseFile.closedAt!),
+                            ? strings.notClosedYet
+                            : strings.formatDateTime(caseFile.closedAt!),
                       ),
                       const SizedBox(height: 10),
                       FilledButton.icon(
@@ -119,7 +126,7 @@ class _CaseFileDetailView extends StatelessWidget {
                           );
                         },
                         icon: const Icon(Icons.description_outlined),
-                        label: const Text('Open documents'),
+                        label: Text(strings.openDocuments),
                       ),
                     ],
                   ),
@@ -130,15 +137,6 @@ class _CaseFileDetailView extends StatelessWidget {
         },
       ),
     );
-  }
-
-  String _formatDateTime(DateTime value) {
-    final month = value.month.toString().padLeft(2, '0');
-    final day = value.day.toString().padLeft(2, '0');
-    final hour = value.hour.toString().padLeft(2, '0');
-    final minute = value.minute.toString().padLeft(2, '0');
-
-    return '${value.year}-$month-$day $hour:$minute';
   }
 }
 

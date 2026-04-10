@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/network/api_client.dart';
+import '../core/storage/app_preferences_storage.dart';
+import '../core/storage/secure_app_preferences_storage.dart';
 import '../core/services/session_service.dart';
 import '../core/storage/secure_token_storage.dart';
 import '../core/storage/token_storage.dart';
@@ -30,7 +32,9 @@ import '../modules/documents/data/repositories/document_repository_impl.dart';
 import '../modules/documents/domain/repositories/document_repository.dart';
 import '../modules/documents/domain/usecases/get_case_documents_use_case.dart';
 import '../modules/documents/domain/usecases/register_document_use_case.dart';
+import '../modules/home/domain/usecases/get_home_dashboard_use_case.dart';
 import '../modules/home/presentation/pages/home_page.dart';
+import '../shared/providers/app_language_provider.dart';
 import '../shared/providers/session_provider.dart';
 import 'config/app_config.dart';
 import 'routes/app_router.dart';
@@ -51,6 +55,9 @@ class PrimeLawyerApp extends StatelessWidget {
         Provider<AppConfig>.value(value: appConfig),
         Provider<TokenStorage>(
           create: (_) => SecureTokenStorage(),
+        ),
+        Provider<AppPreferencesStorage>(
+          create: (_) => SecureAppPreferencesStorage(),
         ),
         Provider<SessionService>(
           create: (context) => SessionService(
@@ -123,6 +130,12 @@ class PrimeLawyerApp extends StatelessWidget {
             context.read<CaseFileRepository>(),
           ),
         ),
+        Provider<GetHomeDashboardUseCase>(
+          create: (context) => GetHomeDashboardUseCase(
+            clientRepository: context.read<ClientRepository>(),
+            caseFileRepository: context.read<CaseFileRepository>(),
+          ),
+        ),
         Provider<DocumentCaptureRepository>(
           create: (_) => const FilePickerDocumentCaptureRepository(),
         ),
@@ -154,6 +167,11 @@ class PrimeLawyerApp extends StatelessWidget {
         ChangeNotifierProvider<SessionProvider>(
           create: (context) => SessionProvider(
             sessionService: context.read<SessionService>(),
+          )..bootstrap(),
+        ),
+        ChangeNotifierProvider<AppLanguageProvider>(
+          create: (context) => AppLanguageProvider(
+            preferencesStorage: context.read<AppPreferencesStorage>(),
           )..bootstrap(),
         ),
       ],

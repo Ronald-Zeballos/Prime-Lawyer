@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/config/app_config.dart';
+import '../../../../app/routes/app_routes.dart';
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../../../shared/providers/session_provider.dart';
 import '../../domain/usecases/sign_in_use_case.dart';
 import '../controllers/auth_controller.dart';
@@ -44,6 +46,7 @@ class _LoginViewState extends State<_LoginView> {
   Widget build(BuildContext context) {
     final appConfig = context.read<AppConfig>();
     final authController = context.watch<AuthController>();
+    final strings = context.strings;
 
     return Scaffold(
       body: SafeArea(
@@ -55,8 +58,19 @@ class _LoginViewState extends State<_LoginView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(AppRoutes.profile);
+                      },
+                      tooltip: strings.openSettings,
+                      icon: const Icon(Icons.settings_outlined),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Text(
-                    'Prime Lawyer',
+                    strings.appName,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -64,7 +78,7 @@ class _LoginViewState extends State<_LoginView> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Sign in to continue with the legal MVP demo.',
+                    strings.signInSubtitle,
                     style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
@@ -78,23 +92,23 @@ class _LoginViewState extends State<_LoginView> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              'Demo credentials',
+                              strings.demoCredentialsTitle,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              'You can keep the default admin user for the MVP demo.',
+                            Text(
+                              strings.demoCredentialsDescription,
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
                               autofillHints: const [AutofillHints.username],
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
+                              decoration: InputDecoration(
+                                labelText: strings.emailLabel,
                               ),
                               onChanged: (_) {
                                 context.read<AuthController>().clearError();
@@ -103,11 +117,11 @@ class _LoginViewState extends State<_LoginView> {
                                 final normalizedValue = value?.trim() ?? '';
 
                                 if (normalizedValue.isEmpty) {
-                                  return 'Email is required.';
+                                  return strings.emailRequiredError;
                                 }
 
                                 if (!normalizedValue.contains('@')) {
-                                  return 'Email format looks invalid.';
+                                  return strings.emailInvalidError;
                                 }
 
                                 return null;
@@ -118,15 +132,15 @@ class _LoginViewState extends State<_LoginView> {
                               controller: _passwordController,
                               obscureText: true,
                               autofillHints: const [AutofillHints.password],
-                              decoration: const InputDecoration(
-                                labelText: 'Password',
+                              decoration: InputDecoration(
+                                labelText: strings.passwordLabel,
                               ),
                               onChanged: (_) {
                                 context.read<AuthController>().clearError();
                               },
                               validator: (value) {
                                 if ((value ?? '').isEmpty) {
-                                  return 'Password is required.';
+                                  return strings.passwordRequiredError;
                                 }
 
                                 return null;
@@ -156,8 +170,8 @@ class _LoginViewState extends State<_LoginView> {
                                   : () => _submit(context),
                               child: Text(
                                 authController.isSubmitting
-                                    ? 'Signing in...'
-                                    : 'Sign in',
+                                    ? strings.signingIn
+                                    : strings.signIn,
                               ),
                             ),
                           ],
@@ -171,10 +185,10 @@ class _LoginViewState extends State<_LoginView> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE8E1D7),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      'API base URL\n${appConfig.apiBaseUrl}',
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                      '${strings.apiBaseUrlLabel}\n${appConfig.apiBaseUrl}',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),

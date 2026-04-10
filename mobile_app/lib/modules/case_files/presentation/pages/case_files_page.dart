@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../../clients/domain/usecases/get_clients_use_case.dart';
 import '../../domain/usecases/create_case_file_use_case.dart';
 import '../../domain/usecases/get_case_files_use_case.dart';
@@ -31,14 +32,15 @@ class _CaseFilesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<CaseFilesController>();
+    final strings = context.strings;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Case files'),
+        title: Text(strings.caseFilesTitle),
         actions: [
           IconButton(
             onPressed: controller.isLoading ? null : controller.refresh,
-            tooltip: 'Refresh case files',
+            tooltip: strings.refreshCaseFiles,
             icon: const Icon(Icons.refresh_rounded),
           ),
         ],
@@ -46,7 +48,7 @@ class _CaseFilesView extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openCreateCaseFileSheet(context),
         icon: const Icon(Icons.create_new_folder_outlined),
-        label: const Text('New case file'),
+        label: Text(strings.newCaseFile),
       ),
       body: Column(
         children: [
@@ -92,7 +94,7 @@ class _CaseFilesView extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No case files yet',
+                          strings.noCaseFilesListTitle,
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
@@ -102,8 +104,9 @@ class _CaseFilesView extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           controller.hasAvailableClients
-                              ? 'Create your first case file to continue the legal MVP flow.'
-                              : 'Create at least one client first, then register a case file.',
+                              ? strings.noCaseFilesListWithClientsDescription
+                              : strings
+                                  .noCaseFilesListWithoutClientsDescription,
                           textAlign: TextAlign.center,
                         ),
                       ],

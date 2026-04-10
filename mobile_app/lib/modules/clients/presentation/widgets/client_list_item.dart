@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../domain/entities/client.dart';
 
 class ClientListItem extends StatelessWidget {
@@ -12,6 +13,8 @@ class ClientListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.strings;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -26,18 +29,18 @@ class ClientListItem extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
-            Text('Document: ${client.documentNumber}'),
+            Text('${strings.documentFieldLabel}: ${client.documentNumber}'),
             if (client.email != null && client.email!.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Email: ${client.email}'),
+              Text('${strings.emailLabel}: ${client.email}'),
             ],
             if (client.phone != null && client.phone!.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Phone: ${client.phone}'),
+              Text('${strings.phoneLabel}: ${client.phone}'),
             ],
             if (client.address != null && client.address!.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Address: ${client.address}'),
+              Text('${strings.addressLabel}: ${client.address}'),
             ],
             if (client.notes != null && client.notes!.isNotEmpty) ...[
               const SizedBox(height: 10),
