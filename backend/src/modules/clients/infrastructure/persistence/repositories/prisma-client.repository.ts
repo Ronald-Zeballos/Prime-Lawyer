@@ -51,7 +51,7 @@ export class PrismaClientRepository implements ClientRepository {
       orderBy: [{ createdAt: 'desc' }],
     });
 
-    return clients.map(ClientPrismaMapper.toDomain);
+    return clients.map((client) => ClientPrismaMapper.toDomain(client));
   }
 
   async create(client: ClientEntity): Promise<ClientEntity> {

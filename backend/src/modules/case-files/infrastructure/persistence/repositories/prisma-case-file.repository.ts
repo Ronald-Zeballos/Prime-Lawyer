@@ -71,7 +71,7 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
       orderBy: [{ createdAt: 'desc' }],
     });
 
-    return caseFiles.map(CaseFilePrismaMapper.toDomain);
+    return caseFiles.map((caseFile) => CaseFilePrismaMapper.toDomain(caseFile));
   }
 
   async create(caseFile: CaseFileEntity): Promise<CaseFileEntity> {

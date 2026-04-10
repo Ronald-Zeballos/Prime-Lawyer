@@ -10,7 +10,7 @@ export class AuditLogPrismaMapper {
       caseFileId: auditLog.caseFileId,
       action: auditLog.action,
       performedById: auditLog.performedById,
-      metadata: this.toMetadata(auditLog.metadata),
+      metadata: AuditLogPrismaMapper.toMetadata(auditLog.metadata),
       createdAt: auditLog.createdAt,
     });
   }

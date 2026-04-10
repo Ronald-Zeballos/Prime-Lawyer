@@ -9,6 +9,7 @@ class RegisterDocumentSheet extends StatelessWidget {
     required this.selectedDocument,
     required this.isSubmitting,
     required this.onPickDocument,
+    required this.onCaptureFromCamera,
     required this.onSubmit,
     required this.onClearSelection,
     this.errorMessage,
@@ -17,6 +18,7 @@ class RegisterDocumentSheet extends StatelessWidget {
   final CapturedDocument? selectedDocument;
   final bool isSubmitting;
   final Future<void> Function() onPickDocument;
+  final Future<void> Function() onCaptureFromCamera;
   final Future<bool> Function() onSubmit;
   final VoidCallback onClearSelection;
   final String? errorMessage;
@@ -44,15 +46,36 @@ class RegisterDocumentSheet extends StatelessWidget {
                   .titleLarge
                   ?.copyWith(fontWeight: FontWeight.w700),
             ),
+            const SizedBox(height: 8),
+            Text(strings.chooseDocumentSource),
+            const SizedBox(height: 8),
+            Text(
+              strings.documentsStoredAsPdfHint,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: isSubmitting ? null : onPickDocument,
-              icon: const Icon(Icons.attach_file_rounded),
-              label: Text(
-                selectedDocument == null
-                    ? strings.chooseFile
-                    : strings.changeFile,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: isSubmitting ? null : onPickDocument,
+                    icon: const Icon(Icons.attach_file_rounded),
+                    label: Text(
+                      selectedDocument == null
+                          ? strings.chooseFile
+                          : strings.changeFile,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    onPressed: isSubmitting ? null : onCaptureFromCamera,
+                    icon: const Icon(Icons.photo_camera_outlined),
+                    label: Text(strings.useCamera),
+                  ),
+                ),
+              ],
             ),
             if (selectedDocument != null) ...[
               const SizedBox(height: 12),
@@ -65,6 +88,14 @@ class RegisterDocumentSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      strings.selectedDocumentTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 8),
                     Text(
                       selectedDocument!.fileName,
                       style: Theme.of(context)

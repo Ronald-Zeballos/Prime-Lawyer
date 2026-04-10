@@ -11,7 +11,7 @@ export class DocumentPrismaMapper {
       storagePath: document.storagePath,
       hash: document.hash,
       uploadSource: document.uploadSource,
-      ocrStatus: this.toOcrStatus(document.ocrStatus),
+      ocrStatus: DocumentPrismaMapper.toOcrStatus(document.ocrStatus),
       uploadedById: document.uploadedById,
       uploadedAt: document.uploadedAt,
       createdAt: document.createdAt,

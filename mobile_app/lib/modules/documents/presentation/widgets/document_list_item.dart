@@ -7,9 +7,11 @@ class DocumentListItem extends StatelessWidget {
   const DocumentListItem({
     super.key,
     required this.document,
+    required this.onOpen,
   });
 
   final Document document;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,19 @@ class DocumentListItem extends StatelessWidget {
             Text(strings.uploadedAt(strings.formatDateTime(document.uploadedAt))),
             const SizedBox(height: 4),
             Text(strings.hashLabel(document.hash)),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.tonalIcon(
+                onPressed: document.isPdf ? onOpen : null,
+                icon: const Icon(Icons.picture_as_pdf_outlined),
+                label: Text(
+                  document.isPdf
+                      ? strings.openPdfAction
+                      : strings.pdfOnlyLabel,
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -61,7 +76,7 @@ class _DocumentChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFE9EEE7),
+        color: const Color(0xFFF0E7DA),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(label),

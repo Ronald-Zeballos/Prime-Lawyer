@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   HttpException,
   HttpStatus,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -16,6 +17,8 @@ import { DomainValidationError } from '../../domain/errors/domain-validation.err
 
 @Catch()
 export class ApplicationExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(ApplicationExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>();
 
@@ -79,6 +82,11 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
 
       return;
     }
+
+    this.logger.error(
+      'Unhandled exception reached global filter',
+      exception instanceof Error ? exception.stack : JSON.stringify(exception),
+    );
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

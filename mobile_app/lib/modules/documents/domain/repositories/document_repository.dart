@@ -1,4 +1,5 @@
 import '../../../document_capture/domain/entities/captured_document.dart';
+import '../entities/document_file.dart';
 import '../entities/document.dart';
 
 class RegisterDocumentInput {
@@ -15,6 +16,11 @@ class RegisterDocumentInput {
 
 abstract class DocumentRepository {
   Future<List<Document>> getCaseDocuments(String caseFileId);
+  Future<DocumentFile> getDocumentFile({
+    required String documentId,
+    required String fileName,
+    required String fileType,
+  });
 
   Future<Document> registerDocument(RegisterDocumentInput input);
 }

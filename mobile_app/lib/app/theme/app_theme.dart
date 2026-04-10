@@ -4,18 +4,18 @@ class AppTheme {
   const AppTheme._();
 
   static ThemeData light() {
-    const seedColor = Color(0xFF0E5B45);
+    const seedColor = Color(0xFF223447);
 
     final colorScheme = ColorScheme.fromSeed(
       seedColor: seedColor,
       brightness: Brightness.light,
-      surface: const Color(0xFFF6F1E8),
+      surface: const Color(0xFFF7F2E9),
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: const Color(0xFFF3EEE4),
+      scaffoldBackgroundColor: const Color(0xFFF4EFE6),
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,

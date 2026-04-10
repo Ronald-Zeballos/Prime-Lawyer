@@ -6,14 +6,17 @@ import {
   Param,
   Post,
   Req,
+  Res,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthenticatedUserDto } from '../../../identity-access/application/dto/authenticated-user.dto';
 import { JwtAuthGuard } from '../../../identity-access/presentation/guards/jwt-auth.guard';
+import { GetDocumentFileUseCase } from '../../application/use-cases/get-document-file/get-document-file.use-case';
 import { GetDocumentUseCase } from '../../application/use-cases/get-document/get-document.use-case';
 import { ListCaseDocumentsUseCase } from '../../application/use-cases/list-case-documents/list-case-documents.use-case';
 import { RegisterDocumentUseCase } from '../../application/use-cases/register-document/register-document.use-case';
@@ -34,6 +37,7 @@ export class DocumentsController {
   constructor(
     private readonly registerDocumentUseCase: RegisterDocumentUseCase,
     private readonly listCaseDocumentsUseCase: ListCaseDocumentsUseCase,
+    private readonly getDocumentFileUseCase: GetDocumentFileUseCase,
     private readonly getDocumentUseCase: GetDocumentUseCase,
   ) {}
 
@@ -83,5 +87,21 @@ export class DocumentsController {
     const document = await this.getDocumentUseCase.execute({ id });
 
     return DocumentResponse.fromDto(document);
+  }
+
+  @Get('documents/:id/file')
+  async getFile(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const file = await this.getDocumentFileUseCase.execute({ id });
+
+    response.setHeader('Content-Type', file.fileType);
+    response.setHeader(
+      'Content-Disposition',
+      `inline; filename="${encodeURIComponent(file.fileName)}"`,
+    );
+
+    return new StreamableFile(file.buffer);
   }
 }

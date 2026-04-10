@@ -26,4 +26,8 @@ class Document {
   final DateTime uploadedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  bool get isPdf =>
+      fileType.toLowerCase() == 'application/pdf' ||
+      originalName.toLowerCase().endsWith('.pdf');
 }

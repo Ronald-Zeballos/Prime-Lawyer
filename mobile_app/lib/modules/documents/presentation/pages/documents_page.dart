@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../document_capture/domain/usecases/capture_document_from_camera_use_case.dart';
 import '../../../document_capture/domain/usecases/pick_document_use_case.dart';
 import '../../domain/usecases/get_case_documents_use_case.dart';
 import '../../domain/usecases/register_document_use_case.dart';
 import '../controllers/documents_controller.dart';
+import 'document_viewer_page.dart';
 import '../widgets/document_list_item.dart';
 import '../widgets/register_document_sheet.dart';
 
@@ -35,6 +37,8 @@ class DocumentsPage extends StatelessWidget {
         getCaseDocumentsUseCase: context.read<GetCaseDocumentsUseCase>(),
         registerDocumentUseCase: context.read<RegisterDocumentUseCase>(),
         pickDocumentUseCase: context.read<PickDocumentUseCase>(),
+        captureDocumentFromCameraUseCase:
+            context.read<CaptureDocumentFromCameraUseCase>(),
       )..loadDocuments(),
       child: _DocumentsView(args: args),
     );
@@ -157,7 +161,16 @@ class _DocumentsView extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final document = controller.documents[index];
 
-                      return DocumentListItem(document: document);
+                      return DocumentListItem(
+                        document: document,
+                        onOpen: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => DocumentViewerPage(document: document),
+                            ),
+                          );
+                        },
+                      );
                     },
                   ),
                 );
@@ -184,6 +197,7 @@ class _DocumentsView extends StatelessWidget {
             isSubmitting: value.isSubmitting,
             errorMessage: value.errorMessage,
             onPickDocument: value.pickDocument,
+            onCaptureFromCamera: value.captureFromCamera,
             onSubmit: value.registerSelectedDocument,
             onClearSelection: value.clearSelection,
           ),

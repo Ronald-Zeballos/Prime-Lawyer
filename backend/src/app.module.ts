@@ -4,14 +4,17 @@ import envConfig from './config/env.config';
 import databaseConfig from './config/database.config';
 import authConfig from './config/auth.config';
 import storageConfig from './config/storage.config';
+import { HealthController } from './health.controller';
 import { AuditTraceabilityModule } from './modules/audit-traceability/audit-traceability.module';
 import { CaseFilesModule } from './modules/case-files/case-files.module';
 import { ClientsModule } from './modules/clients/clients.module';
 import { DocumentManagementModule } from './modules/document-management/document-management.module';
 import { IdentityAccessModule } from './modules/identity-access/identity-access.module';
+import { LegalAiModule } from './modules/legal-ai/legal-ai.module';
 import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 
 @Module({
+  controllers: [HealthController],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
@@ -24,6 +27,7 @@ import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
     ClientsModule,
     CaseFilesModule,
     DocumentManagementModule,
+    LegalAiModule,
   ],
 })
 export class AppModule {}

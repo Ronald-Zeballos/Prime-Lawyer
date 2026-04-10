@@ -1,3 +1,4 @@
+import '../../domain/entities/document_file.dart';
 import '../../domain/entities/document.dart';
 import '../../domain/repositories/document_repository.dart';
 import '../datasources/documents_remote_data_source.dart';
@@ -13,6 +14,19 @@ class DocumentRepositoryImpl implements DocumentRepository {
     final documentModels = await _remoteDataSource.getCaseDocuments(caseFileId);
 
     return documentModels.map(DocumentMapper.toDomain).toList();
+  }
+
+  @override
+  Future<DocumentFile> getDocumentFile({
+    required String documentId,
+    required String fileName,
+    required String fileType,
+  }) {
+    return _remoteDataSource.getDocumentFile(
+      documentId: documentId,
+      fileName: fileName,
+      fileType: fileType,
+    );
   }
 
   @override

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { extname } from 'node:path';
 import { Inject, Injectable } from '@nestjs/common';
 import { NotFoundError } from '../../../../../shared/application/errors/not-found.error';
 import { UseCase } from '../../../../../shared/application/use-case';
@@ -76,11 +77,15 @@ export class RegisterDocumentUseCase
     });
 
     const now = new Date();
+    const normalizedFileType = this.normalizeUploadedFileType(
+      command.originalName,
+      command.fileType,
+    );
     const document = DocumentEntity.create({
       id: randomUUID(),
       caseFileId: command.caseFileId,
       originalName: command.originalName,
-      fileType: command.fileType,
+      fileType: normalizedFileType,
       storagePath: storedFile.storagePath,
       hash: storedFile.hash,
       uploadSource: command.uploadSource,
@@ -108,5 +113,33 @@ export class RegisterDocumentUseCase
     });
 
     return toDocumentDto(createdDocument);
+  }
+
+  private normalizeUploadedFileType(
+    originalName: string,
+    fileType: string,
+  ): string {
+    const normalizedFileType = fileType.trim().toLowerCase();
+
+    if (
+      normalizedFileType &&
+      normalizedFileType !== 'application/octet-stream'
+    ) {
+      return normalizedFileType;
+    }
+
+    const normalizedExtension = extname(originalName).trim().toLowerCase();
+
+    switch (normalizedExtension) {
+      case '.pdf':
+        return 'application/pdf';
+      case '.png':
+        return 'image/png';
+      case '.jpg':
+      case '.jpeg':
+        return 'image/jpeg';
+      default:
+        return normalizedFileType || 'application/octet-stream';
+    }
   }
 }

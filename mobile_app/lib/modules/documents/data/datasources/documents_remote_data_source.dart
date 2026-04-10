@@ -1,5 +1,6 @@
 import '../../../../core/network/api_client.dart';
 import '../../../document_capture/domain/entities/captured_document.dart';
+import '../../domain/entities/document_file.dart';
 import '../models/document_model.dart';
 
 class DocumentsRemoteDataSource {
@@ -14,6 +15,20 @@ class DocumentsRemoteDataSource {
     return items
         .map((item) => DocumentModel.fromJson(item as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<DocumentFile> getDocumentFile({
+    required String documentId,
+    required String fileName,
+    required String fileType,
+  }) async {
+    final bytes = await _apiClient.getBytes('/documents/$documentId/file');
+
+    return DocumentFile(
+      fileName: fileName,
+      fileType: fileType,
+      bytes: bytes,
+    );
   }
 
   Future<DocumentModel> registerDocument({

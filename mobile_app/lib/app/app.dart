@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/network/api_client.dart';
+import '../core/services/api_health_service.dart';
 import '../core/storage/app_preferences_storage.dart';
 import '../core/storage/secure_app_preferences_storage.dart';
 import '../core/services/session_service.dart';
@@ -19,8 +20,9 @@ import '../modules/case_files/domain/repositories/case_file_repository.dart';
 import '../modules/case_files/domain/usecases/create_case_file_use_case.dart';
 import '../modules/case_files/domain/usecases/get_case_file_detail_use_case.dart';
 import '../modules/case_files/domain/usecases/get_case_files_use_case.dart';
-import '../modules/document_capture/data/repositories/file_picker_document_capture_repository.dart';
+import '../modules/document_capture/data/repositories/mobile_document_capture_repository.dart';
 import '../modules/document_capture/domain/repositories/document_capture_repository.dart';
+import '../modules/document_capture/domain/usecases/capture_document_from_camera_use_case.dart';
 import '../modules/document_capture/domain/usecases/pick_document_use_case.dart';
 import '../modules/clients/data/datasources/clients_remote_data_source.dart';
 import '../modules/clients/data/repositories/client_repository_impl.dart';
@@ -30,10 +32,16 @@ import '../modules/clients/domain/usecases/get_clients_use_case.dart';
 import '../modules/documents/data/datasources/documents_remote_data_source.dart';
 import '../modules/documents/data/repositories/document_repository_impl.dart';
 import '../modules/documents/domain/repositories/document_repository.dart';
+import '../modules/documents/domain/usecases/get-document-file-use-case.dart';
 import '../modules/documents/domain/usecases/get_case_documents_use_case.dart';
 import '../modules/documents/domain/usecases/register_document_use_case.dart';
 import '../modules/home/domain/usecases/get_home_dashboard_use_case.dart';
 import '../modules/home/presentation/pages/home_page.dart';
+import '../modules/legal_ai/data/datasources/legal_ai_remote_data_source.dart';
+import '../modules/legal_ai/data/repositories/legal_ai_repository_impl.dart';
+import '../modules/legal_ai/domain/repositories/legal_ai_repository.dart';
+import '../modules/legal_ai/domain/usecases/get_document_analysis_preview_use_case.dart';
+import '../shared/providers/api_base_url_provider.dart';
 import '../shared/providers/app_language_provider.dart';
 import '../shared/providers/session_provider.dart';
 import 'config/app_config.dart';
@@ -67,7 +75,13 @@ class PrimeLawyerApp extends StatelessWidget {
         Provider<ApiClient>(
           create: (context) => ApiClient(
             baseUrl: context.read<AppConfig>().apiBaseUrl,
+            preferencesStorage: context.read<AppPreferencesStorage>(),
             tokenStorage: context.read<TokenStorage>(),
+          ),
+        ),
+        Provider<ApiHealthService>(
+          create: (context) => ApiHealthService(
+            context.read<ApiClient>(),
           ),
         ),
         Provider<AuthRemoteDataSource>(
@@ -137,10 +151,15 @@ class PrimeLawyerApp extends StatelessWidget {
           ),
         ),
         Provider<DocumentCaptureRepository>(
-          create: (_) => const FilePickerDocumentCaptureRepository(),
+          create: (_) => MobileDocumentCaptureRepository(),
         ),
         Provider<PickDocumentUseCase>(
           create: (context) => PickDocumentUseCase(
+            context.read<DocumentCaptureRepository>(),
+          ),
+        ),
+        Provider<CaptureDocumentFromCameraUseCase>(
+          create: (context) => CaptureDocumentFromCameraUseCase(
             context.read<DocumentCaptureRepository>(),
           ),
         ),
@@ -159,9 +178,29 @@ class PrimeLawyerApp extends StatelessWidget {
             context.read<DocumentRepository>(),
           ),
         ),
+        Provider<GetDocumentFileUseCase>(
+          create: (context) => GetDocumentFileUseCase(
+            context.read<DocumentRepository>(),
+          ),
+        ),
         Provider<RegisterDocumentUseCase>(
           create: (context) => RegisterDocumentUseCase(
             context.read<DocumentRepository>(),
+          ),
+        ),
+        Provider<LegalAiRemoteDataSource>(
+          create: (context) => LegalAiRemoteDataSource(
+            context.read<ApiClient>(),
+          ),
+        ),
+        Provider<LegalAiRepository>(
+          create: (context) => LegalAiRepositoryImpl(
+            context.read<LegalAiRemoteDataSource>(),
+          ),
+        ),
+        Provider<GetDocumentAnalysisPreviewUseCase>(
+          create: (context) => GetDocumentAnalysisPreviewUseCase(
+            context.read<LegalAiRepository>(),
           ),
         ),
         ChangeNotifierProvider<SessionProvider>(
@@ -172,6 +211,12 @@ class PrimeLawyerApp extends StatelessWidget {
         ChangeNotifierProvider<AppLanguageProvider>(
           create: (context) => AppLanguageProvider(
             preferencesStorage: context.read<AppPreferencesStorage>(),
+          )..bootstrap(),
+        ),
+        ChangeNotifierProvider<ApiBaseUrlProvider>(
+          create: (context) => ApiBaseUrlProvider(
+            preferencesStorage: context.read<AppPreferencesStorage>(),
+            appConfig: context.read<AppConfig>(),
           )..bootstrap(),
         ),
       ],

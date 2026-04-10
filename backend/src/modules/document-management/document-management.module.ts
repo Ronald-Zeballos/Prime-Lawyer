@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CaseFilesModule } from '../case-files/case-files.module';
 import { IdentityAccessModule } from '../identity-access/identity-access.module';
+import { GetDocumentFileUseCase } from './application/use-cases/get-document-file/get-document-file.use-case';
 import { GetDocumentUseCase } from './application/use-cases/get-document/get-document.use-case';
 import { ListCaseDocumentsUseCase } from './application/use-cases/list-case-documents/list-case-documents.use-case';
 import {
@@ -17,6 +18,7 @@ import { DocumentsController } from './presentation/controllers/documents.contro
   controllers: [DocumentsController],
   providers: [
     RegisterDocumentUseCase,
+    GetDocumentFileUseCase,
     ListCaseDocumentsUseCase,
     GetDocumentUseCase,
     {
@@ -28,5 +30,6 @@ import { DocumentsController } from './presentation/controllers/documents.contro
       useClass: LocalDocumentFileStorageAdapter,
     },
   ],
+  exports: [DOCUMENT_REPOSITORY],
 })
 export class DocumentManagementModule {}

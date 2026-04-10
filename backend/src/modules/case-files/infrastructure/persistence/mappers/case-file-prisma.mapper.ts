@@ -11,11 +11,11 @@ export class CaseFilePrismaMapper {
       clientId: caseFile.clientId,
       subject: caseFile.subject,
       processType: caseFile.processType,
-      status: this.toCaseStatus(caseFile.status),
+      status: CaseFilePrismaMapper.toCaseStatus(caseFile.status),
       responsibleUserId: caseFile.responsibleUserId,
       openedAt: caseFile.openedAt,
       closedAt: caseFile.closedAt,
-      confidentialityLevel: this.toConfidentialityLevel(
+      confidentialityLevel: CaseFilePrismaMapper.toConfidentialityLevel(
         caseFile.confidentialityLevel,
       ),
       createdAt: caseFile.createdAt,

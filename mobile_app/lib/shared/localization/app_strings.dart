@@ -28,6 +28,41 @@ class AppStrings {
   String get signingIn => isSpanish ? 'Ingresando...' : 'Signing in...';
   String get signIn => isSpanish ? 'Iniciar sesión' : 'Sign in';
   String get apiBaseUrlLabel => isSpanish ? 'URL base de API' : 'API base URL';
+  String get apiConnectionTitle =>
+      isSpanish ? 'Conexion API' : 'API connection';
+  String get apiConnectionDescription => isSpanish
+      ? 'Configura a que backend local se conectara la app.'
+      : 'Set which local backend the app should connect to.';
+  String get apiBaseUrlHint => 'http://192.168.1.20:3000/api/v1';
+  String get editApiBaseUrl =>
+      isSpanish ? 'Editar URL de API' : 'Edit API URL';
+  String get saveApiBaseUrl =>
+      isSpanish ? 'Guardar URL' : 'Save URL';
+  String get testApiConnection =>
+      isSpanish ? 'Probar conexion' : 'Test connection';
+  String get resetApiBaseUrl =>
+      isSpanish ? 'Usar URL por defecto' : 'Use default URL';
+  String get apiBaseUrlSaved => isSpanish
+      ? 'URL de API actualizada.'
+      : 'API URL updated.';
+  String get apiBaseUrlReset => isSpanish
+      ? 'Se restauro la URL por defecto.'
+      : 'Default API URL restored.';
+  String get apiBaseUrlRequiredError => isSpanish
+      ? 'La URL base de API es obligatoria.'
+      : 'API base URL is required.';
+  String get apiBaseUrlInvalidError => isSpanish
+      ? 'La URL base de API no es valida.'
+      : 'API base URL is invalid.';
+  String get realDeviceApiHint => isSpanish
+      ? 'En telefono real no uses 10.0.2.2. Usa la IP local de tu computadora en la misma red Wi-Fi.'
+      : 'On a physical phone do not use 10.0.2.2. Use your computer local IP on the same Wi-Fi network.';
+  String get apiConnectionSuccess => isSpanish
+      ? 'Conexion con la API correcta.'
+      : 'API connection is working.';
+  String get apiConnectionFailure => isSpanish
+      ? 'No se pudo conectar con la API.'
+      : 'Could not connect to the API.';
   String get settingsTitle => isSpanish ? 'Configuración' : 'Settings';
   String get languageTitle => isSpanish ? 'Idioma' : 'Language';
   String get languageDescription => isSpanish
@@ -243,8 +278,65 @@ class AppStrings {
   String get upload => isSpanish ? 'Subir' : 'Upload';
   String get registerDocumentTitle =>
       isSpanish ? 'Registrar documento' : 'Register document';
+  String get chooseDocumentSource => isSpanish
+      ? 'Selecciona como quieres cargar el documento'
+      : 'Choose how you want to add the document';
+  String get documentsStoredAsPdfHint => isSpanish
+      ? 'Las fotos o imagenes se convierten a PDF antes de subirlas.'
+      : 'Photos or images are converted to PDF before upload.';
   String get chooseFile => isSpanish ? 'Elegir archivo' : 'Choose file';
   String get changeFile => isSpanish ? 'Cambiar archivo' : 'Change file';
+  String get useCamera => isSpanish ? 'Usar camara' : 'Use camera';
+  String get selectedDocumentTitle => isSpanish
+      ? 'Documento listo para subir'
+      : 'Document ready to upload';
+  String get openPdfAction => isSpanish ? 'Abrir PDF' : 'Open PDF';
+  String get pdfOnlyLabel => isSpanish ? 'Solo PDF' : 'PDF only';
+  String get analyzeDocument =>
+      isSpanish ? 'Analizar documento' : 'Analyze document';
+  String get analysisPreviewTitle =>
+      isSpanish ? 'Analisis juridico' : 'Legal analysis';
+  String get analysisPreviewBadge =>
+      isSpanish ? 'Preview IA' : 'AI preview';
+  String get analysisPreviewInfoDescription => isSpanish
+      ? 'Esta vista muestra un adelanto visual de lo que hara el analisis juridico del documento dentro del MVP.'
+      : 'This view shows a visual preview of what document legal analysis will do in the MVP.';
+  String get analysisPreviewInfoStepOne => isSpanish
+      ? 'Tomar el expediente y el documento actual como contexto.'
+      : 'Use the current case file and document as context.';
+  String get analysisPreviewInfoStepTwo => isSpanish
+      ? 'Buscar coincidencias por materia, tipo de proceso y metadata.'
+      : 'Look for matches by matter, process type and metadata.';
+  String get analysisPreviewInfoStepThree => isSpanish
+      ? 'Sugerir expedientes parecidos y proximos pasos legales.'
+      : 'Suggest similar case files and next legal steps.';
+  String get analysisPreviewInfoStepFour => isSpanish
+      ? 'En una fase posterior leer OCR y usar OpenAI para analisis semantico real.'
+      : 'In a later phase it will read OCR text and use OpenAI for real semantic analysis.';
+  String get analysisPreviewContinueAction => isSpanish
+      ? 'Abrir preview de analisis'
+      : 'Open analysis preview';
+  String get analysisSummaryTitle =>
+      isSpanish ? 'Resumen del caso' : 'Case summary';
+  String get analysisHighlightsTitle =>
+      isSpanish ? 'Hallazgos iniciales' : 'Initial findings';
+  String get analysisLimitationsTitle =>
+      isSpanish ? 'Limites actuales' : 'Current limits';
+  String get analysisMatchesTitle =>
+      isSpanish ? 'Coincidencias sugeridas' : 'Suggested matches';
+  String get analysisNextStepsTitle =>
+      isSpanish ? 'Siguientes pasos' : 'Next steps';
+  String get analysisNoMatchesTitle => isSpanish
+      ? 'No hubo coincidencias fuertes'
+      : 'No strong matches yet';
+  String get analysisNoMatchesDescription => isSpanish
+      ? 'Carga mas expedientes o mejora el detalle del asunto para enriquecer la busqueda futura.'
+      : 'Add more case files or improve matter detail to enrich future search.';
+  String get analysisOpenCaseAction =>
+      isSpanish ? 'Abrir expediente' : 'Open case file';
+  String get analysisUnavailable => isSpanish
+      ? 'El analisis no esta disponible ahora mismo.'
+      : 'Analysis is not available right now.';
   String sizeBytes(int size) =>
       isSpanish ? 'Tamaño: $size bytes' : 'Size: $size bytes';
   String get removeSelection =>

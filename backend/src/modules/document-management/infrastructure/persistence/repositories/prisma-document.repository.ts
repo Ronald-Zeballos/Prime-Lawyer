@@ -23,7 +23,7 @@ export class PrismaDocumentRepository implements DocumentRepository {
       orderBy: [{ uploadedAt: 'desc' }],
     });
 
-    return documents.map(DocumentPrismaMapper.toDomain);
+    return documents.map((document) => DocumentPrismaMapper.toDomain(document));
   }
 
   async create(document: DocumentEntity): Promise<DocumentEntity> {

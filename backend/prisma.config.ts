@@ -1,4 +1,12 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { defineConfig, env } from 'prisma/config';
+
+const envFilePath = resolve(process.cwd(), '.env');
+
+if (typeof process.loadEnvFile === 'function' && existsSync(envFilePath)) {
+  process.loadEnvFile(envFilePath);
+}
 
 export default defineConfig({
   engine: 'classic',

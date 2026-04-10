@@ -49,6 +49,6 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
       orderBy: [{ createdAt: 'desc' }],
     });
 
-    return auditLogs.map(AuditLogPrismaMapper.toDomain);
+    return auditLogs.map((auditLog) => AuditLogPrismaMapper.toDomain(auditLog));
   }
 }

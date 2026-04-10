@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../app/config/app_config.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/providers/api_base_url_provider.dart';
 import '../../../../shared/providers/session_provider.dart';
 import '../../domain/usecases/sign_in_use_case.dart';
 import '../controllers/auth_controller.dart';
@@ -44,8 +44,8 @@ class _LoginViewState extends State<_LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final appConfig = context.read<AppConfig>();
     final authController = context.watch<AuthController>();
+    final apiBaseUrlProvider = context.watch<ApiBaseUrlProvider>();
     final strings = context.strings;
 
     return Scaffold(
@@ -188,7 +188,7 @@ class _LoginViewState extends State<_LoginView> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
-                      '${strings.apiBaseUrlLabel}\n${appConfig.apiBaseUrl}',
+                      '${strings.apiBaseUrlLabel}\n${apiBaseUrlProvider.currentApiBaseUrl}',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),

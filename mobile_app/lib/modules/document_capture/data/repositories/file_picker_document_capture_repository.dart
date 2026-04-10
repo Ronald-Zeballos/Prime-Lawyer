@@ -25,7 +25,13 @@ class FilePickerDocumentCaptureRepository implements DocumentCaptureRepository {
 
     return CapturedDocument(
       fileName: file.name,
+      mimeType: 'application/pdf',
       bytes: bytes,
     );
+  }
+
+  @override
+  Future<CapturedDocument?> captureFromCamera() async {
+    return null;
   }
 }
