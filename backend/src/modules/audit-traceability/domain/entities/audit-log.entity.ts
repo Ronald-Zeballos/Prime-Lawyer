@@ -3,6 +3,7 @@ import { DomainValidationError } from '../../../../shared/domain/errors/domain-v
 
 export enum AuditEntityType {
   AUTH = 'AUTH',
+  USER_PROFILE = 'USER_PROFILE',
   CLIENT = 'CLIENT',
   CASE_FILE = 'CASE_FILE',
   DOCUMENT = 'DOCUMENT',

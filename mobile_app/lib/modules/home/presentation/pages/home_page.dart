@@ -83,7 +83,7 @@ class _HomeView extends StatelessWidget {
                   Text(
                     currentUser == null
                         ? 'Welcome back'
-                        : 'Welcome, ${currentUser.firstName}',
+                        : 'Welcome, ${currentUser.displayLabel}',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: colorScheme.onPrimary,
                           fontWeight: FontWeight.w700,
@@ -93,7 +93,7 @@ class _HomeView extends StatelessWidget {
                   Text(
                     currentUser == null
                         ? 'The session is active and ready for the next legal actions.'
-                        : 'Signed in as ${currentUser.fullName} (${currentUser.role}). Your dashboard is now reading live data from the MVP backend.',
+                        : 'Signed in as ${currentUser.displayLabel} (${currentUser.role}). Your dashboard is now reading live data from the MVP backend.',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: colorScheme.onPrimary,
                         ),

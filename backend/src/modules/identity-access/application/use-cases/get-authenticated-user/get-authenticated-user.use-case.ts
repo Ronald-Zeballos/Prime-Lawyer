@@ -36,9 +36,15 @@ export class GetAuthenticatedUserUseCase
     return {
       id: user.id.value,
       email: user.email.value,
+      displayName: user.displayName,
       firstName: user.firstName,
       lastName: user.lastName,
+      bio: user.bio,
       role: user.role.code,
+      type: user.type,
+      plan: user.plan,
+      tokensAvailable: user.tokensAvailable,
+      isActive: user.isActive,
     };
   }
 }

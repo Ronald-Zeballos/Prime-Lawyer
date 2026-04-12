@@ -49,6 +49,11 @@ class SessionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void syncCurrentUser(SessionUser user) {
+    _currentUser = user;
+    notifyListeners();
+  }
+
   Future<void> clearSession() async {
     await _sessionService.clearAccessToken();
     _accessToken = null;

@@ -9,9 +9,15 @@ class AuthUserMapper {
     return AuthUser(
       id: model.id,
       email: model.email,
+      displayName: model.displayName,
       firstName: model.firstName,
       lastName: model.lastName,
+      bio: model.bio,
       role: model.role,
+      type: model.type,
+      plan: model.plan,
+      tokensAvailable: model.tokensAvailable,
+      isActive: model.isActive,
     );
   }
 
@@ -19,9 +25,15 @@ class AuthUserMapper {
     return SessionUser(
       id: user.id,
       email: user.email,
+      displayName: user.displayName,
       firstName: user.firstName,
       lastName: user.lastName,
+      bio: user.bio,
       role: user.role,
+      type: user.type,
+      plan: user.plan,
+      tokensAvailable: user.tokensAvailable,
+      isActive: user.isActive,
     );
   }
 }

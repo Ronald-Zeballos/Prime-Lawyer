@@ -41,6 +41,11 @@ import '../modules/legal_ai/data/datasources/legal_ai_remote_data_source.dart';
 import '../modules/legal_ai/data/repositories/legal_ai_repository_impl.dart';
 import '../modules/legal_ai/domain/repositories/legal_ai_repository.dart';
 import '../modules/legal_ai/domain/usecases/get_document_analysis_preview_use_case.dart';
+import '../modules/profile/data/datasources/profile_remote_data_source.dart';
+import '../modules/profile/data/repositories/profile_repository_impl.dart';
+import '../modules/profile/domain/repositories/profile_repository.dart';
+import '../modules/profile/domain/usecases/get_my_profile_use_case.dart';
+import '../modules/profile/domain/usecases/update_my_profile_use_case.dart';
 import '../shared/providers/api_base_url_provider.dart';
 import '../shared/providers/app_language_provider.dart';
 import '../shared/providers/session_provider.dart';
@@ -201,6 +206,26 @@ class PrimeLawyerApp extends StatelessWidget {
         Provider<GetDocumentAnalysisPreviewUseCase>(
           create: (context) => GetDocumentAnalysisPreviewUseCase(
             context.read<LegalAiRepository>(),
+          ),
+        ),
+        Provider<ProfileRemoteDataSource>(
+          create: (context) => ProfileRemoteDataSource(
+            context.read<ApiClient>(),
+          ),
+        ),
+        Provider<ProfileRepository>(
+          create: (context) => ProfileRepositoryImpl(
+            context.read<ProfileRemoteDataSource>(),
+          ),
+        ),
+        Provider<GetMyProfileUseCase>(
+          create: (context) => GetMyProfileUseCase(
+            context.read<ProfileRepository>(),
+          ),
+        ),
+        Provider<UpdateMyProfileUseCase>(
+          create: (context) => UpdateMyProfileUseCase(
+            context.read<ProfileRepository>(),
           ),
         ),
         ChangeNotifierProvider<SessionProvider>(

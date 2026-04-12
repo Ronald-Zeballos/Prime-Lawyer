@@ -8,8 +8,21 @@ datasource db {
 }
 
 enum UserRole {
+  NATURAL
   ADMIN
   LAWYER
+}
+
+enum UserType {
+  NATURAL
+  LAWYER
+  ADMIN
+}
+
+enum PlanType {
+  FREE
+  LAWYER_PRO
+  ADMIN
 }
 
 enum CaseStatus {
@@ -19,20 +32,65 @@ enum CaseStatus {
   ARCHIVED
 }
 
+enum CaseVisibility {
+  PRIVATE
+  COMMUNITY
+}
+
+enum KnowledgeStatus {
+  DRAFT
+  ELIGIBLE
+  PUBLISHED
+  EXCLUDED
+}
+
 enum ConfidentialityLevel {
   STANDARD
   CONFIDENTIAL
   HIGHLY_CONFIDENTIAL
 }
 
+enum DocumentSource {
+  CAMERA
+  GALLERY
+  FILE_UPLOAD
+}
+
 enum OCRStatus {
   PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentType {
+  SUBSCRIPTION
+  CONTRACT
+  TOKENS
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELED
+  EXPIRED
+}
+
+enum AIQueryStatus {
   COMPLETED
   FAILED
 }
 
 enum AuditEntityType {
   AUTH
+  USER_PROFILE
   CLIENT
   CASE_FILE
   DOCUMENT
@@ -51,18 +109,29 @@ model User {
   id                   String     @id @default(uuid())
   email                String     @unique
   passwordHash         String
+  displayName          String?
   firstName            String
   lastName             String
   roleId               String
+  type                 UserType   @default(NATURAL)
+  plan                 PlanType   @default(FREE)
+  tokensAvailable      Int        @default(10)
+  bio                  String?
   isActive             Boolean    @default(true)
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt
   role                 Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
   responsibleCaseFiles CaseFile[] @relation("CaseFileResponsibleUser")
+  ownedCaseFiles       CaseFile[] @relation("CaseFileOwnerUser")
   uploadedDocuments    Document[] @relation("DocumentUploadedByUser")
   auditLogs            AuditLog[] @relation("AuditPerformedByUser")
+  aiQueries            AIQuery[]
+  contractInstances    ContractInstance[]
+  payments             Payment[]
+  subscription         Subscription?
 
   @@index([roleId])
+  @@index([type, plan])
 }
 
 model Client {
@@ -85,23 +154,35 @@ model CaseFile {
   id                   String               @id @default(uuid())
   internalCode         String               @unique
   clientId             String
+  ownerUserId          String?
+  title                String?
   subject              String
+  description          String?
   processType          String
   status               CaseStatus           @default(OPEN)
   responsibleUserId    String?
   openedAt             DateTime             @default(now())
   closedAt             DateTime?
+  visibility           CaseVisibility       @default(PRIVATE)
+  knowledgeStatus      KnowledgeStatus      @default(DRAFT)
+  searchText           String?
+  publishedAt          DateTime?
   confidentialityLevel ConfidentialityLevel @default(STANDARD)
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   client               Client               @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  ownerUser            User?                @relation("CaseFileOwnerUser", fields: [ownerUserId], references: [id], onDelete: SetNull)
   responsibleUser      User?                @relation("CaseFileResponsibleUser", fields: [responsibleUserId], references: [id], onDelete: SetNull)
   documents            Document[]
   auditLogs            AuditLog[]           @relation("AuditCaseFile")
+  aiQueryLinks         AIQueryContextCase[]
+  semanticChunks       SemanticChunk[]
 
   @@index([clientId])
+  @@index([ownerUserId])
   @@index([responsibleUserId])
   @@index([status])
+  @@index([knowledgeStatus, visibility])
 }
 
 model Document {
@@ -112,17 +193,129 @@ model Document {
   storagePath  String    @unique
   hash         String
   uploadSource String
+  source       DocumentSource @default(FILE_UPLOAD)
   ocrStatus    OCRStatus @default(PENDING)
+  ocrText      String?
+  ocrProcessedAt DateTime?
   uploadedById String
   uploadedAt   DateTime  @default(now())
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   caseFile     CaseFile  @relation(fields: [caseFileId], references: [id], onDelete: Cascade)
   uploadedBy   User      @relation("DocumentUploadedByUser", fields: [uploadedById], references: [id], onDelete: Restrict)
+  semanticChunks SemanticChunk[]
 
   @@index([caseFileId, uploadedAt])
   @@index([uploadedById])
   @@index([ocrStatus])
+}
+
+model AIQuery {
+  id           String          @id @default(uuid())
+  userId       String
+  queryText    String
+  responseText String?
+  tokensUsed   Int             @default(0)
+  status       AIQueryStatus   @default(COMPLETED)
+  metadata     Json?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contextCases AIQueryContextCase[]
+
+  @@index([userId, createdAt])
+}
+
+model AIQueryContextCase {
+  id        String   @id @default(uuid())
+  aiQueryId String
+  caseFileId String
+  rank      Int
+  score     Float?
+  snippet   String?
+  createdAt DateTime @default(now())
+  aiQuery   AIQuery  @relation(fields: [aiQueryId], references: [id], onDelete: Cascade)
+  caseFile  CaseFile @relation(fields: [caseFileId], references: [id], onDelete: Cascade)
+
+  @@unique([aiQueryId, caseFileId])
+  @@index([caseFileId, rank])
+}
+
+model SemanticChunk {
+  id                String    @id @default(uuid())
+  caseFileId        String?
+  documentId        String?
+  chunkText         String
+  normalizedText    String
+  embeddingProvider String?
+  embeddingModel    String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  caseFile          CaseFile? @relation(fields: [caseFileId], references: [id], onDelete: Cascade)
+  document          Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([caseFileId])
+  @@index([documentId])
+}
+
+model ContractTemplate {
+  id          String             @id @default(uuid())
+  slug        String             @unique
+  name        String
+  description String?
+  schemaJson  Json
+  priceCents  Int
+  currency    String             @default("USD")
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  instances   ContractInstance[]
+
+  @@index([isActive])
+}
+
+model ContractInstance {
+  id            String           @id @default(uuid())
+  templateId    String
+  userId        String
+  generatedData Json
+  pdfPath       String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  template      ContractTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
+  @@index([userId, createdAt])
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  userId      String
+  type        PaymentType
+  status      PaymentStatus @default(PENDING)
+  amountCents Int
+  currency    String        @default("USD")
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([type, status])
+}
+
+model Subscription {
+  id        String             @id @default(uuid())
+  userId    String             @unique
+  plan      PlanType
+  status    SubscriptionStatus @default(ACTIVE)
+  startedAt DateTime           @default(now())
+  endsAt    DateTime?
+  metadata  Json?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AuditLog {

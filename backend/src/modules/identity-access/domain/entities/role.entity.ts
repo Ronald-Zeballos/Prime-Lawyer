@@ -1,6 +1,7 @@
 import { BaseEntity } from '../../../../shared/domain/base-entity';
 
 export enum RoleCode {
+  NATURAL = 'NATURAL',
   ADMIN = 'ADMIN',
   LAWYER = 'LAWYER',
 }

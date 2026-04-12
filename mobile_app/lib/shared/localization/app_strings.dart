@@ -71,6 +71,39 @@ class AppStrings {
   String get englishLabel => 'English';
   String get spanishLabel => 'Español';
   String get accountTitle => isSpanish ? 'Cuenta' : 'Account';
+  String get profileSectionTitle => isSpanish ? 'Perfil' : 'Profile';
+  String get profileSectionDescription => isSpanish
+      ? 'Edita tu identidad visible dentro de la plataforma.'
+      : 'Edit your visible identity inside the platform.';
+  String get profileDisplayNameLabel =>
+      isSpanish ? 'Nombre visible' : 'Display name';
+  String get profileDisplayNameTooLong => isSpanish
+      ? 'El nombre visible no puede superar 120 caracteres.'
+      : 'Display name cannot exceed 120 characters.';
+  String get profileBioLabel => isSpanish ? 'Bio' : 'Bio';
+  String get profileBioHint => isSpanish
+      ? 'Describe brevemente tu perfil o enfoque legal.'
+      : 'Briefly describe your profile or legal focus.';
+  String get profileBioTooLong => isSpanish
+      ? 'La bio no puede superar 500 caracteres.'
+      : 'Bio cannot exceed 500 characters.';
+  String get saveProfileAction =>
+      isSpanish ? 'Guardar perfil' : 'Save profile';
+  String get savingProfile =>
+      isSpanish ? 'Guardando perfil...' : 'Saving profile...';
+  String get profileSaved =>
+      isSpanish ? 'Perfil actualizado.' : 'Profile updated.';
+  String get profileTypeLabel => isSpanish ? 'Tipo' : 'Type';
+  String get profilePlanLabel => isSpanish ? 'Plan' : 'Plan';
+  String profileTokensLabel(int value) => isSpanish
+      ? 'Tokens disponibles: $value'
+      : 'Tokens available: $value';
+  String get profileUpgradeHint => isSpanish
+      ? 'El upgrade de plan llegara en un siguiente sprint.'
+      : 'Plan upgrade is coming in a later sprint.';
+  String get profileRequiresSession => isSpanish
+      ? 'Inicia sesion para ver y editar tu perfil.'
+      : 'Sign in to view and edit your profile.';
   String get notSignedInYet => isSpanish
       ? 'Todavía no iniciaste sesión.'
       : 'You are not signed in yet.';

@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { SignInUseCase } from './application/use-cases/sign-in/sign-in.use-case';
 import { GetAuthenticatedUserUseCase } from './application/use-cases/get-authenticated-user/get-authenticated-user.use-case';
+import { RegisterUserUseCase } from './application/use-cases/register-user/register-user.use-case';
 import {
   ACCESS_TOKEN_ISSUER,
 } from './application/use-cases/sign-in/sign-in.access-token-issuer';
@@ -27,6 +28,7 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
   ],
   controllers: [AuthController],
   providers: [
+    RegisterUserUseCase,
     SignInUseCase,
     GetAuthenticatedUserUseCase,
     JwtAuthGuard,

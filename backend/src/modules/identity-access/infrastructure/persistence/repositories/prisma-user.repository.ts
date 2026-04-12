@@ -35,4 +35,48 @@ export class PrismaUserRepository implements UserRepository {
 
     return UserPrismaMapper.toDomain(user);
   }
+
+  async create(user: UserEntity): Promise<UserEntity> {
+    const role = await this.prisma.role.findUniqueOrThrow({
+      where: { code: user.role.code as never },
+    });
+
+    const createdUser = await this.prisma.user.create({
+      data: {
+        id: user.id.value,
+        email: user.email.value,
+        passwordHash: user.passwordHash.value,
+        displayName: user.displayName,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        bio: user.bio,
+        roleId: role.id,
+        type: user.type as never,
+        plan: user.plan as never,
+        tokensAvailable: user.tokensAvailable,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+      include: { role: true },
+    });
+
+    return UserPrismaMapper.toDomain(createdUser);
+  }
+
+  async updateProfile(user: UserEntity): Promise<UserEntity> {
+    const updatedUser = await this.prisma.user.update({
+      where: { id: user.id.value },
+      data: {
+        displayName: user.displayName,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        bio: user.bio,
+        updatedAt: user.updatedAt,
+      },
+      include: { role: true },
+    });
+
+    return UserPrismaMapper.toDomain(updatedUser);
+  }
 }
