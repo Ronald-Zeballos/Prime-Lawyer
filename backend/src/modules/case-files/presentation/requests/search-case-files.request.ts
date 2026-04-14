@@ -8,10 +8,6 @@ export class SearchCaseFilesRequest {
   term?: string;
 
   @IsOptional()
-  @IsString()
-  clientId?: string;
-
-  @IsOptional()
   @IsEnum(CaseStatus)
   status?: CaseStatus;
 }

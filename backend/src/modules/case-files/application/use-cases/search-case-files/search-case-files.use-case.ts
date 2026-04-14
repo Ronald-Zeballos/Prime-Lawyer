@@ -8,8 +8,8 @@ import { CaseFileDto, toCaseFileDto } from '../../dto/case-file.dto';
 
 export type SearchCaseFilesQuery = {
   term?: string;
-  clientId?: string;
   status?: string;
+  ownerUserId: string;
 };
 
 @Injectable()
@@ -24,8 +24,8 @@ export class SearchCaseFilesUseCase
   async execute(query: SearchCaseFilesQuery): Promise<CaseFileDto[]> {
     const caseFiles = await this.caseFileRepository.search({
       term: query.term,
-      clientId: query.clientId,
       status: query.status,
+      ownerUserId: query.ownerUserId,
     });
 
     return caseFiles.map(toCaseFileDto);

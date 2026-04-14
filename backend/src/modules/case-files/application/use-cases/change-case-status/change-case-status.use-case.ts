@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenError } from '../../../../../shared/application/errors/forbidden.error';
 import { NotFoundError } from '../../../../../shared/application/errors/not-found.error';
 import { UseCase } from '../../../../../shared/application/use-case';
 import {
@@ -37,6 +38,10 @@ export class ChangeCaseStatusUseCase
       throw new NotFoundError('Case file was not found.');
     }
 
+    if (!caseFile.belongsTo(command.performedById)) {
+      throw new ForbiddenError('This case file cannot be updated by the current user.');
+    }
+
     const previousStatus = caseFile.status.value;
     caseFile.changeStatus(command.status);
 
@@ -49,6 +54,7 @@ export class ChangeCaseStatusUseCase
       action: 'CASE_FILE_STATUS_CHANGED',
       performedById: command.performedById,
       metadata: {
+        title: updatedCaseFile.title,
         previousStatus,
         currentStatus: updatedCaseFile.status.value,
       },

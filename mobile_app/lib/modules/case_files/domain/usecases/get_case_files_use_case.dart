@@ -8,12 +8,10 @@ class GetCaseFilesUseCase {
 
   Future<List<CaseFile>> execute({
     String? term,
-    String? clientId,
     String? status,
   }) {
     return _caseFileRepository.getCaseFiles(
       term: term,
-      clientId: clientId,
       status: status,
     );
   }

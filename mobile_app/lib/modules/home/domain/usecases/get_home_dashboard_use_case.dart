@@ -28,10 +28,6 @@ class GetHomeDashboardUseCase {
     final sortedCaseFiles = [...caseFiles]
       ..sort((left, right) => right.createdAt.compareTo(left.createdAt));
 
-    final clientNamesById = <String, String>{
-      for (final client in clients) client.id: client.fullName,
-    };
-
     final activeCaseFilesCount = caseFiles.where((caseFile) {
       return caseFile.status == 'OPEN' || caseFile.status == 'IN_PROGRESS';
     }).length;
@@ -42,7 +38,6 @@ class GetHomeDashboardUseCase {
       activeCaseFilesCount: activeCaseFilesCount,
       recentClients: sortedClients.take(3).toList(growable: false),
       recentCaseFiles: sortedCaseFiles.take(3).toList(growable: false),
-      clientNamesById: clientNamesById,
     );
   }
 }

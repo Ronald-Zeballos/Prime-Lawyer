@@ -15,21 +15,18 @@ export class CreateCaseFileRequest {
 
   @IsString()
   @IsNotEmpty()
-  clientId!: string;
+  @MaxLength(160)
+  title!: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(200)
-  subject!: string;
+  @MaxLength(2000)
+  description?: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
   processType!: string;
-
-  @IsOptional()
-  @IsString()
-  responsibleUserId?: string;
 
   @IsOptional()
   @IsEnum(ConfidentialityLevel)

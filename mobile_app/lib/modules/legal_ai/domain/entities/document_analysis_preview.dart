@@ -6,7 +6,7 @@ class DocumentAnalysisPreview {
     required this.summary,
     required this.sourceCaseFileId,
     required this.sourceCaseInternalCode,
-    required this.sourceCaseSubject,
+    required this.sourceCaseTitle,
     required this.sourceProcessType,
     required this.sourceStatus,
     required this.sourceConfidentialityLevel,
@@ -25,7 +25,7 @@ class DocumentAnalysisPreview {
   final String summary;
   final String sourceCaseFileId;
   final String sourceCaseInternalCode;
-  final String sourceCaseSubject;
+  final String sourceCaseTitle;
   final String sourceProcessType;
   final String sourceStatus;
   final String sourceConfidentialityLevel;

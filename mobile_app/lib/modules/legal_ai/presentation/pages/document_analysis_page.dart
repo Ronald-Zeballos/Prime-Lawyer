@@ -148,7 +148,7 @@ class _DocumentAnalysisView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(analysis.sourceCaseSubject),
+                    Text(analysis.sourceCaseTitle),
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
@@ -379,7 +379,7 @@ class _MatchCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            match.subject,
+            match.title,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),

@@ -42,10 +42,9 @@ export class CaseFilesController {
   ): Promise<CaseFileResponse> {
     const caseFile = await this.createCaseFileUseCase.execute({
       internalCode: request.internalCode,
-      clientId: request.clientId,
-      subject: request.subject,
+      title: request.title,
+      description: request.description,
       processType: request.processType,
-      responsibleUserId: request.responsibleUserId,
       confidentialityLevel: request.confidentialityLevel,
       performedById: httpRequest.user.id,
     });
@@ -56,19 +55,32 @@ export class CaseFilesController {
   @Get()
   async search(
     @Query() request: SearchCaseFilesRequest,
+    @Req()
+    httpRequest: Request & {
+      user: AuthenticatedUserDto;
+    },
   ): Promise<CaseFilesListResponse> {
     const caseFiles = await this.searchCaseFilesUseCase.execute({
       term: request.term,
-      clientId: request.clientId,
       status: request.status,
+      ownerUserId: httpRequest.user.id,
     });
 
     return CaseFilesListResponse.fromDto(caseFiles);
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string): Promise<CaseFileResponse> {
-    const caseFile = await this.getCaseFileUseCase.execute({ id });
+  async getById(
+    @Param('id') id: string,
+    @Req()
+    httpRequest: Request & {
+      user: AuthenticatedUserDto;
+    },
+  ): Promise<CaseFileResponse> {
+    const caseFile = await this.getCaseFileUseCase.execute({
+      id,
+      requesterId: httpRequest.user.id,
+    });
 
     return CaseFileResponse.fromDto(caseFile);
   }

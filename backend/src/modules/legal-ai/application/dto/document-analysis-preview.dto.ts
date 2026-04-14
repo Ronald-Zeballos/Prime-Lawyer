@@ -1,7 +1,7 @@
 export type DocumentAnalysisPreviewSourceCaseFileDto = {
   id: string;
   internalCode: string;
-  subject: string;
+  title: string;
   processType: string;
   status: string;
   confidentialityLevel: string;
@@ -18,7 +18,7 @@ export type DocumentAnalysisPreviewSourceDocumentDto = {
 export type DocumentAnalysisPreviewMatchDto = {
   caseFileId: string;
   internalCode: string;
-  subject: string;
+  title: string;
   processType: string;
   status: string;
   score: number;

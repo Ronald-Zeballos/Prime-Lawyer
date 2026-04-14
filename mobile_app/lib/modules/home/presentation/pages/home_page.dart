@@ -237,8 +237,6 @@ class _HomeView extends StatelessWidget {
                         for (final caseFile in dashboard.recentCaseFiles)
                           _RecentCaseFileTile(
                             caseFile: caseFile,
-                            clientLabel:
-                                dashboard.clientLabelFor(caseFile.clientId),
                             onOpen: () {
                               Navigator.of(context).pushNamed(
                                 AppRoutes.caseFileDetail,
@@ -466,12 +464,10 @@ class _RecentClientTile extends StatelessWidget {
 class _RecentCaseFileTile extends StatelessWidget {
   const _RecentCaseFileTile({
     required this.caseFile,
-    required this.clientLabel,
     required this.onOpen,
   });
 
   final CaseFile caseFile;
-  final String clientLabel;
   final VoidCallback onOpen;
 
   @override
@@ -503,13 +499,19 @@ class _RecentCaseFileTile extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              caseFile.subject,
+              caseFile.title,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
-            const SizedBox(height: 4),
-            Text('Client: $clientLabel'),
+            if ((caseFile.description ?? '').isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                caseFile.description!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
             const SizedBox(height: 4),
             Text('Opened ${_formatDashboardDate(caseFile.openedAt)}'),
             const SizedBox(height: 12),

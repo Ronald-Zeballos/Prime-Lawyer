@@ -33,7 +33,9 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
   async search(filters?: SearchCaseFilesFilters): Promise<CaseFileEntity[]> {
     const normalizedTerm = filters?.term?.trim();
     const where: Prisma.CaseFileWhereInput = {
-      ...(filters?.clientId ? { clientId: filters.clientId.trim() } : {}),
+      ...(filters?.ownerUserId
+        ? { ownerUserId: filters.ownerUserId.trim() }
+        : {}),
       ...(filters?.status
         ? { status: CaseStatusValue.create(filters.status).value }
         : {}),
@@ -50,13 +52,25 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
                 },
               },
               {
-                subject: {
+                title: {
+                  contains: normalizedTerm,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                description: {
                   contains: normalizedTerm,
                   mode: 'insensitive',
                 },
               },
               {
                 processType: {
+                  contains: normalizedTerm,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                searchText: {
                   contains: normalizedTerm,
                   mode: 'insensitive',
                 },
@@ -79,13 +93,19 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
       data: {
         id: caseFile.id.value,
         internalCode: caseFile.internalCode,
-        clientId: caseFile.clientId,
-        subject: caseFile.subject,
+        clientId: null,
+        ownerUserId: caseFile.ownerUserId,
+        title: caseFile.title,
+        subject: caseFile.title,
+        description: caseFile.description,
         processType: caseFile.processType,
         status: caseFile.status.value,
         responsibleUserId: caseFile.responsibleUserId,
         openedAt: caseFile.openedAt,
         closedAt: caseFile.closedAt,
+        visibility: caseFile.visibility,
+        knowledgeStatus: caseFile.knowledgeStatus,
+        searchText: caseFile.searchText,
         confidentialityLevel: caseFile.confidentialityLevel.value,
         createdAt: caseFile.createdAt,
         updatedAt: caseFile.updatedAt,
@@ -100,14 +120,20 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
       where: { id: caseFile.id.value },
       data: {
         internalCode: caseFile.internalCode,
-        clientId: caseFile.clientId,
-        subject: caseFile.subject,
+        ownerUserId: caseFile.ownerUserId,
+        title: caseFile.title,
+        subject: caseFile.title,
+        description: caseFile.description,
         processType: caseFile.processType,
         status: caseFile.status.value,
         responsibleUserId: caseFile.responsibleUserId,
         openedAt: caseFile.openedAt,
         closedAt: caseFile.closedAt,
+        visibility: caseFile.visibility,
+        knowledgeStatus: caseFile.knowledgeStatus,
+        searchText: caseFile.searchText,
         confidentialityLevel: caseFile.confidentialityLevel.value,
+        updatedAt: caseFile.updatedAt,
       },
     });
 

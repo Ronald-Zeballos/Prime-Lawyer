@@ -14,7 +14,7 @@ class LegalAiMapper {
       summary: model.summary,
       sourceCaseFileId: model.sourceCaseFileId,
       sourceCaseInternalCode: model.sourceCaseInternalCode,
-      sourceCaseSubject: model.sourceCaseSubject,
+      sourceCaseTitle: model.sourceCaseTitle,
       sourceProcessType: model.sourceProcessType,
       sourceStatus: model.sourceStatus,
       sourceConfidentialityLevel: model.sourceConfidentialityLevel,
@@ -36,7 +36,7 @@ class LegalAiMapper {
     return DocumentAnalysisMatch(
       caseFileId: model.caseFileId,
       internalCode: model.internalCode,
-      subject: model.subject,
+      title: model.title,
       processType: model.processType,
       status: model.status,
       score: model.score,

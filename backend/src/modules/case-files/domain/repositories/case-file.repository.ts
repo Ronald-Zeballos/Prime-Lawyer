@@ -5,8 +5,8 @@ export const CASE_FILE_REPOSITORY = Symbol('CASE_FILE_REPOSITORY');
 
 export type SearchCaseFilesFilters = {
   term?: string;
-  clientId?: string;
   status?: string;
+  ownerUserId?: string;
   responsibleUserId?: string;
 };
 

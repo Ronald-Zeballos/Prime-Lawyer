@@ -2,7 +2,7 @@ class DocumentAnalysisMatchModel {
   const DocumentAnalysisMatchModel({
     required this.caseFileId,
     required this.internalCode,
-    required this.subject,
+    required this.title,
     required this.processType,
     required this.status,
     required this.score,
@@ -11,7 +11,7 @@ class DocumentAnalysisMatchModel {
 
   final String caseFileId;
   final String internalCode;
-  final String subject;
+  final String title;
   final String processType;
   final String status;
   final int score;
@@ -21,7 +21,7 @@ class DocumentAnalysisMatchModel {
     return DocumentAnalysisMatchModel(
       caseFileId: json['caseFileId'] as String? ?? '',
       internalCode: json['internalCode'] as String? ?? '',
-      subject: json['subject'] as String? ?? '',
+      title: json['title'] as String? ?? '',
       processType: json['processType'] as String? ?? '',
       status: json['status'] as String? ?? '',
       score: (json['score'] as num?)?.round() ?? 0,

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
-import '../../../clients/domain/usecases/get_clients_use_case.dart';
 import '../../../documents/presentation/pages/documents_page.dart';
 import '../../domain/usecases/get_case_file_detail_use_case.dart';
 import '../controllers/case_file_detail_controller.dart';
@@ -21,7 +20,6 @@ class CaseFileDetailPage extends StatelessWidget {
     return ChangeNotifierProvider<CaseFileDetailController>(
       create: (context) => CaseFileDetailController(
         getCaseFileDetailUseCase: context.read<GetCaseFileDetailUseCase>(),
-        getClientsUseCase: context.read<GetClientsUseCase>(),
       )..load(caseFileId),
       child: const _CaseFileDetailView(),
     );
@@ -77,19 +75,18 @@ class _CaseFileDetailView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        caseFile.internalCode,
+                        caseFile.displayLabel,
                         style: Theme.of(context)
                             .textTheme
                             .headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 8),
-                      Text(caseFile.subject),
+                      if ((caseFile.description ?? '').isNotEmpty)
+                        Text(caseFile.description!),
+                      if ((caseFile.description ?? '').isNotEmpty)
+                        const SizedBox(height: 16),
                       const SizedBox(height: 16),
-                      _DetailLine(
-                        label: strings.clientLabel,
-                        value: controller.clientLabel ?? caseFile.clientId,
-                      ),
                       _DetailLine(
                         label: strings.processTypeDetailLabel,
                         value: caseFile.processType,
@@ -103,6 +100,14 @@ class _CaseFileDetailView extends StatelessWidget {
                         value: strings.confidentialityLevel(
                           caseFile.confidentialityLevel,
                         ),
+                      ),
+                      _DetailLine(
+                        label: strings.caseVisibilityLabel,
+                        value: strings.caseVisibility(caseFile.visibility),
+                      ),
+                      _DetailLine(
+                        label: strings.knowledgeStatusLabel,
+                        value: strings.knowledgeStatus(caseFile.knowledgeStatus),
                       ),
                       _DetailLine(
                         label: strings.openedAtLabel,
@@ -121,7 +126,7 @@ class _CaseFileDetailView extends StatelessWidget {
                             AppRoutes.documents,
                             arguments: DocumentsPageArgs(
                               caseFileId: caseFile.id,
-                              caseFileTitle: caseFile.internalCode,
+                              caseFileTitle: caseFile.displayLabel,
                             ),
                           );
                         },

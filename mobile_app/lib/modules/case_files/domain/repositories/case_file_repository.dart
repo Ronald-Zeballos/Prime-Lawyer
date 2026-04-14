@@ -3,15 +3,15 @@ import '../entities/case_file.dart';
 class CreateCaseFileInput {
   const CreateCaseFileInput({
     required this.internalCode,
-    required this.clientId,
-    required this.subject,
+    required this.title,
+    required this.description,
     required this.processType,
     required this.confidentialityLevel,
   });
 
   final String internalCode;
-  final String clientId;
-  final String subject;
+  final String title;
+  final String? description;
   final String processType;
   final String confidentialityLevel;
 }
@@ -19,7 +19,6 @@ class CreateCaseFileInput {
 abstract class CaseFileRepository {
   Future<List<CaseFile>> getCaseFiles({
     String? term,
-    String? clientId,
     String? status,
   });
 

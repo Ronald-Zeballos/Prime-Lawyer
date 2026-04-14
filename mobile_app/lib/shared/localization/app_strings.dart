@@ -422,6 +422,50 @@ class AppStrings {
     }
   }
 
+  String get noCaseFilesListDescription => isSpanish
+      ? 'Crea tu primer caso para empezar a cargar documentos y analisis.'
+      : 'Create your first case to start adding documents and analysis.';
+
+  String get caseTitleLabel => isSpanish ? 'Titulo del caso' : 'Case title';
+  String get caseTitleRequiredError => isSpanish
+      ? 'El titulo del caso es obligatorio.'
+      : 'Case title is required.';
+  String get caseDescriptionLabel =>
+      isSpanish ? 'Descripcion' : 'Description';
+  String get caseDescriptionHint => isSpanish
+      ? 'Resume hechos, contexto y objetivo legal.'
+      : 'Summarize facts, context and legal goal.';
+  String get caseVisibilityLabel =>
+      isSpanish ? 'Visibilidad' : 'Visibility';
+  String get knowledgeStatusLabel =>
+      isSpanish ? 'Estado de conocimiento' : 'Knowledge status';
+
+  String caseVisibility(String value) {
+    switch (value) {
+      case 'PRIVATE':
+        return isSpanish ? 'PRIVADO' : 'PRIVATE';
+      case 'COMMUNITY':
+        return isSpanish ? 'COMUNIDAD' : 'COMMUNITY';
+      default:
+        return value;
+    }
+  }
+
+  String knowledgeStatus(String value) {
+    switch (value) {
+      case 'DRAFT':
+        return isSpanish ? 'BORRADOR' : 'DRAFT';
+      case 'ELIGIBLE':
+        return isSpanish ? 'ELEGIBLE' : 'ELIGIBLE';
+      case 'PUBLISHED':
+        return isSpanish ? 'PUBLICADO' : 'PUBLISHED';
+      case 'EXCLUDED':
+        return isSpanish ? 'EXCLUIDO' : 'EXCLUDED';
+      default:
+        return value;
+    }
+  }
+
   String formatShortDate(DateTime value) {
     final monthNames = isSpanish
         ? const <int, String>{

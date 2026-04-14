@@ -2,7 +2,7 @@ class DocumentAnalysisMatch {
   const DocumentAnalysisMatch({
     required this.caseFileId,
     required this.internalCode,
-    required this.subject,
+    required this.title,
     required this.processType,
     required this.status,
     required this.score,
@@ -11,7 +11,7 @@ class DocumentAnalysisMatch {
 
   final String caseFileId;
   final String internalCode;
-  final String subject;
+  final String title;
   final String processType;
   final String status;
   final int score;

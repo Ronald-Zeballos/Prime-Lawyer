@@ -8,15 +8,12 @@ class CaseFilesRemoteDataSource {
 
   Future<List<CaseFileModel>> getCaseFiles({
     String? term,
-    String? clientId,
     String? status,
   }) async {
     final response = await _apiClient.get(
       '/case-files',
       queryParameters: {
         if (term != null && term.trim().isNotEmpty) 'term': term.trim(),
-        if (clientId != null && clientId.trim().isNotEmpty)
-          'clientId': clientId.trim(),
         if (status != null && status.trim().isNotEmpty) 'status': status.trim(),
       },
     );
@@ -30,8 +27,8 @@ class CaseFilesRemoteDataSource {
 
   Future<CaseFileModel> createCaseFile({
     required String internalCode,
-    required String clientId,
-    required String subject,
+    required String title,
+    String? description,
     required String processType,
     required String confidentialityLevel,
   }) async {
@@ -39,8 +36,8 @@ class CaseFilesRemoteDataSource {
       '/case-files',
       body: {
         'internalCode': internalCode,
-        'clientId': clientId,
-        'subject': subject,
+        'title': title,
+        'description': description,
         'processType': processType,
         'confidentialityLevel': confidentialityLevel,
       },

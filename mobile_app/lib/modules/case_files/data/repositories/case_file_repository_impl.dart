@@ -12,8 +12,8 @@ class CaseFileRepositoryImpl implements CaseFileRepository {
   Future<CaseFile> createCaseFile(CreateCaseFileInput input) async {
     final caseFileModel = await _remoteDataSource.createCaseFile(
       internalCode: input.internalCode,
-      clientId: input.clientId,
-      subject: input.subject,
+      title: input.title,
+      description: input.description,
       processType: input.processType,
       confidentialityLevel: input.confidentialityLevel,
     );
@@ -31,12 +31,10 @@ class CaseFileRepositoryImpl implements CaseFileRepository {
   @override
   Future<List<CaseFile>> getCaseFiles({
     String? term,
-    String? clientId,
     String? status,
   }) async {
     final caseFileModels = await _remoteDataSource.getCaseFiles(
       term: term,
-      clientId: clientId,
       status: status,
     );
 

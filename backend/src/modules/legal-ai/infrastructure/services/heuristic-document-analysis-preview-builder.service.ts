@@ -29,12 +29,12 @@ export class HeuristicDocumentAnalysisPreviewBuilderService
     return {
       mode: 'PREVIEW',
       summary: matches.length > 0
-        ? `Preview analysis found ${matches.length} potentially related case files using matter, process type and document naming patterns.`
+        ? `Preview analysis found ${matches.length} potentially related cases using title, process type and document naming patterns.`
         : 'Preview analysis did not find strong metadata matches yet. Add more case files or richer case naming to improve early retrieval.',
       sourceCaseFile: {
         id: sourceCaseFile.id.value,
         internalCode: sourceCaseFile.internalCode,
-        subject: sourceCaseFile.subject,
+        title: sourceCaseFile.title,
         processType: sourceCaseFile.processType,
         status: sourceCaseFile.status.value,
         confidentialityLevel: sourceCaseFile.confidentialityLevel.value,
@@ -47,8 +47,8 @@ export class HeuristicDocumentAnalysisPreviewBuilderService
         uploadSource: sourceDocument.uploadSource,
       },
       highlights: [
-        `Source case file: ${sourceCaseFile.internalCode}.`,
-        `Main matter detected from metadata: ${sourceCaseFile.subject}.`,
+        `Source case: ${sourceCaseFile.internalCode}.`,
+        `Case title detected from metadata: ${sourceCaseFile.title}.`,
         `Process type detected from metadata: ${sourceCaseFile.processType}.`,
         `Document is currently stored as ${sourceDocument.fileType.value} with OCR status ${sourceDocument.ocrStatus}.`,
       ],
@@ -72,10 +72,10 @@ export class HeuristicDocumentAnalysisPreviewBuilderService
     candidateCaseFile: BuildDocumentAnalysisPreviewCommand['candidateCaseFiles'][number],
   ): DocumentAnalysisPreviewMatchDto | null {
     const sourceTokens = this.tokenize(
-      `${sourceCaseFile.subject} ${sourceCaseFile.processType} ${sourceDocumentName}`,
+      `${sourceCaseFile.title} ${sourceCaseFile.processType} ${sourceDocumentName}`,
     );
     const candidateTokens = this.tokenize(
-      `${candidateCaseFile.subject} ${candidateCaseFile.processType} ${candidateCaseFile.internalCode}`,
+      `${candidateCaseFile.title} ${candidateCaseFile.processType} ${candidateCaseFile.internalCode}`,
     );
     const sharedTokens = [...sourceTokens].filter((token) =>
       candidateTokens.has(token),
@@ -92,11 +92,11 @@ export class HeuristicDocumentAnalysisPreviewBuilderService
     }
 
     if (
-      this.normalize(sourceCaseFile.subject) ===
-      this.normalize(candidateCaseFile.subject)
+      this.normalize(sourceCaseFile.title) ===
+      this.normalize(candidateCaseFile.title)
     ) {
       score += 24;
-      reasons.push('Very close matter label.');
+      reasons.push('Very close case title.');
     }
 
     if (sharedTokens.length > 0) {
@@ -127,7 +127,7 @@ export class HeuristicDocumentAnalysisPreviewBuilderService
     return {
       caseFileId: candidateCaseFile.id.value,
       internalCode: candidateCaseFile.internalCode,
-      subject: candidateCaseFile.subject,
+      title: candidateCaseFile.title,
       processType: candidateCaseFile.processType,
       status: candidateCaseFile.status.value,
       score,

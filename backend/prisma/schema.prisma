@@ -153,10 +153,10 @@ model Client {
 model CaseFile {
   id                   String               @id @default(uuid())
   internalCode         String               @unique
-  clientId             String
-  ownerUserId          String?
-  title                String?
-  subject              String
+  clientId             String?
+  ownerUserId          String
+  title                String
+  subject              String?
   description          String?
   processType          String
   status               CaseStatus           @default(OPEN)
@@ -170,8 +170,8 @@ model CaseFile {
   confidentialityLevel ConfidentialityLevel @default(STANDARD)
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
-  client               Client               @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  ownerUser            User?                @relation("CaseFileOwnerUser", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  client               Client?              @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  ownerUser            User                 @relation("CaseFileOwnerUser", fields: [ownerUserId], references: [id], onDelete: Cascade)
   responsibleUser      User?                @relation("CaseFileResponsibleUser", fields: [responsibleUserId], references: [id], onDelete: SetNull)
   documents            Document[]
   auditLogs            AuditLog[]           @relation("AuditCaseFile")

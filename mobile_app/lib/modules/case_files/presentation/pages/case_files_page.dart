@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
-import '../../../clients/domain/usecases/get_clients_use_case.dart';
 import '../../domain/usecases/create_case_file_use_case.dart';
 import '../../domain/usecases/get_case_files_use_case.dart';
 import '../controllers/case_files_controller.dart';
@@ -19,7 +18,6 @@ class CaseFilesPage extends StatelessWidget {
       create: (context) => CaseFilesController(
         getCaseFilesUseCase: context.read<GetCaseFilesUseCase>(),
         createCaseFileUseCase: context.read<CreateCaseFileUseCase>(),
-        getClientsUseCase: context.read<GetClientsUseCase>(),
       )..loadInitialData(),
       child: const _CaseFilesView(),
     );
@@ -103,10 +101,7 @@ class _CaseFilesView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          controller.hasAvailableClients
-                              ? strings.noCaseFilesListWithClientsDescription
-                              : strings
-                                  .noCaseFilesListWithoutClientsDescription,
+                          strings.noCaseFilesListDescription,
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -125,7 +120,6 @@ class _CaseFilesView extends StatelessWidget {
 
                       return CaseFileListItem(
                         caseFile: caseFile,
-                        clientLabel: controller.clientLabelFor(caseFile.clientId),
                         onTap: () {
                           Navigator.of(context).pushNamed(
                             AppRoutes.caseFileDetail,
@@ -155,7 +149,6 @@ class _CaseFilesView extends StatelessWidget {
         value: controller,
         child: Consumer<CaseFilesController>(
           builder: (context, value, _) => CreateCaseFileSheet(
-            availableClients: value.availableClients,
             isSubmitting: value.isSubmitting,
             errorMessage: value.errorMessage,
             onSubmit: value.createCaseFile,

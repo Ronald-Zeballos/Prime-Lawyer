@@ -6,7 +6,7 @@ class DocumentAnalysisPreviewModel {
     required this.summary,
     required this.sourceCaseFileId,
     required this.sourceCaseInternalCode,
-    required this.sourceCaseSubject,
+    required this.sourceCaseTitle,
     required this.sourceProcessType,
     required this.sourceStatus,
     required this.sourceConfidentialityLevel,
@@ -25,7 +25,7 @@ class DocumentAnalysisPreviewModel {
   final String summary;
   final String sourceCaseFileId;
   final String sourceCaseInternalCode;
-  final String sourceCaseSubject;
+  final String sourceCaseTitle;
   final String sourceProcessType;
   final String sourceStatus;
   final String sourceConfidentialityLevel;
@@ -50,7 +50,7 @@ class DocumentAnalysisPreviewModel {
       summary: json['summary'] as String? ?? '',
       sourceCaseFileId: sourceCaseFile['id'] as String? ?? '',
       sourceCaseInternalCode: sourceCaseFile['internalCode'] as String? ?? '',
-      sourceCaseSubject: sourceCaseFile['subject'] as String? ?? '',
+      sourceCaseTitle: sourceCaseFile['title'] as String? ?? '',
       sourceProcessType: sourceCaseFile['processType'] as String? ?? '',
       sourceStatus: sourceCaseFile['status'] as String? ?? '',
       sourceConfidentialityLevel:

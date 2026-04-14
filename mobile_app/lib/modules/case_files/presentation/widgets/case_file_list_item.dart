@@ -7,12 +7,10 @@ class CaseFileListItem extends StatelessWidget {
   const CaseFileListItem({
     super.key,
     required this.caseFile,
-    required this.clientLabel,
     required this.onTap,
   });
 
   final CaseFile caseFile;
-  final String clientLabel;
   final VoidCallback onTap;
 
   @override
@@ -36,15 +34,19 @@ class CaseFileListItem extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 6),
-              Text(caseFile.subject),
+              Text(caseFile.title),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _InfoChip(label: clientLabel),
                   _InfoChip(label: strings.caseStatus(caseFile.status)),
                   _InfoChip(label: caseFile.processType),
+                  _InfoChip(
+                    label: strings.confidentialityLevel(
+                      caseFile.confidentialityLevel,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -67,7 +69,7 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFE9EEE7),
+        color: const Color(0xFFF2E4D2),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(label),

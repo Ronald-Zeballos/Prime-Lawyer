@@ -7,15 +7,30 @@ import {
   ConfidentialityLevelValue,
 } from '../value-objects/confidentiality-level.vo';
 
+export enum CaseVisibility {
+  PRIVATE = 'PRIVATE',
+  COMMUNITY = 'COMMUNITY',
+}
+
+export enum KnowledgeStatus {
+  DRAFT = 'DRAFT',
+  ELIGIBLE = 'ELIGIBLE',
+  PUBLISHED = 'PUBLISHED',
+  EXCLUDED = 'EXCLUDED',
+}
+
 type CaseFileEntityProps = {
   internalCode: string;
-  clientId: string;
-  subject: string;
+  ownerUserId: string;
+  title: string;
+  description: string | null;
   processType: string;
   status: CaseStatusValue;
   responsibleUserId: string | null;
   openedAt: Date;
   closedAt: Date | null;
+  visibility: CaseVisibility;
+  knowledgeStatus: KnowledgeStatus;
   confidentialityLevel: ConfidentialityLevelValue;
   createdAt: Date;
   updatedAt: Date;
@@ -24,13 +39,16 @@ type CaseFileEntityProps = {
 type CreateCaseFileEntityProps = {
   id: string;
   internalCode: string;
-  clientId: string;
-  subject: string;
+  ownerUserId: string;
+  title: string;
+  description?: string | null;
   processType: string;
   status?: string;
   responsibleUserId?: string | null;
   openedAt?: Date;
   closedAt?: Date | null;
+  visibility?: string;
+  knowledgeStatus?: string;
   confidentialityLevel?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -44,13 +62,16 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
   static create(props: CreateCaseFileEntityProps): CaseFileEntity {
     return new CaseFileEntity(CaseFileId.create(props.id), {
       internalCode: this.normalizeRequiredText(props.internalCode, 'Internal code'),
-      clientId: this.normalizeRequiredText(props.clientId, 'Client id'),
-      subject: this.normalizeRequiredText(props.subject, 'Subject'),
+      ownerUserId: this.normalizeRequiredText(props.ownerUserId, 'Owner user id'),
+      title: this.normalizeRequiredText(props.title, 'Case title'),
+      description: this.normalizeOptionalText(props.description),
       processType: this.normalizeRequiredText(props.processType, 'Process type'),
       status: CaseStatusValue.create(props.status ?? CaseStatus.OPEN),
       responsibleUserId: this.normalizeOptionalId(props.responsibleUserId),
       openedAt: props.openedAt ?? new Date(),
       closedAt: props.closedAt ?? null,
+      visibility: this.normalizeVisibility(props.visibility),
+      knowledgeStatus: this.normalizeKnowledgeStatus(props.knowledgeStatus),
       confidentialityLevel: ConfidentialityLevelValue.create(
         props.confidentialityLevel ?? ConfidentialityLevel.STANDARD,
       ),
@@ -63,6 +84,7 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
     const nextStatus = CaseStatusValue.create(status);
 
     this.props.status = nextStatus;
+    this.touch();
 
     if (
       nextStatus.value === CaseStatus.CLOSED ||
@@ -79,12 +101,16 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
     return this.props.internalCode;
   }
 
-  get clientId(): string {
-    return this.props.clientId;
+  get ownerUserId(): string {
+    return this.props.ownerUserId;
   }
 
-  get subject(): string {
-    return this.props.subject;
+  get title(): string {
+    return this.props.title;
+  }
+
+  get description(): string | null {
+    return this.props.description;
   }
 
   get processType(): string {
@@ -107,6 +133,14 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
     return this.props.closedAt;
   }
 
+  get visibility(): CaseVisibility {
+    return this.props.visibility;
+  }
+
+  get knowledgeStatus(): KnowledgeStatus {
+    return this.props.knowledgeStatus;
+  }
+
   get confidentialityLevel(): ConfidentialityLevelValue {
     return this.props.confidentialityLevel;
   }
@@ -117,6 +151,22 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
 
   get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+
+  get searchText(): string {
+    return [
+      this.props.internalCode,
+      this.props.title,
+      this.props.description ?? '',
+      this.props.processType,
+    ]
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0)
+      .join(' | ');
+  }
+
+  belongsTo(userId: string): boolean {
+    return this.props.ownerUserId === userId.trim();
   }
 
   private static normalizeRequiredText(value: string, fieldName: string): string {
@@ -137,5 +187,39 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
     const normalizedValue = value.trim();
 
     return normalizedValue ? normalizedValue : null;
+  }
+
+  private static normalizeOptionalText(value?: string | null): string | null {
+    if (value === undefined || value === null) {
+      return null;
+    }
+
+    const normalizedValue = value.trim();
+
+    return normalizedValue ? normalizedValue : null;
+  }
+
+  private static normalizeVisibility(value?: string): CaseVisibility {
+    const normalizedValue = (value ?? CaseVisibility.PRIVATE).trim().toUpperCase();
+
+    if (normalizedValue in CaseVisibility) {
+      return normalizedValue as CaseVisibility;
+    }
+
+    throw new DomainValidationError('Case visibility is invalid.');
+  }
+
+  private static normalizeKnowledgeStatus(value?: string): KnowledgeStatus {
+    const normalizedValue = (value ?? KnowledgeStatus.DRAFT).trim().toUpperCase();
+
+    if (normalizedValue in KnowledgeStatus) {
+      return normalizedValue as KnowledgeStatus;
+    }
+
+    throw new DomainValidationError('Knowledge status is invalid.');
+  }
+
+  private touch(updatedAt?: Date): void {
+    this.props.updatedAt = updatedAt ?? new Date();
   }
 }
