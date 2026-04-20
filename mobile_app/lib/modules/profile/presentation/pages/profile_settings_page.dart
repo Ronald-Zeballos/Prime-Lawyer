@@ -31,6 +31,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   late final TextEditingController _bioController;
   String? _lastSyncedApiBaseUrl;
   String? _lastSyncedProfileSignature;
+  String? _apiFeedbackMessage;
+  bool _apiFeedbackIsError = false;
+  bool _isApiActionInProgress = false;
 
   @override
   void initState() {
@@ -46,8 +49,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final currentApiBaseUrl =
-        context.read<ApiBaseUrlProvider>().currentApiBaseUrl;
+    final apiBaseUrlProvider = context.read<ApiBaseUrlProvider>();
+    final currentApiBaseUrl = apiBaseUrlProvider.hasManualOverride
+        ? apiBaseUrlProvider.currentApiBaseUrl
+        : '';
 
     if (_lastSyncedApiBaseUrl == currentApiBaseUrl) {
       return;
@@ -93,6 +98,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           final profileController = context.watch<ProfileController>();
           final profile = profileController.profile;
           final isAuthenticated = sessionProvider.isAuthenticated;
+          final resolvedApiBaseUrl =
+              apiBaseUrlProvider.currentApiBaseUrl.trim();
+          final displayedApiBaseUrl = resolvedApiBaseUrl.isEmpty
+              ? strings.apiAutoDetecting
+              : resolvedApiBaseUrl;
+          final apiModeLabel = apiBaseUrlProvider.hasManualOverride
+              ? strings.apiCurrentModeManual
+              : strings.apiCurrentModeAuto;
 
           _syncProfileFields(profile);
 
@@ -137,11 +150,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('${strings.profileTypeLabel}: ${profile.type}'),
+                                Text(
+                                    '${strings.profileTypeLabel}: ${profile.type}'),
                                 const SizedBox(height: 6),
-                                Text('${strings.profilePlanLabel}: ${profile.plan}'),
+                                Text(
+                                    '${strings.profilePlanLabel}: ${profile.plan}'),
                                 const SizedBox(height: 6),
-                                Text(strings.profileTokensLabel(profile.tokensAvailable)),
+                                Text(strings.profileTokensLabel(
+                                    profile.tokensAvailable)),
                               ],
                             ),
                           ),
@@ -226,11 +242,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                   TextFormField(
                                     controller: _displayNameController,
                                     decoration: InputDecoration(
-                                      labelText: strings.profileDisplayNameLabel,
+                                      labelText:
+                                          strings.profileDisplayNameLabel,
                                     ),
                                     validator: (value) {
                                       if ((value?.trim().length ?? 0) > 120) {
-                                        return strings.profileDisplayNameTooLong;
+                                        return strings
+                                            .profileDisplayNameTooLong;
                                       }
 
                                       return null;
@@ -243,7 +261,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                       labelText: strings.firstNameLabel,
                                     ),
                                     validator: (value) {
-                                      final normalizedValue = value?.trim() ?? '';
+                                      final normalizedValue =
+                                          value?.trim() ?? '';
 
                                       if (normalizedValue.isEmpty) {
                                         return strings.firstNameRequiredError;
@@ -259,7 +278,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                       labelText: strings.lastNameLabel,
                                     ),
                                     validator: (value) {
-                                      final normalizedValue = value?.trim() ?? '';
+                                      final normalizedValue =
+                                          value?.trim() ?? '';
 
                                       if (normalizedValue.isEmpty) {
                                         return strings.lastNameRequiredError;
@@ -369,8 +389,34 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             color: const Color(0xFFF7F2EA),
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Text(apiBaseUrlProvider.currentApiBaseUrl),
+                          child: Text(displayedApiBaseUrl),
                         ),
+                        const SizedBox(height: 12),
+                        Text(
+                          apiModeLabel,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        if (apiBaseUrlProvider.isResolving) ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  strings.apiAutoDetecting,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         Text(
                           strings.realDeviceApiHint,
@@ -388,6 +434,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 decoration: InputDecoration(
                                   labelText: strings.apiBaseUrlLabel,
                                   hintText: strings.apiBaseUrlHint,
+                                  helperText: strings.apiManualOverrideHint,
                                 ),
                                 validator: (value) {
                                   final normalizedValue = value?.trim() ?? '';
@@ -396,7 +443,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                     return strings.apiBaseUrlRequiredError;
                                   }
 
-                                  final parsedUri = Uri.tryParse(normalizedValue);
+                                  final parsedUri =
+                                      Uri.tryParse(normalizedValue);
 
                                   if (parsedUri == null ||
                                       !parsedUri.hasScheme ||
@@ -409,22 +457,49 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               ),
                               const SizedBox(height: 16),
                               FilledButton.icon(
-                                onPressed: () => _saveApiBaseUrl(context),
+                                onPressed: _isApiActionInProgress
+                                    ? null
+                                    : () => _saveApiBaseUrl(context),
                                 icon: const Icon(Icons.save_outlined),
                                 label: Text(strings.saveApiBaseUrl),
                               ),
                               const SizedBox(height: 10),
                               FilledButton.tonalIcon(
-                                onPressed: () => _testApiConnection(context),
+                                onPressed: _isApiActionInProgress
+                                    ? null
+                                    : () => _testApiConnection(context),
                                 icon: const Icon(Icons.wifi_tethering_rounded),
                                 label: Text(strings.testApiConnection),
                               ),
                               const SizedBox(height: 10),
                               OutlinedButton.icon(
-                                onPressed: () => _resetApiBaseUrl(context),
+                                onPressed: _isApiActionInProgress
+                                    ? null
+                                    : () => _resetApiBaseUrl(context),
                                 icon: const Icon(Icons.restart_alt_rounded),
                                 label: Text(strings.resetApiBaseUrl),
                               ),
+                              if (_apiFeedbackMessage != null) ...[
+                                const SizedBox(height: 12),
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: _apiFeedbackIsError
+                                        ? const Color(0xFFFBE7E5)
+                                        : const Color(0xFFE8F1E7),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Text(
+                                    _apiFeedbackMessage!,
+                                    style: TextStyle(
+                                      color: _apiFeedbackIsError
+                                          ? Theme.of(context).colorScheme.error
+                                          : const Color(0xFF1F5F31),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -478,90 +553,192 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       return;
     }
 
-    _lastSyncedApiBaseUrl = context.read<ApiBaseUrlProvider>().currentApiBaseUrl;
+    _lastSyncedApiBaseUrl =
+        context.read<ApiBaseUrlProvider>().currentApiBaseUrl;
     _apiBaseUrlController.text = _lastSyncedApiBaseUrl!;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.strings.apiBaseUrlSaved),
-      ),
+    _showSnackBar(
+      context,
+      '${context.strings.apiBaseUrlSaved}\n${_lastSyncedApiBaseUrl!}',
+      isError: false,
     );
   }
 
   Future<void> _resetApiBaseUrl(BuildContext context) async {
     FocusScope.of(context).unfocus();
 
-    await context.read<ApiBaseUrlProvider>().resetToDefault();
-
-    if (!mounted) {
-      return;
-    }
-
-    _lastSyncedApiBaseUrl = context.read<ApiBaseUrlProvider>().currentApiBaseUrl;
-    _apiBaseUrlController.text = _lastSyncedApiBaseUrl!;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.strings.apiBaseUrlReset),
-      ),
-    );
-  }
-
-  Future<void> _testApiConnection(BuildContext context) async {
-    FocusScope.of(context).unfocus();
-
-    if (!_apiBaseUrlFormKey.currentState!.validate()) {
-      return;
-    }
-
-    await context.read<ApiBaseUrlProvider>().setApiBaseUrl(
-          _apiBaseUrlController.text,
-        );
-
-    if (!mounted) {
-      return;
-    }
-
+    final apiBaseUrlProvider = context.read<ApiBaseUrlProvider>();
+    final apiHealthService = context.read<ApiHealthService>();
     final strings = context.strings;
-    final messenger = ScaffoldMessenger.of(context);
+
+    _setApiActionInProgress(true);
+    _setApiFeedback(
+      strings.apiAutoDetecting,
+      isError: false,
+    );
 
     try {
-      final isHealthy = await context.read<ApiHealthService>().ping();
+      await apiBaseUrlProvider.resetToDefault();
 
       if (!mounted) {
         return;
       }
 
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            isHealthy
-                ? strings.apiConnectionSuccess
-                : strings.apiConnectionFailure,
-          ),
-        ),
+      _lastSyncedApiBaseUrl = '';
+      _apiBaseUrlController.clear();
+
+      final isHealthy = await apiHealthService.ping();
+
+      if (!mounted) {
+        return;
+      }
+
+      final resolvedApiBaseUrl = apiBaseUrlProvider.currentApiBaseUrl.trim();
+
+      _showSnackBar(
+        context,
+        isHealthy
+            ? '${strings.apiBaseUrlReset}\n${strings.apiConnectionSuccess}\n$resolvedApiBaseUrl'
+            : '${strings.apiBaseUrlReset}\n${strings.apiConnectionFailure}',
+        isError: !isHealthy,
       );
     } on ApiException catch (error) {
       if (!mounted) {
         return;
       }
 
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(error.message),
-        ),
+      _showSnackBar(
+        context,
+        '${strings.apiBaseUrlReset}\n${error.message}',
+        isError: true,
       );
     } catch (_) {
       if (!mounted) {
         return;
       }
 
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(strings.apiConnectionFailure),
-        ),
+      _showSnackBar(
+        context,
+        '${strings.apiBaseUrlReset}\n${strings.apiConnectionFailure}',
+        isError: true,
       );
+    } finally {
+      _setApiActionInProgress(false);
     }
+  }
+
+  Future<void> _testApiConnection(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+
+    final apiBaseUrlProvider = context.read<ApiBaseUrlProvider>();
+    final manualApiBaseUrl = _apiBaseUrlController.text.trim();
+    final strings = context.strings;
+
+    _setApiActionInProgress(true);
+    _setApiFeedback(
+      strings.apiTestingConnection,
+      isError: false,
+    );
+
+    try {
+      if (manualApiBaseUrl.isNotEmpty) {
+        if (!_apiBaseUrlFormKey.currentState!.validate()) {
+          return;
+        }
+
+        await apiBaseUrlProvider.setApiBaseUrl(manualApiBaseUrl);
+      } else if (!apiBaseUrlProvider.hasManualOverride) {
+        await apiBaseUrlProvider.refreshAutoDetectedUrl();
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      final isHealthy = await context.read<ApiHealthService>().ping();
+
+      if (!mounted) {
+        return;
+      }
+
+      final resolvedApiBaseUrl =
+          context.read<ApiBaseUrlProvider>().currentApiBaseUrl.trim();
+
+      _showSnackBar(
+        context,
+        isHealthy
+            ? '${strings.apiConnectionSuccess}\n$resolvedApiBaseUrl'
+            : strings.apiConnectionFailure,
+        isError: !isHealthy,
+      );
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      _showSnackBar(
+        context,
+        error.message,
+        isError: true,
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      _showSnackBar(
+        context,
+        strings.apiConnectionFailure,
+        isError: true,
+      );
+    } finally {
+      _setApiActionInProgress(false);
+    }
+  }
+
+  void _setApiActionInProgress(bool value) {
+    if (!mounted || _isApiActionInProgress == value) {
+      return;
+    }
+
+    setState(() {
+      _isApiActionInProgress = value;
+    });
+  }
+
+  void _setApiFeedback(
+    String message, {
+    required bool isError,
+  }) {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _apiFeedbackMessage = message;
+      _apiFeedbackIsError = isError;
+    });
+  }
+
+  void _showSnackBar(
+    BuildContext context,
+    String message, {
+    required bool isError,
+  }) {
+    _setApiFeedback(
+      message,
+      isError: isError,
+    );
+
+    final messenger = ScaffoldMessenger.of(context);
+
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(message),
+      ),
+    );
   }
 
   Future<void> _saveProfile(BuildContext context) async {

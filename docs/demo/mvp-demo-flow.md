@@ -51,7 +51,8 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
 10. Enter the documents screen from the case file detail.
 11. Register a simple local document with the file picker.
 12. Confirm the document appears in the case file document list.
-13. Explain that the backend registered audit events for login, client creation, case file creation and document registration.
+13. Confirm the document now shows OCR status and a local OCR preview.
+14. Explain that the backend registered audit events for login, client creation, case file creation, document registration and OCR processing.
 
 ## Optional API Checks
 
@@ -65,10 +66,13 @@ You can also verify the main resource endpoints:
 - `GET /api/v1/clients`
 - `GET /api/v1/case-files`
 - `GET /api/v1/case-files/<CASE_FILE_ID>/documents`
+- `GET /api/v1/semantic-search?documentId=<DOCUMENT_ID>`
+- `GET /api/v1/semantic-search?text=contract+breach`
+- `POST /api/v1/legal-ai/consultations`
 
 ## Notes
 
-- OCR stays out of scope for the MVP. Only `ocrStatus` metadata is stored.
-- Legal AI stays out of scope for the MVP.
+- OCR now runs in a local MVP mode. It first tries to recover embedded readable text and falls back to a deterministic simulated OCR result when needed.
+- Legal AI now answers only from retrieved user context. If retrieval is weak, it returns insufficient-context guidance instead of inventing a legal answer.
 - Digital signature stays out of scope for the MVP.
-- File storage is local for the demo and intentionally simple.
+- File storage is local for the demo, outside the database, and routed through `storage-management` so it can be swapped later for S3/MinIO.

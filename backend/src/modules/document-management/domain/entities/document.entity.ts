@@ -6,6 +6,7 @@ import { MimeType } from '../value-objects/mime-type.vo';
 
 export enum OCRStatus {
   PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
 }
@@ -18,6 +19,8 @@ type DocumentEntityProps = {
   hash: FileHash;
   uploadSource: string;
   ocrStatus: OCRStatus;
+  ocrText: string | null;
+  ocrProcessedAt: Date | null;
   uploadedById: string;
   uploadedAt: Date;
   createdAt: Date;
@@ -33,6 +36,8 @@ type CreateDocumentEntityProps = {
   hash: string;
   uploadSource: string;
   ocrStatus?: string;
+  ocrText?: string | null;
+  ocrProcessedAt?: Date | null;
   uploadedById: string;
   uploadedAt: Date;
   createdAt: Date;
@@ -53,6 +58,8 @@ export class DocumentEntity extends BaseEntity<DocumentId> {
       hash: FileHash.create(props.hash),
       uploadSource: this.normalizeRequiredText(props.uploadSource, 'Upload source'),
       ocrStatus: this.normalizeOcrStatus(props.ocrStatus ?? OCRStatus.PENDING),
+      ocrText: this.normalizeOptionalText(props.ocrText),
+      ocrProcessedAt: props.ocrProcessedAt ?? null,
       uploadedById: this.normalizeRequiredText(props.uploadedById, 'Uploaded by'),
       uploadedAt: props.uploadedAt,
       createdAt: props.createdAt,
@@ -88,6 +95,14 @@ export class DocumentEntity extends BaseEntity<DocumentId> {
     return this.props.ocrStatus;
   }
 
+  get ocrText(): string | null {
+    return this.props.ocrText;
+  }
+
+  get ocrProcessedAt(): Date | null {
+    return this.props.ocrProcessedAt;
+  }
+
   get uploadedById(): string {
     return this.props.uploadedById;
   }
@@ -104,11 +119,50 @@ export class DocumentEntity extends BaseEntity<DocumentId> {
     return this.props.updatedAt;
   }
 
+  withOcrProcessingStarted(processedAt: Date): DocumentEntity {
+    return new DocumentEntity(this.id, {
+      ...this.props,
+      ocrStatus: OCRStatus.PROCESSING,
+      ocrProcessedAt: processedAt,
+      updatedAt: processedAt,
+    });
+  }
+
+  withCompletedOcr(ocrText: string, processedAt: Date): DocumentEntity {
+    return new DocumentEntity(this.id, {
+      ...this.props,
+      ocrStatus: OCRStatus.COMPLETED,
+      ocrText: DocumentEntity.normalizeOptionalText(ocrText),
+      ocrProcessedAt: processedAt,
+      updatedAt: processedAt,
+    });
+  }
+
+  withFailedOcr(processedAt: Date): DocumentEntity {
+    return new DocumentEntity(this.id, {
+      ...this.props,
+      ocrStatus: OCRStatus.FAILED,
+      ocrText: null,
+      ocrProcessedAt: processedAt,
+      updatedAt: processedAt,
+    });
+  }
+
   private static normalizeRequiredText(value: string, fieldName: string): string {
     const normalizedValue = value.trim();
 
     if (!normalizedValue) {
       throw new DomainValidationError(`${fieldName} is required.`);
+    }
+
+    return normalizedValue;
+  }
+
+  private static normalizeOptionalText(value?: string | null): string | null {
+    const normalizedValue = value?.trim();
+
+    if (!normalizedValue) {
+      return null;
     }
 
     return normalizedValue;

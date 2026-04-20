@@ -55,11 +55,13 @@ export class HeuristicDocumentAnalysisPreviewBuilderService
       limitations: [
         'This preview does not read full PDF text yet.',
         'Similarity is based on metadata and naming patterns, not embeddings.',
-        'Real semantic search will require OCR text extraction plus an AI provider configuration.',
+        'Real semantic search will still require embeddings plus an AI provider configuration.',
       ],
       recommendedNextSteps: [
         'Keep uploading documents as PDF so the evidence trail stays reviewable.',
-        'Enable OCR processing to extract searchable text from each document.',
+        sourceDocument.ocrStatus === 'COMPLETED'
+          ? 'Reuse OCR text in the next sprint to improve retrieval and legal answers.'
+          : 'Re-run OCR processing if the document still does not have searchable text.',
         'Connect OpenAI embeddings later to move from metadata similarity to semantic retrieval.',
       ],
       matches,

@@ -7,4 +7,5 @@ export interface DocumentRepository {
   findById(id: DocumentId): Promise<DocumentEntity | null>;
   findByCaseFileId(caseFileId: string): Promise<DocumentEntity[]>;
   create(document: DocumentEntity): Promise<DocumentEntity>;
+  update(document: DocumentEntity): Promise<DocumentEntity>;
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../shared/localization/app_strings_context.dart';
 import '../../../case_files/domain/entities/case_file.dart';
 import '../../../clients/domain/entities/client.dart';
 import '../../domain/usecases/get_home_dashboard_use_case.dart';
@@ -28,6 +29,7 @@ class _HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final strings = context.strings;
     final sessionProvider = context.watch<SessionProvider>();
     final dashboardController = context.watch<HomeDashboardController>();
     final currentUser = sessionProvider.currentUser;
@@ -159,6 +161,14 @@ class _HomeView extends StatelessWidget {
               },
               icon: const Icon(Icons.folder_open_outlined),
               label: const Text('Manage case files'),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.tonalIcon(
+              onPressed: () {
+                Navigator.of(context).pushNamed(AppRoutes.legalAiConsultation);
+              },
+              icon: const Icon(Icons.auto_awesome_rounded),
+              label: Text(strings.consultLegalAi),
             ),
             if (dashboard != null && dashboard.recentCaseFiles.isNotEmpty) ...[
               const SizedBox(height: 12),

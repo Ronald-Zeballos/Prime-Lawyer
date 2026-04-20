@@ -8,6 +8,8 @@ class Document {
     required this.hash,
     required this.uploadSource,
     required this.ocrStatus,
+    required this.ocrText,
+    required this.ocrProcessedAt,
     required this.uploadedById,
     required this.uploadedAt,
     required this.createdAt,
@@ -22,6 +24,8 @@ class Document {
   final String hash;
   final String uploadSource;
   final String ocrStatus;
+  final String? ocrText;
+  final DateTime? ocrProcessedAt;
   final String uploadedById;
   final DateTime uploadedAt;
   final DateTime createdAt;
@@ -30,4 +34,16 @@ class Document {
   bool get isPdf =>
       fileType.toLowerCase() == 'application/pdf' ||
       originalName.toLowerCase().endsWith('.pdf');
+
+  bool get hasOcrText => ocrText != null && ocrText!.trim().isNotEmpty;
+
+  String get ocrPreview {
+    final normalizedText = (ocrText ?? '').replaceAll(RegExp(r'\s+'), ' ').trim();
+
+    if (normalizedText.length <= 220) {
+      return normalizedText;
+    }
+
+    return '${normalizedText.substring(0, 220).trim()}...';
+  }
 }

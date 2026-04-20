@@ -6,22 +6,19 @@ import 'package:http/http.dart' as http;
 
 import '../constants/api_constants.dart';
 import '../errors/api_exception.dart';
-import '../storage/app_preferences_storage.dart';
 import '../storage/token_storage.dart';
+import '../../shared/providers/api_base_url_provider.dart';
 
 class ApiClient {
   ApiClient({
-    required String baseUrl,
-    required AppPreferencesStorage preferencesStorage,
+    required ApiBaseUrlProvider apiBaseUrlProvider,
     required TokenStorage tokenStorage,
     http.Client? httpClient,
-  })  : _baseUrl = baseUrl,
-        _preferencesStorage = preferencesStorage,
+  })  : _apiBaseUrlProvider = apiBaseUrlProvider,
         _tokenStorage = tokenStorage,
         _httpClient = httpClient ?? http.Client();
 
-  final String _baseUrl;
-  final AppPreferencesStorage _preferencesStorage;
+  final ApiBaseUrlProvider _apiBaseUrlProvider;
   final TokenStorage _tokenStorage;
   final http.Client _httpClient;
 
@@ -163,20 +160,44 @@ class ApiClient {
     );
   }
 
-  Future<T> _runRequest<T>(Future<T> Function() request) async {
+  Future<T> _runRequest<T>(
+    Future<T> Function() request, {
+    bool allowRetry = true,
+  }) async {
     try {
       return await request();
     } on TimeoutException {
+      if (allowRetry && await _retryWithFreshAutoDetectedBaseUrl()) {
+        return _runRequest(
+          request,
+          allowRetry: false,
+        );
+      }
+
       throw ApiException(
         statusCode: 0,
         message: _buildConnectivityErrorMessage(),
       );
     } on SocketException {
+      if (allowRetry && await _retryWithFreshAutoDetectedBaseUrl()) {
+        return _runRequest(
+          request,
+          allowRetry: false,
+        );
+      }
+
       throw ApiException(
         statusCode: 0,
         message: _buildConnectivityErrorMessage(),
       );
     } on http.ClientException {
+      if (allowRetry && await _retryWithFreshAutoDetectedBaseUrl()) {
+        return _runRequest(
+          request,
+          allowRetry: false,
+        );
+      }
+
       throw ApiException(
         statusCode: 0,
         message: _buildConnectivityErrorMessage(),
@@ -185,18 +206,33 @@ class ApiClient {
   }
 
   Future<String> _resolveBaseUrl() async {
-    final storedApiBaseUrl = await _preferencesStorage.readApiBaseUrl();
-    final normalizedApiBaseUrl = storedApiBaseUrl?.trim();
+    return _apiBaseUrlProvider.resolveBaseUrl();
+  }
 
-    if (normalizedApiBaseUrl == null || normalizedApiBaseUrl.isEmpty) {
-      return _baseUrl;
+  Future<bool> _retryWithFreshAutoDetectedBaseUrl() async {
+    if (_apiBaseUrlProvider.hasManualOverride) {
+      return false;
     }
 
-    return normalizedApiBaseUrl;
+    return _apiBaseUrlProvider.refreshAutoDetectedUrl();
   }
 
   String _buildConnectivityErrorMessage() {
-    return 'Could not connect to the API. If you are using a physical phone, open Settings and replace 10.0.2.2 with your computer IP.';
+    final currentApiBaseUrl = _apiBaseUrlProvider.currentApiBaseUrl.trim();
+
+    if (_apiBaseUrlProvider.hasManualOverride) {
+      if (currentApiBaseUrl.isEmpty) {
+        return 'Could not connect to the API. Open Settings and review the manual URL.';
+      }
+
+      return 'Could not connect to the API at $currentApiBaseUrl. Open Settings and review the manual URL.';
+    }
+
+    if (currentApiBaseUrl.isNotEmpty) {
+      return 'Could not connect to the API at $currentApiBaseUrl. Automatic detection could not confirm a reachable backend.';
+    }
+
+    return 'Could not connect to the API. Automatic detection did not find a reachable backend. Open Settings if you want to set the API URL manually.';
   }
 
   Future<Map<String, String>> _buildHeaders({

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
 import '../../../document_capture/domain/usecases/capture_document_from_camera_use_case.dart';
 import '../../../document_capture/domain/usecases/pick_document_use_case.dart';
+import '../../../legal_ai/presentation/pages/contextual_legal_consultation_page.dart';
 import '../../domain/usecases/get_case_documents_use_case.dart';
 import '../../domain/usecases/register_document_use_case.dart';
 import '../controllers/documents_controller.dart';
@@ -167,6 +169,15 @@ class _DocumentsView extends StatelessWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder: (_) => DocumentViewerPage(document: document),
+                            ),
+                          );
+                        },
+                        onAskAi: () {
+                          Navigator.of(context).pushNamed(
+                            AppRoutes.legalAiConsultation,
+                            arguments: ContextualLegalConsultationPageArgs(
+                              preselectedCaseFileId: args.caseFileId,
+                              preselectedDocumentId: document.id,
                             ),
                           );
                         },

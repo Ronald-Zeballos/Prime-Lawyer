@@ -9,6 +9,8 @@ export type DocumentDto = {
   hash: string;
   uploadSource: string;
   ocrStatus: string;
+  ocrText: string | null;
+  ocrProcessedAt: Date | null;
   uploadedById: string;
   uploadedAt: Date;
   createdAt: Date;
@@ -25,6 +27,8 @@ export function toDocumentDto(document: DocumentEntity): DocumentDto {
     hash: document.hash.value,
     uploadSource: document.uploadSource,
     ocrStatus: document.ocrStatus,
+    ocrText: document.ocrText,
+    ocrProcessedAt: document.ocrProcessedAt,
     uploadedById: document.uploadedById,
     uploadedAt: document.uploadedAt,
     createdAt: document.createdAt,

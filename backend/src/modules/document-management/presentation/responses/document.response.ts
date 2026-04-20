@@ -9,6 +9,8 @@ export class DocumentResponse {
   hash!: string;
   uploadSource!: string;
   ocrStatus!: string;
+  ocrText!: string | null;
+  ocrProcessedAt!: Date | null;
   uploadedById!: string;
   uploadedAt!: Date;
   createdAt!: Date;
@@ -24,6 +26,8 @@ export class DocumentResponse {
       hash: dto.hash,
       uploadSource: dto.uploadSource,
       ocrStatus: dto.ocrStatus,
+      ocrText: dto.ocrText,
+      ocrProcessedAt: dto.ocrProcessedAt,
       uploadedById: dto.uploadedById,
       uploadedAt: dto.uploadedAt,
       createdAt: dto.createdAt,

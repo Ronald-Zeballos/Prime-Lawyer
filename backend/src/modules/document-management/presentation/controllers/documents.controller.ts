@@ -16,6 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { AuthenticatedUserDto } from '../../../identity-access/application/dto/authenticated-user.dto';
 import { JwtAuthGuard } from '../../../identity-access/presentation/guards/jwt-auth.guard';
+import { ProcessDocumentOcrUseCase } from '../../../ocr-processing/application/use-cases/process-document-ocr/process-document-ocr.use-case';
 import { GetDocumentFileUseCase } from '../../application/use-cases/get-document-file/get-document-file.use-case';
 import { GetDocumentUseCase } from '../../application/use-cases/get-document/get-document.use-case';
 import { ListCaseDocumentsUseCase } from '../../application/use-cases/list-case-documents/list-case-documents.use-case';
@@ -39,6 +40,7 @@ export class DocumentsController {
     private readonly listCaseDocumentsUseCase: ListCaseDocumentsUseCase,
     private readonly getDocumentFileUseCase: GetDocumentFileUseCase,
     private readonly getDocumentUseCase: GetDocumentUseCase,
+    private readonly processDocumentOcrUseCase: ProcessDocumentOcrUseCase,
   ) {}
 
   @Post('documents')
@@ -70,7 +72,15 @@ export class DocumentsController {
       fileBuffer: file.buffer,
     });
 
-    return DocumentResponse.fromDto(document);
+    await this.processDocumentOcrUseCase.execute({
+      documentId: document.id,
+    });
+
+    const refreshedDocument = await this.getDocumentUseCase.execute({
+      id: document.id,
+    });
+
+    return DocumentResponse.fromDto(refreshedDocument);
   }
 
   @Get('case-files/:caseFileId/documents')
@@ -84,6 +94,15 @@ export class DocumentsController {
 
   @Get('documents/:id')
   async getById(@Param('id') id: string): Promise<DocumentResponse> {
+    const document = await this.getDocumentUseCase.execute({ id });
+
+    return DocumentResponse.fromDto(document);
+  }
+
+  @Post('documents/:id/ocr/process')
+  async processOcr(@Param('id') id: string): Promise<DocumentResponse> {
+    await this.processDocumentOcrUseCase.execute({ documentId: id });
+
     const document = await this.getDocumentUseCase.execute({ id });
 
     return DocumentResponse.fromDto(document);

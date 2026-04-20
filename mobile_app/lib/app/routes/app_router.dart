@@ -6,6 +6,7 @@ import '../../modules/case_files/presentation/pages/case_files_page.dart';
 import '../../modules/clients/presentation/pages/clients_page.dart';
 import '../../modules/documents/presentation/pages/documents_page.dart';
 import '../../modules/home/presentation/pages/home_page.dart';
+import '../../modules/legal_ai/presentation/pages/contextual_legal_consultation_page.dart';
 import '../../modules/profile/presentation/pages/profile_settings_page.dart';
 import 'app_routes.dart';
 
@@ -27,6 +28,17 @@ class AppRouter {
       case AppRoutes.profile:
         return MaterialPageRoute<void>(
           builder: (_) => const ProfileSettingsPage(),
+          settings: settings,
+        );
+      case AppRoutes.legalAiConsultation:
+        final arguments = settings.arguments;
+
+        return MaterialPageRoute<void>(
+          builder: (_) => ContextualLegalConsultationPage(
+            args: arguments is ContextualLegalConsultationPageArgs
+                ? arguments
+                : const ContextualLegalConsultationPageArgs(),
+          ),
           settings: settings,
         );
       case AppRoutes.clients:

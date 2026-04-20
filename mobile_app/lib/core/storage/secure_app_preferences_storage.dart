@@ -9,6 +9,7 @@ class SecureAppPreferencesStorage implements AppPreferencesStorage {
 
   static const _languageCodeKey = 'prime_lawyer_language_code';
   static const _apiBaseUrlKey = 'prime_lawyer_api_base_url';
+  static const _autoDetectedApiBaseUrlKey = 'prime_lawyer_api_auto_base_url';
 
   final FlutterSecureStorage _secureStorage;
 
@@ -20,6 +21,11 @@ class SecureAppPreferencesStorage implements AppPreferencesStorage {
   @override
   Future<String?> readApiBaseUrl() {
     return _secureStorage.read(key: _apiBaseUrlKey);
+  }
+
+  @override
+  Future<String?> readAutoDetectedApiBaseUrl() {
+    return _secureStorage.read(key: _autoDetectedApiBaseUrlKey);
   }
 
   @override
@@ -39,7 +45,20 @@ class SecureAppPreferencesStorage implements AppPreferencesStorage {
   }
 
   @override
+  Future<void> saveAutoDetectedApiBaseUrl(String apiBaseUrl) {
+    return _secureStorage.write(
+      key: _autoDetectedApiBaseUrlKey,
+      value: apiBaseUrl,
+    );
+  }
+
+  @override
   Future<void> clearApiBaseUrl() {
     return _secureStorage.delete(key: _apiBaseUrlKey);
+  }
+
+  @override
+  Future<void> clearAutoDetectedApiBaseUrl() {
+    return _secureStorage.delete(key: _autoDetectedApiBaseUrlKey);
   }
 }

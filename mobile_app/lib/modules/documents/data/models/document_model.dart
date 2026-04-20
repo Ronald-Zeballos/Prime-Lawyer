@@ -8,6 +8,8 @@ class DocumentModel {
     required this.hash,
     required this.uploadSource,
     required this.ocrStatus,
+    required this.ocrText,
+    required this.ocrProcessedAt,
     required this.uploadedById,
     required this.uploadedAt,
     required this.createdAt,
@@ -22,6 +24,8 @@ class DocumentModel {
   final String hash;
   final String uploadSource;
   final String ocrStatus;
+  final String? ocrText;
+  final DateTime? ocrProcessedAt;
   final String uploadedById;
   final DateTime uploadedAt;
   final DateTime createdAt;
@@ -37,6 +41,10 @@ class DocumentModel {
       hash: json['hash'] as String,
       uploadSource: json['uploadSource'] as String,
       ocrStatus: json['ocrStatus'] as String,
+      ocrText: json['ocrText'] as String?,
+      ocrProcessedAt: json['ocrProcessedAt'] == null
+          ? null
+          : DateTime.parse(json['ocrProcessedAt'] as String),
       uploadedById: json['uploadedById'] as String,
       uploadedAt: DateTime.parse(json['uploadedAt'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),

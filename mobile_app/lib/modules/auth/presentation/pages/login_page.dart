@@ -47,6 +47,13 @@ class _LoginViewState extends State<_LoginView> {
     final authController = context.watch<AuthController>();
     final apiBaseUrlProvider = context.watch<ApiBaseUrlProvider>();
     final strings = context.strings;
+    final resolvedApiBaseUrl = apiBaseUrlProvider.currentApiBaseUrl.trim();
+    final apiBaseUrlLabel = resolvedApiBaseUrl.isEmpty
+        ? strings.apiAutoDetecting
+        : resolvedApiBaseUrl;
+    final apiModeLabel = apiBaseUrlProvider.hasManualOverride
+        ? strings.apiCurrentModeManual
+        : strings.apiCurrentModeAuto;
 
     return Scaffold(
       body: SafeArea(
@@ -185,10 +192,10 @@ class _LoginViewState extends State<_LoginView> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE8E1D7),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                      '${strings.apiBaseUrlLabel}\n${apiBaseUrlProvider.currentApiBaseUrl}',
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      '${strings.apiBaseUrlLabel}\n$apiBaseUrlLabel\n$apiModeLabel',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),

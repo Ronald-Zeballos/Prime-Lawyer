@@ -12,6 +12,8 @@ export class DocumentPrismaMapper {
       hash: document.hash,
       uploadSource: document.uploadSource,
       ocrStatus: DocumentPrismaMapper.toOcrStatus(document.ocrStatus),
+      ocrText: document.ocrText,
+      ocrProcessedAt: document.ocrProcessedAt,
       uploadedById: document.uploadedById,
       uploadedAt: document.uploadedAt,
       createdAt: document.createdAt,
@@ -23,6 +25,8 @@ export class DocumentPrismaMapper {
     switch (ocrStatus) {
       case PrismaOCRStatus.PENDING:
         return OCRStatus.PENDING;
+      case PrismaOCRStatus.PROCESSING:
+        return OCRStatus.PROCESSING;
       case PrismaOCRStatus.COMPLETED:
         return OCRStatus.COMPLETED;
       case PrismaOCRStatus.FAILED:

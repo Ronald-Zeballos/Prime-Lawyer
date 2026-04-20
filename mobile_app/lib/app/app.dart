@@ -40,6 +40,7 @@ import '../modules/home/presentation/pages/home_page.dart';
 import '../modules/legal_ai/data/datasources/legal_ai_remote_data_source.dart';
 import '../modules/legal_ai/data/repositories/legal_ai_repository_impl.dart';
 import '../modules/legal_ai/domain/repositories/legal_ai_repository.dart';
+import '../modules/legal_ai/domain/usecases/ask_contextual_legal_question_use_case.dart';
 import '../modules/legal_ai/domain/usecases/get_document_analysis_preview_use_case.dart';
 import '../modules/profile/data/datasources/profile_remote_data_source.dart';
 import '../modules/profile/data/repositories/profile_repository_impl.dart';
@@ -72,6 +73,12 @@ class PrimeLawyerApp extends StatelessWidget {
         Provider<AppPreferencesStorage>(
           create: (_) => SecureAppPreferencesStorage(),
         ),
+        ChangeNotifierProvider<ApiBaseUrlProvider>(
+          create: (context) => ApiBaseUrlProvider(
+            preferencesStorage: context.read<AppPreferencesStorage>(),
+            appConfig: context.read<AppConfig>(),
+          )..bootstrap(),
+        ),
         Provider<SessionService>(
           create: (context) => SessionService(
             tokenStorage: context.read<TokenStorage>(),
@@ -79,8 +86,7 @@ class PrimeLawyerApp extends StatelessWidget {
         ),
         Provider<ApiClient>(
           create: (context) => ApiClient(
-            baseUrl: context.read<AppConfig>().apiBaseUrl,
-            preferencesStorage: context.read<AppPreferencesStorage>(),
+            apiBaseUrlProvider: context.read<ApiBaseUrlProvider>(),
             tokenStorage: context.read<TokenStorage>(),
           ),
         ),
@@ -208,6 +214,11 @@ class PrimeLawyerApp extends StatelessWidget {
             context.read<LegalAiRepository>(),
           ),
         ),
+        Provider<AskContextualLegalQuestionUseCase>(
+          create: (context) => AskContextualLegalQuestionUseCase(
+            context.read<LegalAiRepository>(),
+          ),
+        ),
         Provider<ProfileRemoteDataSource>(
           create: (context) => ProfileRemoteDataSource(
             context.read<ApiClient>(),
@@ -236,12 +247,6 @@ class PrimeLawyerApp extends StatelessWidget {
         ChangeNotifierProvider<AppLanguageProvider>(
           create: (context) => AppLanguageProvider(
             preferencesStorage: context.read<AppPreferencesStorage>(),
-          )..bootstrap(),
-        ),
-        ChangeNotifierProvider<ApiBaseUrlProvider>(
-          create: (context) => ApiBaseUrlProvider(
-            preferencesStorage: context.read<AppPreferencesStorage>(),
-            appConfig: context.read<AppConfig>(),
           )..bootstrap(),
         ),
       ],

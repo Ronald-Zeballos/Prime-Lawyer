@@ -8,4 +8,5 @@ class AppRoutes {
   static const String caseFileDetail = '/case-files/detail';
   static const String documents = '/documents';
   static const String profile = '/profile';
+  static const String legalAiConsultation = '/legal-ai/consultation';
 }

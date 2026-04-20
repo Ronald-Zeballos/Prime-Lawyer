@@ -8,10 +8,12 @@ class DocumentListItem extends StatelessWidget {
     super.key,
     required this.document,
     required this.onOpen,
+    required this.onAskAi,
   });
 
   final Document document;
   final VoidCallback onOpen;
+  final VoidCallback onAskAi;
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +44,61 @@ class DocumentListItem extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(strings.uploadedAt(strings.formatDateTime(document.uploadedAt))),
-            const SizedBox(height: 4),
-            Text(strings.hashLabel(document.hash)),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: FilledButton.tonalIcon(
-                onPressed: document.isPdf ? onOpen : null,
-                icon: const Icon(Icons.picture_as_pdf_outlined),
-                label: Text(
-                  document.isPdf
-                      ? strings.openPdfAction
-                      : strings.pdfOnlyLabel,
+            if (document.ocrProcessedAt != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                strings.ocrProcessedAt(
+                  strings.formatDateTime(document.ocrProcessedAt!),
                 ),
               ),
+            ],
+            const SizedBox(height: 4),
+            Text(strings.hashLabel(document.hash)),
+            if (document.hasOcrText) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF7F2EA),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.ocrTextPreviewTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(document.ocrPreview),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                FilledButton.tonalIcon(
+                  onPressed: document.isPdf ? onOpen : null,
+                  icon: const Icon(Icons.picture_as_pdf_outlined),
+                  label: Text(
+                    document.isPdf
+                        ? strings.openPdfAction
+                        : strings.pdfOnlyLabel,
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: onAskAi,
+                  icon: const Icon(Icons.auto_awesome_rounded),
+                  label: Text(strings.askAiAboutDocument),
+                ),
+              ],
             ),
           ],
         ),

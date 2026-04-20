@@ -50,14 +50,63 @@ Purpose:
 - `POST /api/v1/documents`
 - `GET /api/v1/case-files/:caseFileId/documents`
 - `GET /api/v1/documents/:id`
+- `POST /api/v1/documents/:id/ocr/process`
 
 Purpose:
 
-- register document metadata and upload file
+- register document metadata, upload file and trigger local OCR MVP processing
 - list documents by case file
 - retrieve document detail
+- retry OCR processing for a document
 
-`POST /api/v1/documents` uses multipart form data and stores the file locally for the MVP.
+`POST /api/v1/documents` uses multipart form data, stores the file locally outside the database and returns OCR status plus OCR text fields.
+
+## Semantic Search
+
+- `GET /api/v1/semantic-search?text=:text`
+- `GET /api/v1/semantic-search?processType=:processType`
+- `GET /api/v1/semantic-search?documentId=:documentId`
+- `GET /api/v1/semantic-search?caseFileId=:caseFileId`
+
+Purpose:
+
+- recover similar case files using text, process type and OCR-backed document signals
+- recover similar documents using file names, OCR text and parent case metadata
+- provide the first heuristic retrieval layer before embeddings exist
+
+The response returns separate `caseMatches` and `documentMatches` arrays, each with scores and match reasons.
+
+## Legal AI
+
+- `POST /api/v1/legal-ai/consultations`
+- `GET /api/v1/legal-ai/documents/:documentId/analysis-preview`
+
+Purpose:
+
+- answer legal questions using only retrieved cases and documents from the current user
+- persist the consultation plus the cases used as grounding context
+- expose a contextual legal answer before embeddings or a full LLM provider are introduced
+- keep document analysis preview for the PDF viewer flow
+
+`POST /api/v1/legal-ai/consultations` accepts JSON:
+
+```json
+{
+  "question": "Que contexto recuperado habla de incumplimiento de contrato de alquiler?",
+  "caseFileId": "optional-case-id",
+  "documentId": "optional-document-id",
+  "processType": "optional-process-type",
+  "limit": 3
+}
+```
+
+The response includes:
+
+- grounded answer text
+- `groundingStatus` to show whether the answer is grounded, partial, or blocked by insufficient context
+- `usedContextCases` and `usedContextDocuments`
+- full retrieval payload used to build the answer
+- persisted `queryId`
 
 ## Audit Logs
 
@@ -85,5 +134,6 @@ Private endpoints require `Authorization: Bearer <token>`.
 ## Current MVP Limits
 
 - Swagger is not enabled yet.
-- OCR processing is not implemented yet.
-- AI and digital signature endpoints are out of scope for this MVP.
+- OCR processing is implemented as a local MVP heuristic. It recovers embedded readable text when possible and otherwise generates a consistent simulated OCR result.
+- Semantic search is heuristic for now. It uses metadata, OCR text and basic scoring rules, not vector embeddings yet.
+- Legal AI is grounded in retrieved cases/documents, but it is still heuristic and does not use embeddings or an external LLM provider yet.

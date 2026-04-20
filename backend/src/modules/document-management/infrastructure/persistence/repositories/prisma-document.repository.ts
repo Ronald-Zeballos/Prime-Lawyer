@@ -37,6 +37,8 @@ export class PrismaDocumentRepository implements DocumentRepository {
         hash: document.hash.value,
         uploadSource: document.uploadSource,
         ocrStatus: document.ocrStatus,
+        ocrText: document.ocrText,
+        ocrProcessedAt: document.ocrProcessedAt,
         uploadedById: document.uploadedById,
         uploadedAt: document.uploadedAt,
         createdAt: document.createdAt,
@@ -45,5 +47,28 @@ export class PrismaDocumentRepository implements DocumentRepository {
     });
 
     return DocumentPrismaMapper.toDomain(createdDocument);
+  }
+
+  async update(document: DocumentEntity): Promise<DocumentEntity> {
+    const updatedDocument = await this.prisma.document.update({
+      where: { id: document.id.value },
+      data: {
+        caseFileId: document.caseFileId,
+        originalName: document.originalName,
+        fileType: document.fileType.value,
+        storagePath: document.storagePath,
+        hash: document.hash.value,
+        uploadSource: document.uploadSource,
+        ocrStatus: document.ocrStatus,
+        ocrText: document.ocrText,
+        ocrProcessedAt: document.ocrProcessedAt,
+        uploadedById: document.uploadedById,
+        uploadedAt: document.uploadedAt,
+        createdAt: document.createdAt,
+        updatedAt: document.updatedAt,
+      },
+    });
+
+    return DocumentPrismaMapper.toDomain(updatedDocument);
   }
 }

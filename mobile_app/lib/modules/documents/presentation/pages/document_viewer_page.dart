@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../legal_ai/presentation/pages/contextual_legal_consultation_page.dart';
 import '../../../legal_ai/presentation/pages/document_analysis_page.dart';
 import '../../domain/entities/document.dart';
 import '../../domain/usecases/get-document-file-use-case.dart';
@@ -132,6 +134,21 @@ class _DocumentViewerView extends StatelessWidget {
                   },
                   icon: const Icon(Icons.arrow_forward_rounded),
                   label: Text(strings.analysisPreviewContinueAction),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.legalAiConsultation,
+                      arguments: ContextualLegalConsultationPageArgs(
+                        preselectedCaseFileId: document.caseFileId,
+                        preselectedDocumentId: document.id,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.auto_awesome_rounded),
+                  label: Text(strings.askAiAboutDocument),
                 ),
               ],
             ),

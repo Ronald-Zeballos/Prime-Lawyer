@@ -14,6 +14,8 @@ class DocumentMapper {
       hash: model.hash,
       uploadSource: model.uploadSource,
       ocrStatus: model.ocrStatus,
+      ocrText: model.ocrText,
+      ocrProcessedAt: model.ocrProcessedAt,
       uploadedById: model.uploadedById,
       uploadedAt: model.uploadedAt,
       createdAt: model.createdAt,

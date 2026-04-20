@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../legal_ai/presentation/pages/contextual_legal_consultation_page.dart';
 import '../../../documents/presentation/pages/documents_page.dart';
 import '../../domain/usecases/get_case_file_detail_use_case.dart';
 import '../controllers/case_file_detail_controller.dart';
@@ -132,6 +133,19 @@ class _CaseFileDetailView extends StatelessWidget {
                         },
                         icon: const Icon(Icons.description_outlined),
                         label: Text(strings.openDocuments),
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(
+                            AppRoutes.legalAiConsultation,
+                            arguments: ContextualLegalConsultationPageArgs(
+                              preselectedCaseFileId: caseFile.id,
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.auto_awesome_rounded),
+                        label: Text(strings.askAiAboutCase),
                       ),
                     ],
                   ),
