@@ -39,9 +39,14 @@ export class LegalAiController {
   @Get('documents/:documentId/analysis-preview')
   async analyzeDocumentPreview(
     @Param('documentId') documentId: string,
+    @Req()
+    httpRequest: Request & {
+      user: AuthenticatedUserDto;
+    },
   ): Promise<DocumentAnalysisPreviewResponse> {
     const analysisPreview = await this.analyzeDocumentPreviewUseCase.execute({
       documentId,
+      requesterId: httpRequest.user.id,
     });
 
     return DocumentAnalysisPreviewResponse.fromDto(analysisPreview);

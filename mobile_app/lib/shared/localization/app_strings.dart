@@ -293,6 +293,9 @@ class AppStrings {
       isSpanish ? 'Detalle del expediente' : 'Case file detail';
   String get openCaseFileAction =>
       isSpanish ? 'Abrir expediente' : 'Open case file';
+  String get openKnowledgeRepository => isSpanish
+      ? 'Abrir repositorio colaborativo'
+      : 'Open collaborative repository';
   String get caseFileUnavailable => isSpanish
       ? 'El expediente no está disponible.'
       : 'Case file not available.';
@@ -303,7 +306,11 @@ class AppStrings {
       isSpanish ? 'Confidencialidad' : 'Confidentiality';
   String get openedAtLabel => isSpanish ? 'Fecha de apertura' : 'Opened at';
   String get closedAtLabel => isSpanish ? 'Fecha de cierre' : 'Closed at';
+  String get publishedAtLabel =>
+      isSpanish ? 'Fecha de publicación' : 'Published at';
   String get notClosedYet => isSpanish ? 'Sin cierre' : 'Not closed';
+  String get notPublishedYet =>
+      isSpanish ? 'Sin publicar' : 'Not published yet';
   String get openDocuments => isSpanish ? 'Abrir documentos' : 'Open documents';
   String get documentsTitle => isSpanish ? 'Documentos' : 'Documents';
   String get refreshDocuments =>
@@ -427,8 +434,31 @@ class AppStrings {
   String get aiNoAnswerYetDescription => isSpanish
       ? 'Selecciona el contexto que quieras usar, escribe tu pregunta y la app responderá solo con información recuperada.'
       : 'Select the context you want to use, write your question, and the app will answer only with recovered information.';
+  String get aiConsultationHistoryTitle => isSpanish
+      ? 'Consultas recientes'
+      : 'Recent consultations';
+  String get aiConsultationHistoryDescription => isSpanish
+      ? 'Puedes volver a abrir respuestas ya generadas durante esta sesión.'
+      : 'You can reopen answers generated earlier in this session.';
   String get aiResponseTitle =>
       isSpanish ? 'Respuesta contextual' : 'Contextual answer';
+  String get aiQuestionAskedLabel =>
+      isSpanish ? 'Pregunta consultada' : 'Asked question';
+  String get aiCopyAnswerAction =>
+      isSpanish ? 'Copiar respuesta' : 'Copy answer';
+  String get aiNewQuestionAction =>
+      isSpanish ? 'Nueva consulta' : 'New question';
+  String get aiAnswerCopied =>
+      isSpanish ? 'Respuesta copiada al portapapeles.' : 'Answer copied to clipboard.';
+  String get aiFollowUpSuggestionsTitle => isSpanish
+      ? 'Preguntas sugeridas para continuar'
+      : 'Suggested follow-up questions';
+  String aiHistoryContextSummary(int caseCount, int documentCount) => isSpanish
+      ? '$caseCount casos · $documentCount documentos'
+      : '$caseCount cases · $documentCount documents';
+  String aiConsultationReady(String groundingStatus) => isSpanish
+      ? 'Consulta lista: ${aiGroundingStatus(groundingStatus)}.'
+      : 'Consultation ready: ${aiGroundingStatus(groundingStatus)}.';
   String aiGroundingStatus(String value) {
     switch (value) {
       case 'GROUNDED':
@@ -509,6 +539,23 @@ class AppStrings {
       : 'Add more case files or improve matter detail to enrich future search.';
   String get analysisOpenCaseAction =>
       isSpanish ? 'Abrir expediente' : 'Open case file';
+  String get analysisOpenDocumentsAction =>
+      isSpanish ? 'Abrir documentos del caso' : 'Open case documents';
+  String get analysisSourceDocumentTitle =>
+      isSpanish ? 'Documento fuente' : 'Source document';
+  String get analysisDocumentMatchesTitle =>
+      isSpanish ? 'Coincidencias de documentos' : 'Document matches';
+  String get analysisNoDocumentMatchesTitle => isSpanish
+      ? 'No hubo documentos relacionados fuertes'
+      : 'No strong related documents yet';
+  String get analysisNoDocumentMatchesDescription => isSpanish
+      ? 'El análisis todavía no detectó documentos suficientemente cercanos en otros expedientes.'
+      : 'The analysis did not surface strong enough related documents yet.';
+  String analysisMatchedDocumentsCount(int count) => isSpanish
+      ? 'Documentos coincidentes: $count'
+      : 'Matched documents: $count';
+  String get refreshAnalysisAction =>
+      isSpanish ? 'Actualizar análisis' : 'Refresh analysis';
   String get analysisUnavailable => isSpanish
       ? 'El analisis no esta disponible ahora mismo.'
       : 'Analysis is not available right now.';
@@ -579,6 +626,180 @@ class AppStrings {
   String get caseVisibilityLabel => isSpanish ? 'Visibilidad' : 'Visibility';
   String get knowledgeStatusLabel =>
       isSpanish ? 'Estado de conocimiento' : 'Knowledge status';
+  String get knowledgeRepositoryTitle => isSpanish
+      ? 'Repositorio colaborativo'
+      : 'Collaborative repository';
+  String get refreshKnowledgeRepository => isSpanish
+      ? 'Actualizar repositorio'
+      : 'Refresh repository';
+  String get knowledgeRepositorySearchLabel => isSpanish
+      ? 'Buscar casos publicados'
+      : 'Search published cases';
+  String get knowledgeRepositorySearchHint => isSpanish
+      ? 'Escribe código, asunto o tipo de proceso'
+      : 'Type an internal code, matter, or process type';
+  String get knowledgeRepositoryEmptyTitle => isSpanish
+      ? 'Aún no hay casos publicados'
+      : 'No published cases yet';
+  String get knowledgeRepositoryEmptyDescription => isSpanish
+      ? 'Publica un expediente cerrado para iniciar la base de conocimiento compartida.'
+      : 'Publish a closed case file to start the shared knowledge base.';
+  String get knowledgeRepositoryPublishedBadge => isSpanish
+      ? 'PUBLICADO'
+      : 'PUBLISHED';
+  String repositoryClosedOn(String value) => isSpanish
+      ? 'Cerrado: $value'
+      : 'Closed: $value';
+  String repositoryPublishedOn(String value) => isSpanish
+      ? 'Publicado: $value'
+      : 'Published: $value';
+  String get repositoryViewSummaryAction =>
+      isSpanish ? 'Ver resumen' : 'View summary';
+  String get openOwnedRepositoryCaseAction => isSpanish
+      ? 'Abrir mi expediente'
+      : 'Open my case file';
+  String get repositorySharedCaseNotice => isSpanish
+      ? 'Este caso ya forma parte del repositorio compartido y se muestra como referencia colaborativa.'
+      : 'This case already belongs to the shared repository and is shown as collaborative reference.';
+  String get knowledgeRepositorySectionTitle => isSpanish
+      ? 'Repositorio colaborativo'
+      : 'Collaborative repository';
+  String get changeCaseStatusAction => isSpanish
+      ? 'Cambiar estado'
+      : 'Change status';
+  String get changeCaseStatusDescription => isSpanish
+      ? 'Selecciona el estado operativo actual del expediente.'
+      : 'Select the current operational status for this case file.';
+  String caseStatusUpdated(String status) => isSpanish
+      ? 'Estado actualizado a $status.'
+      : 'Status updated to $status.';
+  String get caseStatusUpdateFailed => isSpanish
+      ? 'No se pudo actualizar el estado del expediente.'
+      : 'Could not update the case status.';
+  String get publishCaseAction =>
+      isSpanish ? 'Publicar caso' : 'Publish case';
+  String get unpublishCaseAction => isSpanish
+      ? 'Retirar del repositorio'
+      : 'Remove from repository';
+  String get closeCaseToPublishAction => isSpanish
+      ? 'Cierra el caso para publicarlo'
+      : 'Close the case before publishing';
+  String get casePublishedToRepository => isSpanish
+      ? 'Caso publicado en el repositorio colaborativo.'
+      : 'Case published to the collaborative repository.';
+  String get caseRemovedFromRepository => isSpanish
+      ? 'Caso retirado del repositorio colaborativo.'
+      : 'Case removed from the collaborative repository.';
+  String get casePublicationFailed => isSpanish
+      ? 'No se pudo publicar el caso ahora mismo.'
+      : 'Could not publish the case right now.';
+  String get caseUnpublishFailed => isSpanish
+      ? 'No se pudo retirar el caso del repositorio.'
+      : 'Could not remove the case from the repository.';
+  String get caseAlreadyPublishedDescription => isSpanish
+      ? 'Este expediente ya está visible dentro del repositorio colaborativo.'
+      : 'This case file is already visible in the collaborative repository.';
+  String casePublishedDescription(String date) => isSpanish
+      ? 'Este expediente ya está publicado desde $date y puede seguir sirviendo como referencia compartida.'
+      : 'This case file has been published since $date and can continue serving as shared reference.';
+  String get caseEligibleForRepositoryDescription => isSpanish
+      ? 'El expediente ya está cerrado y listo para publicarse como conocimiento compartido.'
+      : 'This case file is closed and ready to be published as shared knowledge.';
+  String get caseExcludedFromRepositoryDescription => isSpanish
+      ? 'Este expediente quedó excluido del repositorio por su nivel de confidencialidad.'
+      : 'This case file is excluded from the repository because of its confidentiality level.';
+  String get caseNotReadyForRepositoryDescription => isSpanish
+      ? 'Cierra o archiva el expediente para habilitar la publicación al repositorio.'
+      : 'Close or archive the case file to enable repository publication.';
+
+  String get contractMarketplaceTitle => isSpanish
+      ? 'Marketplace de contratos'
+      : 'Contract marketplace';
+  String get refreshContractMarketplace => isSpanish
+      ? 'Actualizar marketplace de contratos'
+      : 'Refresh contract marketplace';
+  String get openContractMarketplace => isSpanish
+      ? 'Abrir marketplace de contratos'
+      : 'Open contract marketplace';
+  String get contractMarketplaceHeroTitle => isSpanish
+      ? 'Plantillas listas para generar'
+      : 'Templates ready to generate';
+  String get contractMarketplaceHeroDescription => isSpanish
+      ? 'Este MVP ya lista plantillas activas, abre formularios dinámicos y genera un PDF real. Cuando lleguen nuevas plantillas, solo habrá que cargar su schema.'
+      : 'This MVP already lists active templates, opens dynamic forms, and generates a real PDF. When new templates arrive, we will only need to load their schema.';
+  String get contractTemplatesSectionTitle => isSpanish
+      ? 'Plantillas activas'
+      : 'Active templates';
+  String get contractTemplatesEmptyTitle => isSpanish
+      ? 'No hay plantillas activas'
+      : 'No active templates';
+  String get contractTemplatesEmptyDescription => isSpanish
+      ? 'El marketplace ya está listo; falta cargar las próximas plantillas.'
+      : 'The marketplace is ready; upcoming templates still need to be loaded.';
+  String get generatedContractsSectionTitle => isSpanish
+      ? 'Contratos generados'
+      : 'Generated contracts';
+  String get noGeneratedContractsTitle => isSpanish
+      ? 'Todavía no generaste contratos'
+      : 'You have not generated contracts yet';
+  String get noGeneratedContractsDescription => isSpanish
+      ? 'Completa un formulario dinámico y aquí verás tus contratos listos para abrir.'
+      : 'Complete a dynamic form and your ready-to-open contracts will show up here.';
+  String get upcomingTemplatesTitle => isSpanish
+      ? 'Próximas plantillas'
+      : 'Upcoming templates';
+  String get upcomingTemplatesDescription => isSpanish
+      ? 'Dejamos el espacio preparado para que el equipo legal cargue nuevas plantillas sin rehacer el flujo.'
+      : 'We left this area ready so the legal team can upload new templates without reworking the flow.';
+  String get contractTemplatePendingUploadDescription => isSpanish
+      ? 'Espacio listo para conectar la plantilla final apenas nos la compartan.'
+      : 'This slot is ready to connect the final template as soon as the legal team shares it.';
+  String get comingSoonLabel => isSpanish ? 'Próximamente' : 'Coming soon';
+  String get openContractTemplateAction => isSpanish
+      ? 'Abrir formulario'
+      : 'Open form';
+  String get openGeneratedContractAction => isSpanish
+      ? 'Abrir PDF generado'
+      : 'Open generated PDF';
+  String contractFieldCountLabel(int count) => isSpanish
+      ? '$count campos'
+      : '$count fields';
+  String contractGeneratedOn(String date) => isSpanish
+      ? 'Generado: $date'
+      : 'Generated: $date';
+  String get contractTemplateFormTitle => isSpanish
+      ? 'Formulario de contrato'
+      : 'Contract form';
+  String get contractTemplateUnavailable => isSpanish
+      ? 'La plantilla de contrato no está disponible.'
+      : 'This contract template is not available.';
+  String get contractGenerateAction => isSpanish
+      ? 'Generar contrato en PDF'
+      : 'Generate PDF contract';
+  String get contractGenerating => isSpanish
+      ? 'Generando contrato...'
+      : 'Generating contract...';
+  String get contractGeneratedSuccess => isSpanish
+      ? 'Contrato generado correctamente.'
+      : 'Contract generated successfully.';
+  String get contractPdfUnavailable => isSpanish
+      ? 'El PDF del contrato no está disponible todavía.'
+      : 'The contract PDF is not available yet.';
+  String get contractSummarySectionTitle => isSpanish
+      ? 'Resumen del contrato'
+      : 'Contract summary';
+  String get contractNotesSectionTitle => isSpanish
+      ? 'Notas de la plantilla'
+      : 'Template notes';
+  String get contractSignaturesSectionTitle => isSpanish
+      ? 'Firmas'
+      : 'Signatures';
+  String contractFieldRequired(String fieldLabel) => isSpanish
+      ? '$fieldLabel es obligatorio.'
+      : '$fieldLabel is required.';
+  String get contractGeneralGroupLabel => isSpanish
+      ? 'Información general'
+      : 'General information';
 
   String caseVisibility(String value) {
     switch (value) {

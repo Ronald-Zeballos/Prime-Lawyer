@@ -25,6 +25,26 @@ class CaseFilesRemoteDataSource {
         .toList();
   }
 
+  Future<List<CaseFileModel>> getCollaborativeRepositoryCases({
+    String? term,
+    String? processType,
+  }) async {
+    final response = await _apiClient.get(
+      '/case-files/repository',
+      queryParameters: {
+        if (term != null && term.trim().isNotEmpty) 'term': term.trim(),
+        if (processType != null && processType.trim().isNotEmpty)
+          'processType': processType.trim(),
+      },
+    );
+
+    final items = (response as Map<String, dynamic>)['items'] as List<dynamic>;
+
+    return items
+        .map((item) => CaseFileModel.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<CaseFileModel> createCaseFile({
     required String internalCode,
     required String title,
@@ -48,6 +68,34 @@ class CaseFilesRemoteDataSource {
 
   Future<CaseFileModel> getCaseFileById(String id) async {
     final response = await _apiClient.get('/case-files/$id');
+
+    return CaseFileModel.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<CaseFileModel> changeCaseStatus({
+    required String caseFileId,
+    required String status,
+  }) async {
+    final response = await _apiClient.patchJson(
+      '/case-files/$caseFileId/status',
+      body: {
+        'status': status,
+      },
+    );
+
+    return CaseFileModel.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<CaseFileModel> updateCaseKnowledgePublication({
+    required String caseFileId,
+    required bool publish,
+  }) async {
+    final response = await _apiClient.patchJson(
+      '/case-files/$caseFileId/publication',
+      body: {
+        'publish': publish,
+      },
+    );
 
     return CaseFileModel.fromJson(response as Map<String, dynamic>);
   }

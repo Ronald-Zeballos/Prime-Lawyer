@@ -18,6 +18,7 @@ class CaseFileMapper {
       closedAt: model.closedAt,
       visibility: model.visibility,
       knowledgeStatus: model.knowledgeStatus,
+      publishedAt: model.publishedAt,
       confidentialityLevel: model.confidentialityLevel,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,

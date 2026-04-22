@@ -165,10 +165,26 @@ class _HomeView extends StatelessWidget {
             const SizedBox(height: 12),
             FilledButton.tonalIcon(
               onPressed: () {
+                Navigator.of(context).pushNamed(AppRoutes.contractMarketplace);
+              },
+              icon: const Icon(Icons.description_outlined),
+              label: Text(strings.openContractMarketplace),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.tonalIcon(
+              onPressed: () {
                 Navigator.of(context).pushNamed(AppRoutes.legalAiConsultation);
               },
               icon: const Icon(Icons.auto_awesome_rounded),
               label: Text(strings.consultLegalAi),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pushNamed(AppRoutes.knowledgeRepository);
+              },
+              icon: const Icon(Icons.library_books_outlined),
+              label: Text(strings.openKnowledgeRepository),
             ),
             if (dashboard != null && dashboard.recentCaseFiles.isNotEmpty) ...[
               const SizedBox(height: 12),

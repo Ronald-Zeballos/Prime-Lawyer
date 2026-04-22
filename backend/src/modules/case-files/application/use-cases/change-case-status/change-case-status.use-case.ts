@@ -57,6 +57,8 @@ export class ChangeCaseStatusUseCase
         title: updatedCaseFile.title,
         previousStatus,
         currentStatus: updatedCaseFile.status.value,
+        currentKnowledgeStatus: updatedCaseFile.knowledgeStatus,
+        publishedAt: updatedCaseFile.publishedAt?.toISOString() ?? null,
       },
     });
 

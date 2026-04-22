@@ -31,6 +31,7 @@ class ContextualLegalConsultationController extends ChangeNotifier {
 
   final List<CaseFile> _caseFiles = [];
   final List<Document> _documents = [];
+  final List<ContextualLegalAnswer> _consultationHistory = [];
 
   bool _hasBootstrapped = false;
   bool _isBootstrapping = false;
@@ -43,6 +44,8 @@ class ContextualLegalConsultationController extends ChangeNotifier {
 
   List<CaseFile> get caseFiles => List.unmodifiable(_caseFiles);
   List<Document> get documents => List.unmodifiable(_documents);
+  List<ContextualLegalAnswer> get consultationHistory =>
+      List.unmodifiable(_consultationHistory);
   bool get isBootstrapping => _isBootstrapping;
   bool get isLoadingDocuments => _isLoadingDocuments;
   bool get isSubmitting => _isSubmitting;
@@ -52,6 +55,7 @@ class ContextualLegalConsultationController extends ChangeNotifier {
   ContextualLegalAnswer? get answer => _answer;
   bool get hasDocuments => _documents.isNotEmpty;
   bool get hasAnswer => _answer != null;
+  bool get hasConsultationHistory => _consultationHistory.isNotEmpty;
 
   CaseFile? get selectedCaseFile {
     final selectedCaseFileId = _selectedCaseFileId;
@@ -178,6 +182,7 @@ class ContextualLegalConsultationController extends ChangeNotifier {
           limit: 3,
         ),
       );
+      _pushAnswerToHistory(_answer!);
       _isSubmitting = false;
       notifyListeners();
       return true;
@@ -197,6 +202,27 @@ class ContextualLegalConsultationController extends ChangeNotifier {
       return;
     }
 
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void showHistoryAnswer(String queryId) {
+    for (final item in _consultationHistory) {
+      if (item.queryId == queryId) {
+        _answer = item;
+        _errorMessage = null;
+        notifyListeners();
+        return;
+      }
+    }
+  }
+
+  void clearCurrentAnswer() {
+    if (_answer == null && _errorMessage == null) {
+      return;
+    }
+
+    _answer = null;
     _errorMessage = null;
     notifyListeners();
   }
@@ -238,6 +264,15 @@ class ContextualLegalConsultationController extends ChangeNotifier {
 
     if (notify) {
       notifyListeners();
+    }
+  }
+
+  void _pushAnswerToHistory(ContextualLegalAnswer answer) {
+    _consultationHistory.removeWhere((item) => item.queryId == answer.queryId);
+    _consultationHistory.insert(0, answer);
+
+    if (_consultationHistory.length > 6) {
+      _consultationHistory.removeRange(6, _consultationHistory.length);
     }
   }
 }

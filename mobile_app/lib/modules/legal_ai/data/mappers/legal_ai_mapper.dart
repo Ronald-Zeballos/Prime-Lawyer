@@ -1,7 +1,9 @@
 import '../../domain/entities/contextual_legal_answer.dart';
+import '../../domain/entities/document_analysis_document_match.dart';
 import '../models/contextual_legal_answer_model.dart';
 import '../../domain/entities/document_analysis_match.dart';
 import '../../domain/entities/document_analysis_preview.dart';
+import '../models/document_analysis_document_match_model.dart';
 import '../models/document_analysis_match_model.dart';
 import '../models/document_analysis_preview_model.dart';
 
@@ -108,6 +110,8 @@ class LegalAiMapper {
       limitations: model.limitations,
       recommendedNextSteps: model.recommendedNextSteps,
       matches: model.matches.map(_matchToDomain).toList(),
+      documentMatches:
+          model.documentMatches.map(_documentMatchToDomain).toList(),
     );
   }
 
@@ -120,7 +124,30 @@ class LegalAiMapper {
       title: model.title,
       processType: model.processType,
       status: model.status,
+      visibility: model.visibility,
+      knowledgeStatus: model.knowledgeStatus,
       score: model.score,
+      matchedDocumentCount: model.matchedDocumentCount,
+      snippet: model.snippet,
+      matchReasons: model.matchReasons,
+    );
+  }
+
+  static DocumentAnalysisDocumentMatch _documentMatchToDomain(
+    DocumentAnalysisDocumentMatchModel model,
+  ) {
+    return DocumentAnalysisDocumentMatch(
+      documentId: model.documentId,
+      caseFileId: model.caseFileId,
+      caseInternalCode: model.caseInternalCode,
+      caseTitle: model.caseTitle,
+      processType: model.processType,
+      status: model.status,
+      originalName: model.originalName,
+      fileType: model.fileType,
+      ocrStatus: model.ocrStatus,
+      score: model.score,
+      snippet: model.snippet,
       matchReasons: model.matchReasons,
     );
   }

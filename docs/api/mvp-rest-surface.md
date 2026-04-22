@@ -35,15 +35,19 @@ Purpose:
 
 - `POST /api/v1/case-files`
 - `GET /api/v1/case-files`
+- `GET /api/v1/case-files/repository`
 - `GET /api/v1/case-files/:id`
 - `PATCH /api/v1/case-files/:id/status`
+- `PATCH /api/v1/case-files/:id/publication`
 
 Purpose:
 
 - create case file
 - list case files
+- list the collaborative repository of published closed cases
 - retrieve case file detail
 - change case file status
+- publish or remove a closed case from the shared repository
 
 ## Documents
 
@@ -107,6 +111,13 @@ The response includes:
 - `usedContextCases` and `usedContextDocuments`
 - full retrieval payload used to build the answer
 - persisted `queryId`
+
+`GET /api/v1/legal-ai/documents/:documentId/analysis-preview` now returns:
+
+- source case and source document metadata
+- case matches with score, matched document count, snippet, visibility and knowledge status
+- document matches with score, snippet and match reasons
+- highlights, limitations and recommended next steps for the PDF viewer experience
 
 ## Audit Logs
 

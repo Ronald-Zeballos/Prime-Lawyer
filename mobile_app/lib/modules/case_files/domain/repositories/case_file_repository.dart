@@ -22,7 +22,22 @@ abstract class CaseFileRepository {
     String? status,
   });
 
+  Future<List<CaseFile>> getCollaborativeRepositoryCases({
+    String? term,
+    String? processType,
+  });
+
   Future<CaseFile> createCaseFile(CreateCaseFileInput input);
 
   Future<CaseFile> getCaseFileById(String id);
+
+  Future<CaseFile> changeCaseStatus({
+    required String caseFileId,
+    required String status,
+  });
+
+  Future<CaseFile> updateCaseKnowledgePublication({
+    required String caseFileId,
+    required bool publish,
+  });
 }

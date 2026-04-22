@@ -12,6 +12,7 @@ class CaseFileModel {
     required this.closedAt,
     required this.visibility,
     required this.knowledgeStatus,
+    required this.publishedAt,
     required this.confidentialityLevel,
     required this.createdAt,
     required this.updatedAt,
@@ -29,6 +30,7 @@ class CaseFileModel {
   final DateTime? closedAt;
   final String visibility;
   final String knowledgeStatus;
+  final DateTime? publishedAt;
   final String confidentialityLevel;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -49,6 +51,9 @@ class CaseFileModel {
           : DateTime.parse(json['closedAt'] as String),
       visibility: json['visibility'] as String? ?? 'PRIVATE',
       knowledgeStatus: json['knowledgeStatus'] as String? ?? 'DRAFT',
+      publishedAt: json['publishedAt'] == null
+          ? null
+          : DateTime.parse(json['publishedAt'] as String),
       confidentialityLevel: json['confidentialityLevel'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),

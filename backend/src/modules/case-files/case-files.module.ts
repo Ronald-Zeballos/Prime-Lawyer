@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { IdentityAccessModule } from '../identity-access/identity-access.module';
 import { CreateCaseFileUseCase } from './application/use-cases/create-case-file/create-case-file.use-case';
 import { GetCaseFileUseCase } from './application/use-cases/get-case-file/get-case-file.use-case';
+import { SearchCollaborativeCaseRepositoryUseCase } from './application/use-cases/search-collaborative-case-repository/search-collaborative-case-repository.use-case';
 import { SearchCaseFilesUseCase } from './application/use-cases/search-case-files/search-case-files.use-case';
 import { ChangeCaseStatusUseCase } from './application/use-cases/change-case-status/change-case-status.use-case';
+import { UpdateCaseKnowledgePublicationUseCase } from './application/use-cases/update-case-knowledge-publication/update-case-knowledge-publication.use-case';
 import { CASE_FILE_REPOSITORY } from './domain/repositories/case-file.repository';
 import { PrismaCaseFileRepository } from './infrastructure/persistence/repositories/prisma-case-file.repository';
 import { CaseFilesController } from './presentation/controllers/case-files.controller';
@@ -15,7 +17,9 @@ import { CaseFilesController } from './presentation/controllers/case-files.contr
     CreateCaseFileUseCase,
     GetCaseFileUseCase,
     SearchCaseFilesUseCase,
+    SearchCollaborativeCaseRepositoryUseCase,
     ChangeCaseStatusUseCase,
+    UpdateCaseKnowledgePublicationUseCase,
     {
       provide: CASE_FILE_REPOSITORY,
       useClass: PrismaCaseFileRepository,

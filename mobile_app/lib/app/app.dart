@@ -17,9 +17,12 @@ import '../modules/auth/presentation/pages/login_page.dart';
 import '../modules/case_files/data/datasources/case_files_remote_data_source.dart';
 import '../modules/case_files/data/repositories/case_file_repository_impl.dart';
 import '../modules/case_files/domain/repositories/case_file_repository.dart';
+import '../modules/case_files/domain/usecases/change_case_file_status_use_case.dart';
 import '../modules/case_files/domain/usecases/create_case_file_use_case.dart';
+import '../modules/case_files/domain/usecases/get_collaborative_repository_cases_use_case.dart';
 import '../modules/case_files/domain/usecases/get_case_file_detail_use_case.dart';
 import '../modules/case_files/domain/usecases/get_case_files_use_case.dart';
+import '../modules/case_files/domain/usecases/update_case_knowledge_publication_use_case.dart';
 import '../modules/document_capture/data/repositories/mobile_document_capture_repository.dart';
 import '../modules/document_capture/domain/repositories/document_capture_repository.dart';
 import '../modules/document_capture/domain/usecases/capture_document_from_camera_use_case.dart';
@@ -29,6 +32,14 @@ import '../modules/clients/data/repositories/client_repository_impl.dart';
 import '../modules/clients/domain/repositories/client_repository.dart';
 import '../modules/clients/domain/usecases/create_client_use_case.dart';
 import '../modules/clients/domain/usecases/get_clients_use_case.dart';
+import '../modules/contract_marketplace/data/datasources/contract_marketplace_remote_data_source.dart';
+import '../modules/contract_marketplace/data/repositories/contract_marketplace_repository_impl.dart';
+import '../modules/contract_marketplace/domain/repositories/contract_marketplace_repository.dart';
+import '../modules/contract_marketplace/domain/usecases/generate_contract_use_case.dart';
+import '../modules/contract_marketplace/domain/usecases/get_active_contract_templates_use_case.dart';
+import '../modules/contract_marketplace/domain/usecases/get_contract_template_use_case.dart';
+import '../modules/contract_marketplace/domain/usecases/get_generated_contract_pdf_use_case.dart';
+import '../modules/contract_marketplace/domain/usecases/get_generated_contracts_use_case.dart';
 import '../modules/documents/data/datasources/documents_remote_data_source.dart';
 import '../modules/documents/data/repositories/document_repository_impl.dart';
 import '../modules/documents/domain/repositories/document_repository.dart';
@@ -130,6 +141,41 @@ class PrimeLawyerApp extends StatelessWidget {
             context.read<ClientRepository>(),
           ),
         ),
+        Provider<ContractMarketplaceRemoteDataSource>(
+          create: (context) => ContractMarketplaceRemoteDataSource(
+            context.read<ApiClient>(),
+          ),
+        ),
+        Provider<ContractMarketplaceRepository>(
+          create: (context) => ContractMarketplaceRepositoryImpl(
+            context.read<ContractMarketplaceRemoteDataSource>(),
+          ),
+        ),
+        Provider<GetActiveContractTemplatesUseCase>(
+          create: (context) => GetActiveContractTemplatesUseCase(
+            context.read<ContractMarketplaceRepository>(),
+          ),
+        ),
+        Provider<GetContractTemplateUseCase>(
+          create: (context) => GetContractTemplateUseCase(
+            context.read<ContractMarketplaceRepository>(),
+          ),
+        ),
+        Provider<GenerateContractUseCase>(
+          create: (context) => GenerateContractUseCase(
+            context.read<ContractMarketplaceRepository>(),
+          ),
+        ),
+        Provider<GetGeneratedContractsUseCase>(
+          create: (context) => GetGeneratedContractsUseCase(
+            context.read<ContractMarketplaceRepository>(),
+          ),
+        ),
+        Provider<GetGeneratedContractPdfUseCase>(
+          create: (context) => GetGeneratedContractPdfUseCase(
+            context.read<ContractMarketplaceRepository>(),
+          ),
+        ),
         Provider<CaseFilesRemoteDataSource>(
           create: (context) => CaseFilesRemoteDataSource(
             context.read<ApiClient>(),
@@ -152,6 +198,21 @@ class PrimeLawyerApp extends StatelessWidget {
         ),
         Provider<GetCaseFileDetailUseCase>(
           create: (context) => GetCaseFileDetailUseCase(
+            context.read<CaseFileRepository>(),
+          ),
+        ),
+        Provider<ChangeCaseFileStatusUseCase>(
+          create: (context) => ChangeCaseFileStatusUseCase(
+            context.read<CaseFileRepository>(),
+          ),
+        ),
+        Provider<UpdateCaseKnowledgePublicationUseCase>(
+          create: (context) => UpdateCaseKnowledgePublicationUseCase(
+            context.read<CaseFileRepository>(),
+          ),
+        ),
+        Provider<GetCollaborativeRepositoryCasesUseCase>(
+          create: (context) => GetCollaborativeRepositoryCasesUseCase(
             context.read<CaseFileRepository>(),
           ),
         ),

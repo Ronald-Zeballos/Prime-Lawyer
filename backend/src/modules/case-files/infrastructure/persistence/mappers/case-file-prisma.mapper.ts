@@ -25,6 +25,7 @@ export class CaseFilePrismaMapper {
       knowledgeStatus: CaseFilePrismaMapper.toKnowledgeStatus(
         caseFile.knowledgeStatus,
       ),
+      publishedAt: caseFile.publishedAt,
       confidentialityLevel: CaseFilePrismaMapper.toConfidentialityLevel(
         caseFile.confidentialityLevel,
       ),

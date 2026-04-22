@@ -19,6 +19,7 @@ export class CaseFileResponse {
   closedAt!: Date | null;
   visibility!: CaseVisibility;
   knowledgeStatus!: KnowledgeStatus;
+  publishedAt!: Date | null;
   confidentialityLevel!: ConfidentialityLevel;
   createdAt!: Date;
   updatedAt!: Date;
@@ -37,6 +38,7 @@ export class CaseFileResponse {
       closedAt: dto.closedAt,
       visibility: dto.visibility,
       knowledgeStatus: dto.knowledgeStatus,
+      publishedAt: dto.publishedAt,
       confidentialityLevel: dto.confidentialityLevel,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
@@ -63,6 +64,7 @@ class _ContextualLegalConsultationView extends StatefulWidget {
 class _ContextualLegalConsultationViewState
     extends State<_ContextualLegalConsultationView> {
   final _formKey = GlobalKey<FormState>();
+  final _scrollController = ScrollController();
   late final TextEditingController _questionController;
 
   @override
@@ -75,6 +77,7 @@ class _ContextualLegalConsultationViewState
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _questionController.dispose();
     super.dispose();
   }
@@ -99,6 +102,7 @@ class _ContextualLegalConsultationViewState
           }
 
           return ListView(
+            controller: _scrollController,
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
             children: [
               _HeroSection(
@@ -279,6 +283,15 @@ class _ContextualLegalConsultationViewState
                   ),
                 ),
               ],
+              if (controller.hasConsultationHistory) ...[
+                const SizedBox(height: 16),
+                _ConsultationHistorySection(
+                  consultations: controller.consultationHistory,
+                  currentQueryId: controller.answer?.queryId,
+                  onOpenConsultation: (answer) =>
+                      _openPreviousConsultation(context, answer),
+                ),
+              ],
               const SizedBox(height: 16),
               if (!controller.hasAnswer)
                 _EmptyAnswerState(
@@ -286,7 +299,13 @@ class _ContextualLegalConsultationViewState
                   description: strings.aiNoAnswerYetDescription,
                 )
               else
-                _AnswerSections(answer: controller.answer!),
+                _AnswerSections(
+                  answer: controller.answer!,
+                  onCopyAnswer: () => _copyAnswer(context, controller.answer!),
+                  onStartNewQuestion: () => _startNewQuestion(context),
+                  onUseFollowUpQuestion: (question) =>
+                      _prepareFollowUpQuestion(question),
+                ),
             ],
           );
         },
@@ -300,9 +319,107 @@ class _ContextualLegalConsultationViewState
     }
 
     FocusScope.of(context).unfocus();
-    await context
+    final controller = context.read<ContextualLegalConsultationController>();
+    final success = await controller.askQuestion(_questionController.text);
+
+    if (!mounted || !success) {
+      return;
+    }
+
+    final answer = controller.answer;
+
+    if (answer != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.strings.aiConsultationReady(answer.groundingStatus),
+          ),
+        ),
+      );
+    }
+
+    await _scrollToAnswer();
+  }
+
+  Future<void> _scrollToAnswer() async {
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+
+    if (!_scrollController.hasClients) {
+      return;
+    }
+
+    await _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  Future<void> _openPreviousConsultation(
+    BuildContext context,
+    ContextualLegalAnswer answer,
+  ) async {
+    _questionController
+      ..text = answer.question
+      ..selection = TextSelection.fromPosition(
+        TextPosition(offset: answer.question.length),
+      );
+
+    context
         .read<ContextualLegalConsultationController>()
-        .askQuestion(_questionController.text);
+        .showHistoryAnswer(answer.queryId);
+
+    await _scrollToAnswer();
+  }
+
+  Future<void> _copyAnswer(
+    BuildContext context,
+    ContextualLegalAnswer answer,
+  ) async {
+    await Clipboard.setData(ClipboardData(text: answer.answer));
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.strings.aiAnswerCopied),
+      ),
+    );
+  }
+
+  Future<void> _startNewQuestion(BuildContext context) async {
+    context.read<ContextualLegalConsultationController>().clearCurrentAnswer();
+    _questionController.clear();
+
+    if (!_scrollController.hasClients) {
+      return;
+    }
+
+    await _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  Future<void> _prepareFollowUpQuestion(String question) async {
+    _questionController
+      ..text = question
+      ..selection = TextSelection.fromPosition(
+        TextPosition(offset: question.length),
+      );
+
+    if (!_scrollController.hasClients) {
+      return;
+    }
+
+    await _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
+    );
   }
 }
 
@@ -463,12 +580,130 @@ class _EmptyAnswerState extends StatelessWidget {
   }
 }
 
-class _AnswerSections extends StatelessWidget {
-  const _AnswerSections({
+class _ConsultationHistorySection extends StatelessWidget {
+  const _ConsultationHistorySection({
+    required this.consultations,
+    required this.currentQueryId,
+    required this.onOpenConsultation,
+  });
+
+  final List<ContextualLegalAnswer> consultations;
+  final String? currentQueryId;
+  final ValueChanged<ContextualLegalAnswer> onOpenConsultation;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = context.strings;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              strings.aiConsultationHistoryTitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            Text(strings.aiConsultationHistoryDescription),
+            const SizedBox(height: 12),
+            for (final answer in consultations)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _ConsultationHistoryTile(
+                  answer: answer,
+                  isCurrent: answer.queryId == currentQueryId,
+                  onTap: () => onOpenConsultation(answer),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ConsultationHistoryTile extends StatelessWidget {
+  const _ConsultationHistoryTile({
     required this.answer,
+    required this.isCurrent,
+    required this.onTap,
   });
 
   final ContextualLegalAnswer answer;
+  final bool isCurrent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = context.strings;
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isCurrent ? const Color(0xFFE6ECF5) : const Color(0xFFF7F2EA),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    answer.question,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _GroundingChip(status: answer.groundingStatus),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              strings.aiHistoryContextSummary(
+                answer.usedContextCases.length,
+                answer.usedContextDocuments.length,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              strings.formatDateTime(answer.createdAt),
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AnswerSections extends StatelessWidget {
+  const _AnswerSections({
+    required this.answer,
+    required this.onCopyAnswer,
+    required this.onStartNewQuestion,
+    required this.onUseFollowUpQuestion,
+  });
+
+  final ContextualLegalAnswer answer;
+  final VoidCallback onCopyAnswer;
+  final VoidCallback onStartNewQuestion;
+  final ValueChanged<String> onUseFollowUpQuestion;
 
   @override
   Widget build(BuildContext context) {
@@ -515,6 +750,32 @@ class _AnswerSections extends StatelessWidget {
                   strings.aiQueryIdLabel(answer.queryId),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  strings.aiQuestionAskedLabel,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 6),
+                Text(answer.question),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: onCopyAnswer,
+                      icon: const Icon(Icons.content_copy_rounded),
+                      label: Text(strings.aiCopyAnswerAction),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: onStartNewQuestion,
+                      icon: const Icon(Icons.edit_note_rounded),
+                      label: Text(strings.aiNewQuestionAction),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -531,9 +792,10 @@ class _AnswerSections extends StatelessWidget {
           items: answer.recommendedNextSteps,
         ),
         const SizedBox(height: 16),
-        _BulletSectionCard(
-          title: strings.aiFollowUpQuestionsTitle,
-          items: answer.followUpQuestions,
+        _FollowUpQuestionsCard(
+          title: strings.aiFollowUpSuggestionsTitle,
+          questions: answer.followUpQuestions,
+          onUseQuestion: onUseFollowUpQuestion,
         ),
         const SizedBox(height: 16),
         _BulletSectionCard(
@@ -747,6 +1009,55 @@ class _BulletSectionCard extends StatelessWidget {
                   ],
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FollowUpQuestionsCard extends StatelessWidget {
+  const _FollowUpQuestionsCard({
+    required this.title,
+    required this.questions,
+    required this.onUseQuestion,
+  });
+
+  final String title;
+  final List<String> questions;
+  final ValueChanged<String> onUseQuestion;
+
+  @override
+  Widget build(BuildContext context) {
+    if (questions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final question in questions)
+                  ActionChip(
+                    label: Text(question),
+                    onPressed: () => onUseQuestion(question),
+                  ),
+              ],
+            ),
           ],
         ),
       ),

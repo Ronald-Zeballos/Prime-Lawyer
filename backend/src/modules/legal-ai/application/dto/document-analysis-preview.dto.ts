@@ -21,7 +21,26 @@ export type DocumentAnalysisPreviewMatchDto = {
   title: string;
   processType: string;
   status: string;
+  visibility: string;
+  knowledgeStatus: string;
   score: number;
+  matchedDocumentCount: number;
+  snippet: string | null;
+  matchReasons: string[];
+};
+
+export type DocumentAnalysisPreviewDocumentMatchDto = {
+  documentId: string;
+  caseFileId: string;
+  caseInternalCode: string;
+  caseTitle: string;
+  processType: string;
+  status: string;
+  originalName: string;
+  fileType: string;
+  ocrStatus: string;
+  score: number;
+  snippet: string | null;
   matchReasons: string[];
 };
 
@@ -34,4 +53,5 @@ export type DocumentAnalysisPreviewDto = {
   limitations: string[];
   recommendedNextSteps: string[];
   matches: DocumentAnalysisPreviewMatchDto[];
+  documentMatches: DocumentAnalysisPreviewDocumentMatchDto[];
 };

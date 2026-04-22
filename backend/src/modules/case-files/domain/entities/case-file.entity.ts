@@ -31,6 +31,7 @@ type CaseFileEntityProps = {
   closedAt: Date | null;
   visibility: CaseVisibility;
   knowledgeStatus: KnowledgeStatus;
+  publishedAt: Date | null;
   confidentialityLevel: ConfidentialityLevelValue;
   createdAt: Date;
   updatedAt: Date;
@@ -49,6 +50,7 @@ type CreateCaseFileEntityProps = {
   closedAt?: Date | null;
   visibility?: string;
   knowledgeStatus?: string;
+  publishedAt?: Date | null;
   confidentialityLevel?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -72,6 +74,7 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
       closedAt: props.closedAt ?? null,
       visibility: this.normalizeVisibility(props.visibility),
       knowledgeStatus: this.normalizeKnowledgeStatus(props.knowledgeStatus),
+      publishedAt: props.publishedAt ?? null,
       confidentialityLevel: ConfidentialityLevelValue.create(
         props.confidentialityLevel ?? ConfidentialityLevel.STANDARD,
       ),
@@ -84,17 +87,54 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
     const nextStatus = CaseStatusValue.create(status);
 
     this.props.status = nextStatus;
-    this.touch();
-
-    if (
-      nextStatus.value === CaseStatus.CLOSED ||
-      nextStatus.value === CaseStatus.ARCHIVED
-    ) {
+    if (this.isClosedStatus(nextStatus.value)) {
       this.props.closedAt = this.props.closedAt ?? new Date();
-      return;
+      if (!this.isPublishedToRepository) {
+        this.props.visibility = CaseVisibility.PRIVATE;
+        this.props.publishedAt = null;
+        this.props.knowledgeStatus = this.computeKnowledgeStatusForClosedCase();
+      }
+    } else {
+      this.props.closedAt = null;
+      this.props.visibility = CaseVisibility.PRIVATE;
+      this.props.publishedAt = null;
+      this.props.knowledgeStatus = KnowledgeStatus.DRAFT;
     }
 
-    this.props.closedAt = null;
+    this.touch();
+  }
+
+  publishToRepository(publishedAt?: Date): void {
+    if (!this.isClosedStatus(this.props.status.value)) {
+      throw new DomainValidationError(
+        'Only closed or archived case files can be published to the collaborative repository.',
+      );
+    }
+
+    if (
+      this.props.confidentialityLevel.value ===
+      ConfidentialityLevel.HIGHLY_CONFIDENTIAL
+    ) {
+      throw new DomainValidationError(
+        'Highly confidential case files cannot be published to the collaborative repository.',
+      );
+    }
+
+    const eventDate = publishedAt ?? new Date();
+
+    this.props.visibility = CaseVisibility.COMMUNITY;
+    this.props.knowledgeStatus = KnowledgeStatus.PUBLISHED;
+    this.props.publishedAt = this.props.publishedAt ?? eventDate;
+    this.touch(eventDate);
+  }
+
+  unpublishFromRepository(): void {
+    this.props.visibility = CaseVisibility.PRIVATE;
+    this.props.publishedAt = null;
+    this.props.knowledgeStatus = this.isClosedStatus(this.props.status.value)
+      ? this.computeKnowledgeStatusForClosedCase()
+      : KnowledgeStatus.DRAFT;
+    this.touch();
   }
 
   get internalCode(): string {
@@ -141,6 +181,10 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
     return this.props.knowledgeStatus;
   }
 
+  get publishedAt(): Date | null {
+    return this.props.publishedAt;
+  }
+
   get confidentialityLevel(): ConfidentialityLevelValue {
     return this.props.confidentialityLevel;
   }
@@ -167,6 +211,21 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
 
   belongsTo(userId: string): boolean {
     return this.props.ownerUserId === userId.trim();
+  }
+
+  get isPublishedToRepository(): boolean {
+    return (
+      this.props.visibility === CaseVisibility.COMMUNITY &&
+      this.props.knowledgeStatus === KnowledgeStatus.PUBLISHED
+    );
+  }
+
+  get canBePublishedToRepository(): boolean {
+    return (
+      this.isClosedStatus(this.props.status.value) &&
+      this.props.confidentialityLevel.value !==
+        ConfidentialityLevel.HIGHLY_CONFIDENTIAL
+    );
   }
 
   private static normalizeRequiredText(value: string, fieldName: string): string {
@@ -221,5 +280,20 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
 
   private touch(updatedAt?: Date): void {
     this.props.updatedAt = updatedAt ?? new Date();
+  }
+
+  private isClosedStatus(status: string): boolean {
+    return status === CaseStatus.CLOSED || status === CaseStatus.ARCHIVED;
+  }
+
+  private computeKnowledgeStatusForClosedCase(): KnowledgeStatus {
+    if (
+      this.props.confidentialityLevel.value ===
+      ConfidentialityLevel.HIGHLY_CONFIDENTIAL
+    ) {
+      return KnowledgeStatus.EXCLUDED;
+    }
+
+    return KnowledgeStatus.ELIGIBLE;
   }
 }

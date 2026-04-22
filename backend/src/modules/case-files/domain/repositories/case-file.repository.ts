@@ -8,6 +8,10 @@ export type SearchCaseFilesFilters = {
   status?: string;
   ownerUserId?: string;
   responsibleUserId?: string;
+  visibility?: string;
+  knowledgeStatus?: string;
+  processType?: string;
+  limit?: number;
 };
 
 export interface CaseFileRepository {

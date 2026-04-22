@@ -37,6 +37,13 @@ class _CaseFilesView extends StatelessWidget {
         title: Text(strings.caseFilesTitle),
         actions: [
           IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(AppRoutes.knowledgeRepository);
+            },
+            tooltip: strings.openKnowledgeRepository,
+            icon: const Icon(Icons.library_books_outlined),
+          ),
+          IconButton(
             onPressed: controller.isLoading ? null : controller.refresh,
             tooltip: strings.refreshCaseFiles,
             icon: const Icon(Icons.refresh_rounded),

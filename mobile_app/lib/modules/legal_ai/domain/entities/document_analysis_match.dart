@@ -5,7 +5,11 @@ class DocumentAnalysisMatch {
     required this.title,
     required this.processType,
     required this.status,
+    required this.visibility,
+    required this.knowledgeStatus,
     required this.score,
+    required this.matchedDocumentCount,
+    required this.snippet,
     required this.matchReasons,
   });
 
@@ -14,6 +18,10 @@ class DocumentAnalysisMatch {
   final String title;
   final String processType;
   final String status;
+  final String visibility;
+  final String knowledgeStatus;
   final int score;
+  final int matchedDocumentCount;
+  final String? snippet;
   final List<String> matchReasons;
 }

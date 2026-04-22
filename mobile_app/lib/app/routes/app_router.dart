@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../modules/auth/presentation/pages/login_page.dart';
 import '../../modules/case_files/presentation/pages/case_file_detail_page.dart';
 import '../../modules/case_files/presentation/pages/case_files_page.dart';
+import '../../modules/case_files/presentation/pages/knowledge_repository_page.dart';
 import '../../modules/clients/presentation/pages/clients_page.dart';
+import '../../modules/contract_marketplace/presentation/pages/contract_marketplace_page.dart';
 import '../../modules/documents/presentation/pages/documents_page.dart';
 import '../../modules/home/presentation/pages/home_page.dart';
 import '../../modules/legal_ai/presentation/pages/contextual_legal_consultation_page.dart';
@@ -49,6 +51,16 @@ class AppRouter {
       case AppRoutes.caseFiles:
         return MaterialPageRoute<void>(
           builder: (_) => const CaseFilesPage(),
+          settings: settings,
+        );
+      case AppRoutes.knowledgeRepository:
+        return MaterialPageRoute<void>(
+          builder: (_) => const KnowledgeRepositoryPage(),
+          settings: settings,
+        );
+      case AppRoutes.contractMarketplace:
+        return MaterialPageRoute<void>(
+          builder: (_) => const ContractMarketplacePage(),
           settings: settings,
         );
       case AppRoutes.caseFileDetail:

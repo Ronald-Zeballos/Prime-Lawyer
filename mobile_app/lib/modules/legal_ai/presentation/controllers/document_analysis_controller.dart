@@ -39,4 +39,8 @@ class DocumentAnalysisController extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
+
+  Future<void> refresh() {
+    return load();
+  }
 }

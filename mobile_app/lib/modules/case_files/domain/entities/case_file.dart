@@ -12,6 +12,7 @@ class CaseFile {
     required this.closedAt,
     required this.visibility,
     required this.knowledgeStatus,
+    required this.publishedAt,
     required this.confidentialityLevel,
     required this.createdAt,
     required this.updatedAt,
@@ -29,6 +30,7 @@ class CaseFile {
   final DateTime? closedAt;
   final String visibility;
   final String knowledgeStatus;
+  final DateTime? publishedAt;
   final String confidentialityLevel;
   final DateTime createdAt;
   final DateTime updatedAt;

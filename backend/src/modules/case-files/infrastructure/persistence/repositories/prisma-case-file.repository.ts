@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import {
+  CaseVisibility as PrismaCaseVisibility,
+  KnowledgeStatus as PrismaKnowledgeStatus,
+  Prisma,
+} from '@prisma/client';
 import { PrismaService } from '../../../../../shared/infrastructure/prisma/prisma.service';
 import { CaseFileEntity } from '../../../domain/entities/case-file.entity';
 import {
@@ -32,6 +36,7 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
 
   async search(filters?: SearchCaseFilesFilters): Promise<CaseFileEntity[]> {
     const normalizedTerm = filters?.term?.trim();
+    const normalizedProcessType = filters?.processType?.trim();
     const where: Prisma.CaseFileWhereInput = {
       ...(filters?.ownerUserId
         ? { ownerUserId: filters.ownerUserId.trim() }
@@ -39,8 +44,28 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
       ...(filters?.status
         ? { status: CaseStatusValue.create(filters.status).value }
         : {}),
+      ...(filters?.visibility
+        ? {
+            visibility: this.normalizeVisibility(filters.visibility),
+          }
+        : {}),
+      ...(filters?.knowledgeStatus
+        ? {
+            knowledgeStatus: this.normalizeKnowledgeStatus(
+              filters.knowledgeStatus,
+            ),
+          }
+        : {}),
       ...(filters?.responsibleUserId
         ? { responsibleUserId: filters.responsibleUserId.trim() }
+        : {}),
+      ...(normalizedProcessType
+        ? {
+            processType: {
+              contains: normalizedProcessType,
+              mode: 'insensitive',
+            },
+          }
         : {}),
       ...(normalizedTerm
         ? {
@@ -82,7 +107,12 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
 
     const caseFiles = await this.prisma.caseFile.findMany({
       where,
-      orderBy: [{ createdAt: 'desc' }],
+      orderBy:
+        filters?.knowledgeStatus?.trim().toUpperCase() ===
+        PrismaKnowledgeStatus.PUBLISHED
+          ? [{ publishedAt: 'desc' }, { updatedAt: 'desc' }]
+          : [{ createdAt: 'desc' }],
+      ...(filters?.limit ? { take: Math.max(Math.trunc(filters.limit), 1) } : {}),
     });
 
     return caseFiles.map((caseFile) => CaseFilePrismaMapper.toDomain(caseFile));
@@ -105,6 +135,7 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
         closedAt: caseFile.closedAt,
         visibility: caseFile.visibility,
         knowledgeStatus: caseFile.knowledgeStatus,
+        publishedAt: caseFile.publishedAt,
         searchText: caseFile.searchText,
         confidentialityLevel: caseFile.confidentialityLevel.value,
         createdAt: caseFile.createdAt,
@@ -131,6 +162,7 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
         closedAt: caseFile.closedAt,
         visibility: caseFile.visibility,
         knowledgeStatus: caseFile.knowledgeStatus,
+        publishedAt: caseFile.publishedAt,
         searchText: caseFile.searchText,
         confidentialityLevel: caseFile.confidentialityLevel.value,
         updatedAt: caseFile.updatedAt,
@@ -138,5 +170,25 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
     });
 
     return CaseFilePrismaMapper.toDomain(updatedCaseFile);
+  }
+
+  private normalizeVisibility(value: string): PrismaCaseVisibility {
+    const normalizedValue = value.trim().toUpperCase() as PrismaCaseVisibility;
+
+    if (!Object.values(PrismaCaseVisibility).includes(normalizedValue)) {
+      throw new Error(`Unsupported case visibility: ${value}`);
+    }
+
+    return normalizedValue;
+  }
+
+  private normalizeKnowledgeStatus(value: string): PrismaKnowledgeStatus {
+    const normalizedValue = value.trim().toUpperCase() as PrismaKnowledgeStatus;
+
+    if (!Object.values(PrismaKnowledgeStatus).includes(normalizedValue)) {
+      throw new Error(`Unsupported knowledge status: ${value}`);
+    }
+
+    return normalizedValue;
   }
 }

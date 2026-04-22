@@ -6,7 +6,9 @@ class AppRoutes {
   static const String clients = '/clients';
   static const String caseFiles = '/case-files';
   static const String caseFileDetail = '/case-files/detail';
+  static const String knowledgeRepository = '/knowledge-repository';
   static const String documents = '/documents';
   static const String profile = '/profile';
   static const String legalAiConsultation = '/legal-ai/consultation';
+  static const String contractMarketplace = '/contract-marketplace';
 }

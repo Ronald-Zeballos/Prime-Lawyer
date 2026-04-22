@@ -29,6 +29,19 @@ class CaseFileRepositoryImpl implements CaseFileRepository {
   }
 
   @override
+  Future<CaseFile> changeCaseStatus({
+    required String caseFileId,
+    required String status,
+  }) async {
+    final caseFileModel = await _remoteDataSource.changeCaseStatus(
+      caseFileId: caseFileId,
+      status: status,
+    );
+
+    return CaseFileMapper.toDomain(caseFileModel);
+  }
+
+  @override
   Future<List<CaseFile>> getCaseFiles({
     String? term,
     String? status,
@@ -39,5 +52,31 @@ class CaseFileRepositoryImpl implements CaseFileRepository {
     );
 
     return caseFileModels.map(CaseFileMapper.toDomain).toList();
+  }
+
+  @override
+  Future<List<CaseFile>> getCollaborativeRepositoryCases({
+    String? term,
+    String? processType,
+  }) async {
+    final caseFileModels = await _remoteDataSource.getCollaborativeRepositoryCases(
+      term: term,
+      processType: processType,
+    );
+
+    return caseFileModels.map(CaseFileMapper.toDomain).toList();
+  }
+
+  @override
+  Future<CaseFile> updateCaseKnowledgePublication({
+    required String caseFileId,
+    required bool publish,
+  }) async {
+    final caseFileModel = await _remoteDataSource.updateCaseKnowledgePublication(
+      caseFileId: caseFileId,
+      publish: publish,
+    );
+
+    return CaseFileMapper.toDomain(caseFileModel);
   }
 }

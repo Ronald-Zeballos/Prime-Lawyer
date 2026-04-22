@@ -43,6 +43,9 @@ class CaseFileListItem extends StatelessWidget {
                   _InfoChip(label: strings.caseStatus(caseFile.status)),
                   _InfoChip(label: caseFile.processType),
                   _InfoChip(
+                    label: strings.knowledgeStatus(caseFile.knowledgeStatus),
+                  ),
+                  _InfoChip(
                     label: strings.confidentialityLevel(
                       caseFile.confidentialityLevel,
                     ),

@@ -52,7 +52,11 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
 11. Register a simple local document with the file picker.
 12. Confirm the document appears in the case file document list.
 13. Confirm the document now shows OCR status and a local OCR preview.
-14. Explain that the backend registered audit events for login, client creation, case file creation, document registration and OCR processing.
+14. Open the PDF viewer and trigger `Analizar documento`.
+15. Confirm the analysis screen shows summary, findings, case matches and document matches.
+16. Return to the case detail, close the case and publish it to the collaborative repository.
+17. Open the collaborative repository and verify the published case appears there.
+18. Explain that the backend registered audit events for login, client creation, case file creation, document registration, OCR processing, status changes and repository publication.
 
 ## Optional API Checks
 

@@ -5,6 +5,7 @@ import {
 } from '../../application/ports/document-analysis-preview-builder.port';
 import {
   DocumentAnalysisPreviewDto,
+  DocumentAnalysisPreviewDocumentMatchDto,
   DocumentAnalysisPreviewMatchDto,
 } from '../../application/dto/document-analysis-preview.dto';
 
@@ -15,22 +16,54 @@ export class HeuristicDocumentAnalysisPreviewBuilderService
   build(
     command: BuildDocumentAnalysisPreviewCommand,
   ): DocumentAnalysisPreviewDto {
-    const { sourceCaseFile, sourceDocument, candidateCaseFiles } = command;
-    const matches = candidateCaseFiles
-      .map((candidateCaseFile) =>
-        this.buildMatch(sourceCaseFile, sourceDocument.originalName, candidateCaseFile),
-      )
-      .filter(
-        (match): match is DocumentAnalysisPreviewMatchDto => match !== null,
-      )
-      .sort((left, right) => right.score - left.score)
-      .slice(0, 5);
+    const { sourceCaseFile, sourceDocument, semanticSearch } = command;
+    const matches = semanticSearch.caseMatches.map(
+      (match): DocumentAnalysisPreviewMatchDto => ({
+        caseFileId: match.caseFileId,
+        internalCode: match.internalCode,
+        title: match.title,
+        processType: match.processType,
+        status: match.status,
+        visibility: match.visibility,
+        knowledgeStatus: match.knowledgeStatus,
+        score: match.score,
+        matchedDocumentCount: match.matchedDocumentCount,
+        snippet: match.snippet,
+        matchReasons: match.matchReasons,
+      }),
+    );
+    const documentMatches = semanticSearch.documentMatches.map(
+      (match): DocumentAnalysisPreviewDocumentMatchDto => ({
+        documentId: match.documentId,
+        caseFileId: match.caseFileId,
+        caseInternalCode: match.caseInternalCode,
+        caseTitle: match.caseTitle,
+        processType: match.processType,
+        status: match.status,
+        originalName: match.originalName,
+        fileType: match.fileType,
+        ocrStatus: match.ocrStatus,
+        score: match.score,
+        snippet: match.snippet,
+        matchReasons: match.matchReasons,
+      }),
+    );
+    const sourceHasSearchableText =
+      (sourceDocument.ocrText?.trim().length ?? 0) > 0;
+    const strongestCaseMatch = matches.length === 0 ? null : matches[0];
+    const strongestDocumentMatch = documentMatches.length === 0
+      ? null
+      : documentMatches[0];
+    const summary = this.buildSummary({
+      sourceDocumentName: sourceDocument.originalName,
+      caseMatchesCount: matches.length,
+      documentMatchesCount: documentMatches.length,
+      sourceHasSearchableText,
+    });
 
     return {
       mode: 'PREVIEW',
-      summary: matches.length > 0
-        ? `Preview analysis found ${matches.length} potentially related cases using title, process type and document naming patterns.`
-        : 'Preview analysis did not find strong metadata matches yet. Add more case files or richer case naming to improve early retrieval.',
+      summary,
       sourceCaseFile: {
         id: sourceCaseFile.id.value,
         internalCode: sourceCaseFile.internalCode,
@@ -46,134 +79,119 @@ export class HeuristicDocumentAnalysisPreviewBuilderService
         ocrStatus: sourceDocument.ocrStatus,
         uploadSource: sourceDocument.uploadSource,
       },
-      highlights: [
-        `Source case: ${sourceCaseFile.internalCode}.`,
-        `Case title detected from metadata: ${sourceCaseFile.title}.`,
-        `Process type detected from metadata: ${sourceCaseFile.processType}.`,
-        `Document is currently stored as ${sourceDocument.fileType.value} with OCR status ${sourceDocument.ocrStatus}.`,
-      ],
+      highlights: this.buildHighlights({
+        sourceCaseFile: sourceCaseFile.internalCode,
+        sourceCaseTitle: sourceCaseFile.title,
+        sourceProcessType: sourceCaseFile.processType,
+        sourceDocumentName: sourceDocument.originalName,
+        sourceDocumentType: sourceDocument.fileType.value,
+        sourceDocumentOcrStatus: sourceDocument.ocrStatus,
+        sourceHasSearchableText,
+        strongestCaseMatch,
+        strongestDocumentMatch,
+        documentMatchesCount: documentMatches.length,
+      }),
       limitations: [
-        'This preview does not read full PDF text yet.',
-        'Similarity is based on metadata and naming patterns, not embeddings.',
-        'Real semantic search will still require embeddings plus an AI provider configuration.',
+        sourceHasSearchableText
+          ? 'This preview uses heuristic retrieval over metadata plus available OCR text, not a full legal reading of every clause.'
+          : 'The document does not expose usable OCR text yet, so matching leans more heavily on case metadata and file naming.',
+        'Similarity is still heuristic and does not use embeddings or jurisprudential ranking yet.',
+        'This preview accelerates review, but it does not replace a lawyer validating the cited matches and source PDFs.',
       ],
-      recommendedNextSteps: [
-        'Keep uploading documents as PDF so the evidence trail stays reviewable.',
-        sourceDocument.ocrStatus === 'COMPLETED'
-          ? 'Reuse OCR text in the next sprint to improve retrieval and legal answers.'
-          : 'Re-run OCR processing if the document still does not have searchable text.',
-        'Connect OpenAI embeddings later to move from metadata similarity to semantic retrieval.',
-      ],
+      recommendedNextSteps: this.buildRecommendedNextSteps({
+        sourceDocumentName: sourceDocument.originalName,
+        sourceDocumentOcrStatus: sourceDocument.ocrStatus,
+        strongestCaseMatch,
+        strongestDocumentMatch,
+      }),
       matches,
+      documentMatches,
     };
   }
 
-  private buildMatch(
-    sourceCaseFile: BuildDocumentAnalysisPreviewCommand['sourceCaseFile'],
-    sourceDocumentName: string,
-    candidateCaseFile: BuildDocumentAnalysisPreviewCommand['candidateCaseFiles'][number],
-  ): DocumentAnalysisPreviewMatchDto | null {
-    const sourceTokens = this.tokenize(
-      `${sourceCaseFile.title} ${sourceCaseFile.processType} ${sourceDocumentName}`,
-    );
-    const candidateTokens = this.tokenize(
-      `${candidateCaseFile.title} ${candidateCaseFile.processType} ${candidateCaseFile.internalCode}`,
-    );
-    const sharedTokens = [...sourceTokens].filter((token) =>
-      candidateTokens.has(token),
-    );
-    const reasons: string[] = [];
-    let score = sharedTokens.length * 14;
+  private buildSummary(params: {
+    sourceDocumentName: string;
+    caseMatchesCount: number;
+    documentMatchesCount: number;
+    sourceHasSearchableText: boolean;
+  }): string {
+    const retrievalMode = params.sourceHasSearchableText
+      ? 'metadata plus OCR-backed retrieval'
+      : 'metadata-first retrieval';
 
-    if (
-      this.normalize(sourceCaseFile.processType) ===
-      this.normalize(candidateCaseFile.processType)
-    ) {
-      score += 35;
-      reasons.push(`Same process type: ${candidateCaseFile.processType}.`);
+    if (params.caseMatchesCount > 0 || params.documentMatchesCount > 0) {
+      return `Preview analysis for ${params.sourceDocumentName} found ${params.caseMatchesCount} related case files and ${params.documentMatchesCount} supporting documents using ${retrievalMode}.`;
     }
 
-    if (
-      this.normalize(sourceCaseFile.title) ===
-      this.normalize(candidateCaseFile.title)
-    ) {
-      score += 24;
-      reasons.push('Very close case title.');
-    }
+    return `Preview analysis for ${params.sourceDocumentName} did not find strong related cases yet. Add more closed matters, richer case descriptions, or searchable OCR text to strengthen retrieval.`;
+  }
 
-    if (sharedTokens.length > 0) {
-      reasons.push(
-        `Shared keywords: ${sharedTokens.slice(0, 4).join(', ')}.`,
+  private buildHighlights(params: {
+    sourceCaseFile: string;
+    sourceCaseTitle: string;
+    sourceProcessType: string;
+    sourceDocumentName: string;
+    sourceDocumentType: string;
+    sourceDocumentOcrStatus: string;
+    sourceHasSearchableText: boolean;
+    strongestCaseMatch: DocumentAnalysisPreviewMatchDto | null;
+    strongestDocumentMatch: DocumentAnalysisPreviewDocumentMatchDto | null;
+    documentMatchesCount: number;
+  }): string[] {
+    const items = [
+      `Source case ${params.sourceCaseFile} keeps the analysis anchored to ${params.sourceCaseTitle}.`,
+      `Process type detected for retrieval: ${params.sourceProcessType}.`,
+      `Source document ${params.sourceDocumentName} is stored as ${params.sourceDocumentType} with OCR status ${params.sourceDocumentOcrStatus}.`,
+      params.sourceHasSearchableText
+        ? 'Searchable OCR text was available and used to enrich document-level matching.'
+        : 'The preview had to rely mostly on metadata because searchable OCR text is still limited.',
+    ];
+
+    if (params.strongestCaseMatch != null) {
+      items.push(
+        `Strongest related case: ${params.strongestCaseMatch.internalCode} with score ${params.strongestCaseMatch.score}.`,
       );
     }
 
-    if (sourceCaseFile.status.value === candidateCaseFile.status.value) {
-      score += 8;
-      reasons.push(`Same status: ${this.humanizeEnum(candidateCaseFile.status.value)}.`);
-    }
-
-    if (
-      sourceCaseFile.confidentialityLevel.value ===
-      candidateCaseFile.confidentialityLevel.value
-    ) {
-      score += 4;
-      reasons.push(
-        `Same confidentiality level: ${this.humanizeEnum(candidateCaseFile.confidentialityLevel.value)}.`,
+    if (params.strongestDocumentMatch != null) {
+      items.push(
+        `Best supporting document match: ${params.strongestDocumentMatch.originalName} inside ${params.strongestDocumentMatch.caseInternalCode}.`,
+      );
+    } else if (params.documentMatchesCount === 0) {
+      items.push(
+        'No supporting document matches were strong enough to surface yet.',
       );
     }
 
-    if (score <= 0 || reasons.length === 0) {
-      return null;
+    return items;
+  }
+
+  private buildRecommendedNextSteps(params: {
+    sourceDocumentName: string;
+    sourceDocumentOcrStatus: string;
+    strongestCaseMatch: DocumentAnalysisPreviewMatchDto | null;
+    strongestDocumentMatch: DocumentAnalysisPreviewDocumentMatchDto | null;
+  }): string[] {
+    const items: string[] = [];
+
+    if (params.strongestCaseMatch != null) {
+      items.push(
+        `Open ${params.strongestCaseMatch.internalCode} first and verify the reasons surfaced by the preview.`,
+      );
     }
 
-    return {
-      caseFileId: candidateCaseFile.id.value,
-      internalCode: candidateCaseFile.internalCode,
-      title: candidateCaseFile.title,
-      processType: candidateCaseFile.processType,
-      status: candidateCaseFile.status.value,
-      score,
-      matchReasons: reasons.slice(0, 3),
-    };
-  }
+    if (params.strongestDocumentMatch != null) {
+      items.push(
+        `Review ${params.strongestDocumentMatch.originalName} to contrast clauses, facts, or document structure against ${params.sourceDocumentName}.`,
+      );
+    }
 
-  private tokenize(value: string): Set<string> {
-    const stopWords = new Set([
-      'the',
-      'and',
-      'for',
-      'con',
-      'para',
-      'del',
-      'las',
-      'los',
-      'caso',
-      'case',
-      'file',
-      'document',
-      'expediente',
-      'documento',
-    ]);
-
-    return new Set(
-      value
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, ' ')
-        .split(/\s+/)
-        .map((token) => token.trim())
-        .filter((token) => token.length >= 3 && !stopWords.has(token)),
+    items.push(
+      params.sourceDocumentOcrStatus === 'COMPLETED'
+        ? 'Reuse this grounded context in the contextual legal consultation to ask for a tighter legal summary.'
+        : 'Re-run OCR if possible so future previews and legal answers can use searchable text instead of filename metadata alone.',
     );
-  }
 
-  private normalize(value: string): string {
-    return value.trim().toLowerCase().replace(/\s+/g, ' ');
-  }
-
-  private humanizeEnum(value: string): string {
-    return value
-      .toLowerCase()
-      .split('_')
-      .map((segment) => `${segment[0]?.toUpperCase() ?? ''}${segment.slice(1)}`)
-      .join(' ');
+    return items;
   }
 }

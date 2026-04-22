@@ -1,4 +1,5 @@
 import 'document_analysis_match.dart';
+import 'document_analysis_document_match.dart';
 
 class DocumentAnalysisPreview {
   const DocumentAnalysisPreview({
@@ -19,6 +20,7 @@ class DocumentAnalysisPreview {
     required this.limitations,
     required this.recommendedNextSteps,
     required this.matches,
+    required this.documentMatches,
   });
 
   final String mode;
@@ -38,6 +40,8 @@ class DocumentAnalysisPreview {
   final List<String> limitations;
   final List<String> recommendedNextSteps;
   final List<DocumentAnalysisMatch> matches;
+  final List<DocumentAnalysisDocumentMatch> documentMatches;
 
   bool get hasMatches => matches.isNotEmpty;
+  bool get hasDocumentMatches => documentMatches.isNotEmpty;
 }

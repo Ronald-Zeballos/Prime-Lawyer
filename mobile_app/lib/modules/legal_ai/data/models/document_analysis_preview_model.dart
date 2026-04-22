@@ -1,4 +1,5 @@
 import 'document_analysis_match_model.dart';
+import 'document_analysis_document_match_model.dart';
 
 class DocumentAnalysisPreviewModel {
   const DocumentAnalysisPreviewModel({
@@ -19,6 +20,7 @@ class DocumentAnalysisPreviewModel {
     required this.limitations,
     required this.recommendedNextSteps,
     required this.matches,
+    required this.documentMatches,
   });
 
   final String mode;
@@ -38,6 +40,7 @@ class DocumentAnalysisPreviewModel {
   final List<String> limitations;
   final List<String> recommendedNextSteps;
   final List<DocumentAnalysisMatchModel> matches;
+  final List<DocumentAnalysisDocumentMatchModel> documentMatches;
 
   factory DocumentAnalysisPreviewModel.fromJson(Map<String, dynamic> json) {
     final sourceCaseFile =
@@ -74,6 +77,11 @@ class DocumentAnalysisPreviewModel {
           .whereType<Map<String, dynamic>>()
           .map(DocumentAnalysisMatchModel.fromJson)
           .toList(),
+      documentMatches:
+          ((json['documentMatches'] as List<dynamic>?) ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .map(DocumentAnalysisDocumentMatchModel.fromJson)
+              .toList(),
     );
   }
 }

@@ -21,6 +21,7 @@ export type CaseFileDto = {
   closedAt: Date | null;
   visibility: CaseVisibility;
   knowledgeStatus: KnowledgeStatus;
+  publishedAt: Date | null;
   confidentialityLevel: ConfidentialityLevel;
   createdAt: Date;
   updatedAt: Date;
@@ -40,6 +41,7 @@ export function toCaseFileDto(caseFile: CaseFileEntity): CaseFileDto {
     closedAt: caseFile.closedAt,
     visibility: caseFile.visibility,
     knowledgeStatus: caseFile.knowledgeStatus,
+    publishedAt: caseFile.publishedAt,
     confidentialityLevel: caseFile.confidentialityLevel.value,
     createdAt: caseFile.createdAt,
     updatedAt: caseFile.updatedAt,
