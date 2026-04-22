@@ -146,7 +146,7 @@ class ApiClient {
     Map<String, String>? queryParameters,
   }) async {
     final normalizedPath = path.startsWith('/') ? path : '/$path';
-    final uri = Uri.parse('${await _resolveBaseUrl()}$normalizedPath');
+    final uri = Uri.parse('${_apiBaseUrlProvider.currentApiBaseUrl}$normalizedPath');
 
     if (queryParameters == null || queryParameters.isEmpty) {
       return uri;
@@ -167,37 +167,16 @@ class ApiClient {
     try {
       return await request();
     } on TimeoutException {
-      if (allowRetry && await _retryWithFreshAutoDetectedBaseUrl()) {
-        return _runRequest(
-          request,
-          allowRetry: false,
-        );
-      }
-
       throw ApiException(
         statusCode: 0,
         message: _buildConnectivityErrorMessage(),
       );
     } on SocketException {
-      if (allowRetry && await _retryWithFreshAutoDetectedBaseUrl()) {
-        return _runRequest(
-          request,
-          allowRetry: false,
-        );
-      }
-
       throw ApiException(
         statusCode: 0,
         message: _buildConnectivityErrorMessage(),
       );
     } on http.ClientException {
-      if (allowRetry && await _retryWithFreshAutoDetectedBaseUrl()) {
-        return _runRequest(
-          request,
-          allowRetry: false,
-        );
-      }
-
       throw ApiException(
         statusCode: 0,
         message: _buildConnectivityErrorMessage(),
@@ -205,34 +184,14 @@ class ApiClient {
     }
   }
 
-  Future<String> _resolveBaseUrl() async {
-    return _apiBaseUrlProvider.resolveBaseUrl();
-  }
-
-  Future<bool> _retryWithFreshAutoDetectedBaseUrl() async {
-    if (_apiBaseUrlProvider.hasManualOverride) {
-      return false;
-    }
-
-    return _apiBaseUrlProvider.refreshAutoDetectedUrl();
-  }
-
   String _buildConnectivityErrorMessage() {
     final currentApiBaseUrl = _apiBaseUrlProvider.currentApiBaseUrl.trim();
 
-    if (_apiBaseUrlProvider.hasManualOverride) {
-      if (currentApiBaseUrl.isEmpty) {
-        return 'Could not connect to the API. Open Settings and review the manual URL.';
-      }
-
-      return 'Could not connect to the API at $currentApiBaseUrl. Open Settings and review the manual URL.';
+    if (currentApiBaseUrl.isEmpty) {
+      return 'Could not connect to the API. Open Settings and review the manual URL.';
     }
 
-    if (currentApiBaseUrl.isNotEmpty) {
-      return 'Could not connect to the API at $currentApiBaseUrl. Automatic detection could not confirm a reachable backend.';
-    }
-
-    return 'Could not connect to the API. Automatic detection did not find a reachable backend. Open Settings if you want to set the API URL manually.';
+    return 'Could not connect to the API at $currentApiBaseUrl. Open Settings and review the manual URL.';
   }
 
   Future<Map<String, String>> _buildHeaders({

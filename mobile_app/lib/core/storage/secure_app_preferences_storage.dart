@@ -9,8 +9,8 @@ class SecureAppPreferencesStorage implements AppPreferencesStorage {
 
   static const _languageCodeKey = 'prime_lawyer_language_code';
   static const _apiBaseUrlKey = 'prime_lawyer_api_base_url';
-  static const _autoDetectedApiBaseUrlKey = 'prime_lawyer_api_auto_base_url';
-
+  static const _lastLocalNetworkApiBaseUrlKey =
+      'prime_lawyer_last_local_network_api_base_url';
   final FlutterSecureStorage _secureStorage;
 
   @override
@@ -24,8 +24,8 @@ class SecureAppPreferencesStorage implements AppPreferencesStorage {
   }
 
   @override
-  Future<String?> readAutoDetectedApiBaseUrl() {
-    return _secureStorage.read(key: _autoDetectedApiBaseUrlKey);
+  Future<String?> readLastLocalNetworkApiBaseUrl() {
+    return _secureStorage.read(key: _lastLocalNetworkApiBaseUrlKey);
   }
 
   @override
@@ -45,9 +45,9 @@ class SecureAppPreferencesStorage implements AppPreferencesStorage {
   }
 
   @override
-  Future<void> saveAutoDetectedApiBaseUrl(String apiBaseUrl) {
+  Future<void> saveLastLocalNetworkApiBaseUrl(String apiBaseUrl) {
     return _secureStorage.write(
-      key: _autoDetectedApiBaseUrlKey,
+      key: _lastLocalNetworkApiBaseUrlKey,
       value: apiBaseUrl,
     );
   }
@@ -58,7 +58,7 @@ class SecureAppPreferencesStorage implements AppPreferencesStorage {
   }
 
   @override
-  Future<void> clearAutoDetectedApiBaseUrl() {
-    return _secureStorage.delete(key: _autoDetectedApiBaseUrlKey);
+  Future<void> clearLastLocalNetworkApiBaseUrl() {
+    return _secureStorage.delete(key: _lastLocalNetworkApiBaseUrlKey);
   }
 }

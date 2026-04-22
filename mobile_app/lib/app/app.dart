@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/network/api_client.dart';
 import '../core/services/api_health_service.dart';
+import '../core/services/device_runtime_service.dart';
 import '../core/storage/app_preferences_storage.dart';
 import '../core/storage/secure_app_preferences_storage.dart';
 import '../core/services/session_service.dart';
@@ -84,10 +85,14 @@ class PrimeLawyerApp extends StatelessWidget {
         Provider<AppPreferencesStorage>(
           create: (_) => SecureAppPreferencesStorage(),
         ),
+        Provider<DeviceRuntimeService>(
+          create: (_) => DeviceRuntimeService(),
+        ),
         ChangeNotifierProvider<ApiBaseUrlProvider>(
           create: (context) => ApiBaseUrlProvider(
             preferencesStorage: context.read<AppPreferencesStorage>(),
             appConfig: context.read<AppConfig>(),
+            deviceRuntimeService: context.read<DeviceRuntimeService>(),
           )..bootstrap(),
         ),
         Provider<SessionService>(

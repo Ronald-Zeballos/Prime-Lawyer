@@ -31,49 +31,76 @@ class AppStrings {
   String get apiConnectionTitle =>
       isSpanish ? 'Conexion API' : 'API connection';
   String get apiConnectionDescription => isSpanish
-      ? 'La app intenta detectar automaticamente el backend local. Si quieres, tambien puedes fijar una URL manual.'
-      : 'The app tries to detect the local backend automatically. You can still force a manual URL if needed.';
+      ? 'Configura a que backend local se conectara la app.'
+      : 'Set which local backend the app should connect to.';
   String get apiBaseUrlHint => 'http://192.168.1.20:3000/api/v1';
-  String get apiManualOverrideHint => isSpanish
-      ? 'Deja este campo vacio si quieres seguir usando la deteccion automatica.'
-      : 'Leave this field empty if you want to keep using automatic detection.';
   String get editApiBaseUrl => isSpanish ? 'Editar URL de API' : 'Edit API URL';
   String get saveApiBaseUrl => isSpanish ? 'Guardar URL' : 'Save URL';
   String get testApiConnection =>
       isSpanish ? 'Probar conexion' : 'Test connection';
   String get resetApiBaseUrl =>
-      isSpanish ? 'Detectar automaticamente' : 'Detect automatically';
+      isSpanish ? 'Usar URL por defecto' : 'Use default URL';
   String get apiBaseUrlSaved =>
       isSpanish ? 'URL de API actualizada.' : 'API URL updated.';
+  String get apiBaseUrlAlreadyActive =>
+      isSpanish ? 'Esa URL ya esta activa.' : 'That URL is already active.';
   String get apiBaseUrlReset => isSpanish
-      ? 'La app volvio a deteccion automatica.'
-      : 'The app is using automatic detection again.';
+      ? 'Se restauro la URL por defecto.'
+      : 'Default API URL restored.';
   String get apiBaseUrlRequiredError => isSpanish
       ? 'La URL base de API es obligatoria.'
       : 'API base URL is required.';
   String get apiBaseUrlInvalidError => isSpanish
       ? 'La URL base de API no es valida.'
       : 'API base URL is invalid.';
-  String get apiCurrentModeAuto => isSpanish
-      ? 'Modo actual: deteccion automatica'
-      : 'Current mode: automatic detection';
-  String get apiCurrentModeManual =>
-      isSpanish ? 'Modo actual: URL manual' : 'Current mode: manual URL';
-  String get apiAutoDetecting => isSpanish
-      ? 'Buscando un backend local disponible...'
-      : 'Looking for a reachable local backend...';
   String get realDeviceApiHint => isSpanish
-      ? 'En telefono real la app intentara encontrar tu backend en la misma red Wi-Fi. Si falla, guarda una URL manual.'
-      : 'On a physical phone the app will try to find your backend on the same Wi-Fi network. If it fails, save a manual URL.';
+      ? 'En telefono real no uses 10.0.2.2. Usa la IP local de tu computadora en la misma red Wi-Fi.'
+      : 'On a physical phone do not use 10.0.2.2. Use your computer local IP on the same Wi-Fi network.';
   String get apiConnectionSuccess => isSpanish
       ? 'Conexion con la API correcta.'
       : 'API connection is working.';
-  String get apiTestingConnection => isSpanish
-      ? 'Probando conexion con la API...'
-      : 'Testing the API connection...';
   String get apiConnectionFailure => isSpanish
       ? 'No se pudo conectar con la API.'
       : 'Could not connect to the API.';
+  String get apiConnectionChecking =>
+      isSpanish ? 'Probando conexion...' : 'Testing connection...';
+  String get apiConnectionStatusOk =>
+      isSpanish ? 'API disponible' : 'API reachable';
+  String get apiConnectionStatusError =>
+      isSpanish ? 'API no disponible' : 'API unreachable';
+  String apiConnectionCheckedUrl(String value) =>
+      isSpanish ? 'URL probada: $value' : 'Checked URL: $value';
+  String get apiBaseUrlDefaultEmulatorApplied => isSpanish
+      ? 'Se aplico la URL por defecto para emulador.'
+      : 'The default emulator URL was applied.';
+  String get apiBaseUrlDefaultLocalNetworkApplied => isSpanish
+      ? 'Se aplico la URL por defecto para este dispositivo usando la URL de red local.'
+      : 'The default URL for this device was applied using the local network URL.';
+  String get apiBaseUrlDefaultEmulatorAlreadyActive => isSpanish
+      ? 'La URL por defecto para emulador ya estaba activa.'
+      : 'The default emulator URL was already active.';
+  String get apiBaseUrlDefaultLocalNetworkAlreadyActive => isSpanish
+      ? 'La URL por defecto para este dispositivo ya estaba activa.'
+      : 'The default URL for this device was already active.';
+  String get apiBaseUrlLocalNetworkApplied => isSpanish
+      ? 'Se aplico la URL de red local guardada.'
+      : 'The saved local network URL was applied.';
+  String get apiBaseUrlLocalNetworkAlreadyActive => isSpanish
+      ? 'La URL de red local guardada ya estaba activa.'
+      : 'The saved local network URL was already active.';
+  String get apiBaseUrlLocalNetworkMissing => isSpanish
+      ? 'Todavia no hay una URL de red local guardada. Guarda primero la IP local de tu computadora.'
+      : 'There is no saved local network URL yet. Save your computer local IP first.';
+  String get apiBaseUrlEmulatorApplied => isSpanish
+      ? 'Se aplico la URL de emulador.'
+      : 'The emulator URL was applied.';
+  String get apiBaseUrlEmulatorAlreadyActive => isSpanish
+      ? 'La URL de emulador ya estaba activa.'
+      : 'The emulator URL was already active.';
+  String get useEmulatorUrl =>
+      isSpanish ? 'Usar URL Emulador' : 'Use Emulator URL';
+  String get useDeviceUrl =>
+      isSpanish ? 'Usar URL Red Local' : 'Use Local Network URL';
   String get ocrTextPreviewTitle =>
       isSpanish ? 'Preview OCR' : 'OCR preview';
   String ocrProcessedAt(String value) => isSpanish
