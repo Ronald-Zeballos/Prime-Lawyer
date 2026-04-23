@@ -5,6 +5,7 @@ enum DocumentCaptureSource {
 
 enum DocumentOcrStatus {
   pending,
+  processing,
   done,
   error,
 }
@@ -140,11 +141,29 @@ class CapturedDocument {
     switch (ocrStatus) {
       case DocumentOcrStatus.pending:
         return 'PENDING';
+      case DocumentOcrStatus.processing:
+        return 'PROCESSING';
       case DocumentOcrStatus.done:
         return 'DONE';
       case DocumentOcrStatus.error:
         return 'ERROR';
     }
+  }
+
+  String get documentSourceValue {
+    switch (source) {
+      case DocumentCaptureSource.filePicker:
+        return 'FILE_UPLOAD';
+      case DocumentCaptureSource.scanner:
+        return 'CAMERA';
+    }
+  }
+
+  List<String> get pageOcrTexts {
+    return pages
+        .map((page) => page.ocrText?.trim() ?? '')
+        .where((item) => item.isNotEmpty)
+        .toList(growable: false);
   }
 
   String get ocrPreview {

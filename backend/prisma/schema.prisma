@@ -195,6 +195,8 @@ model Document {
   hash         String
   uploadSource String
   source       DocumentSource @default(FILE_UPLOAD)
+  pageCount    Int?
+  fileSizeBytes Int?
   ocrStatus    OCRStatus @default(PENDING)
   ocrText      String?
   ocrProcessedAt DateTime?

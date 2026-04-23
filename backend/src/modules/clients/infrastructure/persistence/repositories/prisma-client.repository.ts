@@ -54,6 +54,14 @@ export class PrismaClientRepository implements ClientRepository {
     return clients.map((client) => ClientPrismaMapper.toDomain(client));
   }
 
+  async countLinkedCaseFiles(id: ClientId): Promise<number> {
+    return this.prisma.caseFile.count({
+      where: {
+        clientId: id.value,
+      },
+    });
+  }
+
   async create(client: ClientEntity): Promise<ClientEntity> {
     const createdClient = await this.prisma.client.create({
       data: {
@@ -88,5 +96,11 @@ export class PrismaClientRepository implements ClientRepository {
     });
 
     return ClientPrismaMapper.toDomain(updatedClient);
+  }
+
+  async delete(id: ClientId): Promise<void> {
+    await this.prisma.client.delete({
+      where: { id: id.value },
+    });
   }
 }

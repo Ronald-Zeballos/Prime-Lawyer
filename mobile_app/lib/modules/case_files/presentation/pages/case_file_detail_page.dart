@@ -123,7 +123,9 @@ class _CaseFileDetailView extends StatelessWidget {
                             ),
                           ),
                           _StatusChip(
-                              label: strings.caseStatus(caseFile.status)),
+                            status: caseFile.status,
+                            label: strings.caseStatus(caseFile.status),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -237,6 +239,7 @@ class _CaseFileDetailView extends StatelessWidget {
   }
 
   Future<void> _showStatusSheet(BuildContext context, CaseFile caseFile) async {
+    final strings = context.strings;
     final selectedStatus = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -248,6 +251,34 @@ class _CaseFileDetailView extends StatelessWidget {
     if (!context.mounted ||
         selectedStatus == null ||
         selectedStatus == caseFile.status) {
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(strings.confirmCaseStatusChangeTitle),
+          content: Text(
+            strings.confirmCaseStatusChangeMessage(
+              strings.caseStatus(selectedStatus),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(strings.cancelAction),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(strings.confirmAction),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!context.mounted || confirmed != true) {
       return;
     }
 
@@ -427,11 +458,16 @@ class _KnowledgeRepositoryCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _StatusChip(label: strings.caseStatus(caseFile.status)),
                 _StatusChip(
+                  status: caseFile.status,
+                  label: strings.caseStatus(caseFile.status),
+                ),
+                _StatusChip(
+                  status: caseFile.knowledgeStatus,
                   label: strings.knowledgeStatus(caseFile.knowledgeStatus),
                 ),
                 _StatusChip(
+                  status: caseFile.visibility,
                   label: strings.caseVisibility(caseFile.visibility),
                 ),
               ],
@@ -537,20 +573,60 @@ class _DetailLine extends StatelessWidget {
 
 class _StatusChip extends StatelessWidget {
   const _StatusChip({
+    required this.status,
     required this.label,
   });
 
+  final String status;
   final String label;
 
   @override
   Widget build(BuildContext context) {
+    final palette = _statusPalette(status);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2E4D2),
+        color: palette.background,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(label),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: palette.foreground,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     );
+  }
+}
+
+({Color background, Color foreground}) _statusPalette(String status) {
+  switch (status) {
+    case 'OPEN':
+      return (
+        background: const Color(0xFFE3F2E7),
+        foreground: const Color(0xFF1F6A3A),
+      );
+    case 'IN_PROGRESS':
+      return (
+        background: const Color(0xFFFFF1D6),
+        foreground: const Color(0xFF8B5A00),
+      );
+    case 'CLOSED':
+      return (
+        background: const Color(0xFFE6ECF5),
+        foreground: const Color(0xFF335C8A),
+      );
+    case 'ARCHIVED':
+      return (
+        background: const Color(0xFFEDE7E3),
+        foreground: const Color(0xFF6A5B54),
+      );
+    default:
+      return (
+        background: const Color(0xFFF2E4D2),
+        foreground: const Color(0xFF4A4038),
+      );
   }
 }

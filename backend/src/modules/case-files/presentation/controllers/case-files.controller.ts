@@ -47,6 +47,7 @@ export class CaseFilesController {
     },
   ): Promise<CaseFileResponse> {
     const caseFile = await this.createCaseFileUseCase.execute({
+      clientId: request.clientId,
       internalCode: request.internalCode,
       title: request.title,
       description: request.description,

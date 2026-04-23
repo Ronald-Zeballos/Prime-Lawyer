@@ -30,6 +30,14 @@ class DocumentRepositoryImpl implements DocumentRepository {
   }
 
   @override
+  Future<Document> processDocumentOcr(String documentId) async {
+    final documentModel =
+        await _remoteDataSource.processDocumentOcr(documentId);
+
+    return DocumentMapper.toDomain(documentModel);
+  }
+
+  @override
   Future<Document> registerDocument(RegisterDocumentInput input) async {
     final documentModel = await _remoteDataSource.registerDocument(
       caseFileId: input.caseFileId,

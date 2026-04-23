@@ -21,6 +21,7 @@ abstract class DocumentRepository {
     required String fileName,
     required String fileType,
   });
+  Future<Document> processDocumentOcr(String documentId);
 
   Future<Document> registerDocument(RegisterDocumentInput input);
 }

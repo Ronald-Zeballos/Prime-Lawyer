@@ -9,6 +9,7 @@ import { ConfidentialityLevel } from '../../domain/value-objects/confidentiality
 export class CaseFileResponse {
   id!: string;
   internalCode!: string;
+  clientId!: string | null;
   ownerUserId!: string;
   title!: string;
   description!: string | null;
@@ -28,6 +29,7 @@ export class CaseFileResponse {
     return {
       id: dto.id,
       internalCode: dto.internalCode,
+      clientId: dto.clientId,
       ownerUserId: dto.ownerUserId,
       title: dto.title,
       description: dto.description,

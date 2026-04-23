@@ -8,6 +8,9 @@ export type DocumentDto = {
   storagePath: string;
   hash: string;
   uploadSource: string;
+  source: string;
+  pageCount: number | null;
+  fileSizeBytes: number | null;
   ocrStatus: string;
   ocrText: string | null;
   ocrProcessedAt: Date | null;
@@ -26,6 +29,9 @@ export function toDocumentDto(document: DocumentEntity): DocumentDto {
     storagePath: document.storagePath,
     hash: document.hash.value,
     uploadSource: document.uploadSource,
+    source: document.source,
+    pageCount: document.pageCount,
+    fileSizeBytes: document.fileSizeBytes,
     ocrStatus: document.ocrStatus,
     ocrText: document.ocrText,
     ocrProcessedAt: document.ocrProcessedAt,

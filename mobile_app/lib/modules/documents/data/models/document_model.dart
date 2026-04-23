@@ -7,6 +7,9 @@ class DocumentModel {
     required this.storagePath,
     required this.hash,
     required this.uploadSource,
+    required this.source,
+    required this.pageCount,
+    required this.fileSizeBytes,
     required this.ocrStatus,
     required this.ocrText,
     required this.ocrProcessedAt,
@@ -23,6 +26,9 @@ class DocumentModel {
   final String storagePath;
   final String hash;
   final String uploadSource;
+  final String source;
+  final int? pageCount;
+  final int? fileSizeBytes;
   final String ocrStatus;
   final String? ocrText;
   final DateTime? ocrProcessedAt;
@@ -40,6 +46,9 @@ class DocumentModel {
       storagePath: json['storagePath'] as String,
       hash: json['hash'] as String,
       uploadSource: json['uploadSource'] as String,
+      source: json['source'] as String? ?? 'FILE_UPLOAD',
+      pageCount: json['pageCount'] as int?,
+      fileSizeBytes: json['fileSizeBytes'] as int?,
       ocrStatus: json['ocrStatus'] as String,
       ocrText: json['ocrText'] as String?,
       ocrProcessedAt: json['ocrProcessedAt'] == null

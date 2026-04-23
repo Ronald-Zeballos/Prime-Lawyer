@@ -11,6 +11,12 @@ export enum OCRStatus {
   FAILED = 'FAILED',
 }
 
+export enum DocumentSource {
+  CAMERA = 'CAMERA',
+  GALLERY = 'GALLERY',
+  FILE_UPLOAD = 'FILE_UPLOAD',
+}
+
 type DocumentEntityProps = {
   caseFileId: string;
   originalName: string;
@@ -18,6 +24,9 @@ type DocumentEntityProps = {
   storagePath: string;
   hash: FileHash;
   uploadSource: string;
+  source: DocumentSource;
+  pageCount: number | null;
+  fileSizeBytes: number | null;
   ocrStatus: OCRStatus;
   ocrText: string | null;
   ocrProcessedAt: Date | null;
@@ -35,6 +44,9 @@ type CreateDocumentEntityProps = {
   storagePath: string;
   hash: string;
   uploadSource: string;
+  source?: string;
+  pageCount?: number | null;
+  fileSizeBytes?: number | null;
   ocrStatus?: string;
   ocrText?: string | null;
   ocrProcessedAt?: Date | null;
@@ -57,6 +69,13 @@ export class DocumentEntity extends BaseEntity<DocumentId> {
       storagePath: this.normalizeRequiredText(props.storagePath, 'Storage path'),
       hash: FileHash.create(props.hash),
       uploadSource: this.normalizeRequiredText(props.uploadSource, 'Upload source'),
+      source: this.normalizeSource(props.source ?? DocumentSource.FILE_UPLOAD),
+      pageCount: this.normalizeOptionalPositiveInt(props.pageCount, 'Page count'),
+      fileSizeBytes: this.normalizeOptionalPositiveInt(
+        props.fileSizeBytes,
+        'File size',
+        0,
+      ),
       ocrStatus: this.normalizeOcrStatus(props.ocrStatus ?? OCRStatus.PENDING),
       ocrText: this.normalizeOptionalText(props.ocrText),
       ocrProcessedAt: props.ocrProcessedAt ?? null,
@@ -89,6 +108,18 @@ export class DocumentEntity extends BaseEntity<DocumentId> {
 
   get uploadSource(): string {
     return this.props.uploadSource;
+  }
+
+  get source(): DocumentSource {
+    return this.props.source;
+  }
+
+  get pageCount(): number | null {
+    return this.props.pageCount;
+  }
+
+  get fileSizeBytes(): number | null {
+    return this.props.fileSizeBytes;
   }
 
   get ocrStatus(): OCRStatus {
@@ -173,6 +204,34 @@ export class DocumentEntity extends BaseEntity<DocumentId> {
 
     if (!Object.values(OCRStatus).includes(normalizedValue)) {
       throw new DomainValidationError('OCR status is invalid.');
+    }
+
+    return normalizedValue;
+  }
+
+  private static normalizeSource(value: string): DocumentSource {
+    const normalizedValue = value.trim().toUpperCase() as DocumentSource;
+
+    if (!Object.values(DocumentSource).includes(normalizedValue)) {
+      throw new DomainValidationError('Document source is invalid.');
+    }
+
+    return normalizedValue;
+  }
+
+  private static normalizeOptionalPositiveInt(
+    value: number | null | undefined,
+    fieldName: string,
+    minimum = 1,
+  ): number | null {
+    if (value == null) {
+      return null;
+    }
+
+    const normalizedValue = Math.trunc(value);
+
+    if (normalizedValue < minimum) {
+      throw new DomainValidationError(`${fieldName} is invalid.`);
     }
 
     return normalizedValue;

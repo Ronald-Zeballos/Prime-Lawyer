@@ -21,6 +21,7 @@ export enum KnowledgeStatus {
 
 type CaseFileEntityProps = {
   internalCode: string;
+  clientId: string | null;
   ownerUserId: string;
   title: string;
   description: string | null;
@@ -40,6 +41,7 @@ type CaseFileEntityProps = {
 type CreateCaseFileEntityProps = {
   id: string;
   internalCode: string;
+  clientId?: string | null;
   ownerUserId: string;
   title: string;
   description?: string | null;
@@ -64,6 +66,7 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
   static create(props: CreateCaseFileEntityProps): CaseFileEntity {
     return new CaseFileEntity(CaseFileId.create(props.id), {
       internalCode: this.normalizeRequiredText(props.internalCode, 'Internal code'),
+      clientId: this.normalizeOptionalId(props.clientId),
       ownerUserId: this.normalizeRequiredText(props.ownerUserId, 'Owner user id'),
       title: this.normalizeRequiredText(props.title, 'Case title'),
       description: this.normalizeOptionalText(props.description),
@@ -143,6 +146,10 @@ export class CaseFileEntity extends BaseEntity<CaseFileId> {
 
   get ownerUserId(): string {
     return this.props.ownerUserId;
+  }
+
+  get clientId(): string | null {
+    return this.props.clientId;
   }
 
   get title(): string {

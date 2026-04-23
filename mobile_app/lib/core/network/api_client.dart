@@ -108,6 +108,23 @@ class ApiClient {
     return _parseResponse(response);
   }
 
+  Future<dynamic> delete(
+    String path, {
+    Map<String, String>? queryParameters,
+    bool authenticated = true,
+  }) async {
+    final response = await _runRequest(
+      () async => _httpClient
+          .delete(
+            await _buildUri(path, queryParameters: queryParameters),
+            headers: await _buildHeaders(authenticated: authenticated),
+          )
+          .timeout(ApiConstants.requestTimeout),
+    );
+
+    return _parseResponse(response);
+  }
+
   Future<dynamic> sendMultipart(
     String path, {
     required String fileFieldName,

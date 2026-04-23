@@ -12,6 +12,7 @@ export class CaseFilePrismaMapper {
     return CaseFileEntity.create({
       id: caseFile.id,
       internalCode: caseFile.internalCode,
+      clientId: caseFile.clientId,
       ownerUserId:
         caseFile.ownerUserId ?? caseFile.responsibleUserId ?? caseFile.id,
       title: caseFile.title ?? caseFile.subject ?? caseFile.internalCode,

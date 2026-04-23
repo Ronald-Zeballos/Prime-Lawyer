@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../case_files/domain/usecases/get_case_files_use_case.dart';
 import '../../domain/usecases/create_client_use_case.dart';
+import '../../domain/usecases/delete_client_use_case.dart';
 import '../../domain/usecases/get_clients_use_case.dart';
+import '../../domain/usecases/update_client_use_case.dart';
 import '../controllers/clients_controller.dart';
+import 'client_form_page.dart';
+import 'client_management_page.dart';
 import '../widgets/client_list_item.dart';
-import '../widgets/create_client_sheet.dart';
 
 class ClientsPage extends StatelessWidget {
   const ClientsPage({super.key});
@@ -17,6 +22,9 @@ class ClientsPage extends StatelessWidget {
       create: (context) => ClientsController(
         getClientsUseCase: context.read<GetClientsUseCase>(),
         createClientUseCase: context.read<CreateClientUseCase>(),
+        updateClientUseCase: context.read<UpdateClientUseCase>(),
+        deleteClientUseCase: context.read<DeleteClientUseCase>(),
+        getCaseFilesUseCase: context.read<GetCaseFilesUseCase>(),
       )..loadClients(),
       child: const _ClientsView(),
     );
@@ -43,7 +51,9 @@ class _ClientsView extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openCreateClientSheet(context),
+        onPressed: controller.isSubmitting
+            ? null
+            : () => _openCreateClientPage(context),
         icon: const Icon(Icons.person_add_alt_1_rounded),
         label: Text(strings.newClient),
       ),
@@ -117,7 +127,14 @@ class _ClientsView extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final client = controller.clients[index];
 
-                      return ClientListItem(client: client);
+                      return ClientListItem(
+                        client: client,
+                        linkedCaseFilesCount:
+                            controller.linkedCaseFilesCount(client.id),
+                        activeCaseFilesCount:
+                            controller.activeLinkedCaseFilesCount(client.id),
+                        onTap: () => _openClientManagement(context, client.id),
+                      );
                     },
                   ),
                 );
@@ -129,23 +146,43 @@ class _ClientsView extends StatelessWidget {
     );
   }
 
-  Future<void> _openCreateClientSheet(BuildContext context) {
+  Future<void> _openCreateClientPage(BuildContext context) async {
     final controller = context.read<ClientsController>();
     controller.clearError();
 
-    return showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => ChangeNotifierProvider<ClientsController>.value(
-        value: controller,
-        child: Consumer<ClientsController>(
-          builder: (context, value, _) => CreateClientSheet(
-            isSubmitting: value.isSubmitting,
-            errorMessage: value.errorMessage,
-            onSubmit: value.createClient,
-          ),
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => ChangeNotifierProvider<ClientsController>.value(
+          value: controller,
+          child: const ClientFormPage.create(),
         ),
       ),
     );
+
+    if (!context.mounted || created != true) {
+      return;
+    }
+
+    await controller.refresh();
+  }
+
+  Future<void> _openClientManagement(BuildContext context, String clientId) async {
+    final controller = context.read<ClientsController>();
+
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        settings: const RouteSettings(name: AppRoutes.clients),
+        builder: (_) => ChangeNotifierProvider<ClientsController>.value(
+          value: controller,
+          child: ClientManagementPage(clientId: clientId),
+        ),
+      ),
+    );
+
+    if (!context.mounted || changed != true) {
+      return;
+    }
+
+    await controller.refresh();
   }
 }

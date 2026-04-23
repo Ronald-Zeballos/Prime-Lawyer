@@ -11,6 +11,7 @@ import {
 export type CaseFileDto = {
   id: string;
   internalCode: string;
+  clientId: string | null;
   ownerUserId: string;
   title: string;
   description: string | null;
@@ -31,6 +32,7 @@ export function toCaseFileDto(caseFile: CaseFileEntity): CaseFileDto {
   return {
     id: caseFile.id.value,
     internalCode: caseFile.internalCode,
+    clientId: caseFile.clientId,
     ownerUserId: caseFile.ownerUserId,
     title: caseFile.title,
     description: caseFile.description,

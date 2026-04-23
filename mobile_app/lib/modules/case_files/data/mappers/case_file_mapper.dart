@@ -8,6 +8,7 @@ class CaseFileMapper {
     return CaseFile(
       id: model.id,
       internalCode: model.internalCode,
+      clientId: model.clientId,
       ownerUserId: model.ownerUserId,
       title: model.title,
       description: model.description,

@@ -8,6 +8,9 @@ export class DocumentResponse {
   storagePath!: string;
   hash!: string;
   uploadSource!: string;
+  source!: string;
+  pageCount!: number | null;
+  fileSizeBytes!: number | null;
   ocrStatus!: string;
   ocrText!: string | null;
   ocrProcessedAt!: Date | null;
@@ -25,6 +28,9 @@ export class DocumentResponse {
       storagePath: dto.storagePath,
       hash: dto.hash,
       uploadSource: dto.uploadSource,
+      source: dto.source,
+      pageCount: dto.pageCount,
+      fileSizeBytes: dto.fileSizeBytes,
       ocrStatus: dto.ocrStatus,
       ocrText: dto.ocrText,
       ocrProcessedAt: dto.ocrProcessedAt,

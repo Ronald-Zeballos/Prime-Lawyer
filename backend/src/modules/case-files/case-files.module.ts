@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ClientsModule } from '../clients/clients.module';
 import { IdentityAccessModule } from '../identity-access/identity-access.module';
 import { CreateCaseFileUseCase } from './application/use-cases/create-case-file/create-case-file.use-case';
 import { GetCaseFileUseCase } from './application/use-cases/get-case-file/get-case-file.use-case';
@@ -11,7 +12,7 @@ import { PrismaCaseFileRepository } from './infrastructure/persistence/repositor
 import { CaseFilesController } from './presentation/controllers/case-files.controller';
 
 @Module({
-  imports: [IdentityAccessModule],
+  imports: [IdentityAccessModule, ClientsModule],
   controllers: [CaseFilesController],
   providers: [
     CreateCaseFileUseCase,

@@ -68,13 +68,22 @@ export class DocumentsController {
       originalName: file.originalname,
       fileType: file.mimetype,
       uploadSource: request.uploadSource ?? 'mobile_app',
+      source: request.source,
+      pageCount: request.pageCount,
+      fileSizeBytes: request.fileSizeBytes,
+      ocrText: request.ocrText,
       uploadedById: httpRequest.user.id,
       fileBuffer: file.buffer,
     });
 
-    await this.processDocumentOcrUseCase.execute({
-      documentId: document.id,
-    });
+    if (
+      document.ocrStatus !== 'COMPLETED' ||
+      (document.ocrText?.trim().length ?? 0) === 0
+    ) {
+      await this.processDocumentOcrUseCase.execute({
+        documentId: document.id,
+      });
+    }
 
     const refreshedDocument = await this.getDocumentUseCase.execute({
       id: document.id,

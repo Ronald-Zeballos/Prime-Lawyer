@@ -11,6 +11,7 @@ class CaseFileRepositoryImpl implements CaseFileRepository {
   @override
   Future<CaseFile> createCaseFile(CreateCaseFileInput input) async {
     final caseFileModel = await _remoteDataSource.createCaseFile(
+      clientId: input.clientId,
       internalCode: input.internalCode,
       title: input.title,
       description: input.description,

@@ -2,6 +2,7 @@ import '../entities/case_file.dart';
 
 class CreateCaseFileInput {
   const CreateCaseFileInput({
+    required this.clientId,
     required this.internalCode,
     required this.title,
     required this.description,
@@ -9,6 +10,7 @@ class CreateCaseFileInput {
     required this.confidentialityLevel,
   });
 
+  final String clientId;
   final String internalCode;
   final String title;
   final String? description;

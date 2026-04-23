@@ -47,4 +47,34 @@ class ClientsRemoteDataSource {
 
     return ClientModel.fromJson(response as Map<String, dynamic>);
   }
+
+  Future<ClientModel> updateClient({
+    required String clientId,
+    required String firstName,
+    required String lastName,
+    required String documentNumber,
+    String? phone,
+    String? email,
+    String? address,
+    String? notes,
+  }) async {
+    final response = await _apiClient.patchJson(
+      '/clients/$clientId',
+      body: {
+        'firstName': firstName,
+        'lastName': lastName,
+        'documentNumber': documentNumber,
+        'phone': phone,
+        'email': email,
+        'address': address,
+        'notes': notes,
+      },
+    );
+
+    return ClientModel.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<void> deleteClient(String clientId) async {
+    await _apiClient.delete('/clients/$clientId');
+  }
 }

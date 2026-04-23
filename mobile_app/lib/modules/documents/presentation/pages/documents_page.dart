@@ -88,12 +88,38 @@ class _DocumentsView extends StatelessWidget {
                 color: const Color(0xFFE8E1D7),
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: Text(
-                strings.caseFileNameLabel(args.caseFileTitle),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    strings.caseFileNameLabel(args.caseFileTitle),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      FilledButton.tonalIcon(
+                        onPressed: controller.isSubmitting
+                            ? null
+                            : () => _startDocumentScan(context),
+                        icon: const Icon(Icons.document_scanner_outlined),
+                        label: Text(strings.scanDocumentAction),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: controller.isSubmitting
+                            ? null
+                            : () => _openRegisterDocumentSheet(context),
+                        icon: const Icon(Icons.upload_file_rounded),
+                        label: Text(strings.uploadDocument),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -198,6 +224,7 @@ class _DocumentsView extends StatelessWidget {
 
   Future<void> _openRegisterDocumentSheet(BuildContext context) {
     final controller = context.read<DocumentsController>();
+    final strings = context.strings;
     controller.clearError();
 
     return showModalBottomSheet<void>(
@@ -212,7 +239,21 @@ class _DocumentsView extends StatelessWidget {
             errorMessage: value.errorMessage,
             onPickDocument: value.pickDocument,
             onCaptureFromCamera: () => _startDocumentScan(context),
-            onSubmit: value.registerSelectedDocument,
+            onSubmit: () async {
+              final success = await value.registerSelectedDocument();
+
+              if (!context.mounted) {
+                return success;
+              }
+
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(strings.documentRegisteredSuccess)),
+                );
+              }
+
+              return success;
+            },
             onClearSelection: value.clearSelection,
           ),
         ),
@@ -242,6 +283,8 @@ class _DocumentsView extends StatelessWidget {
             create: (_) => DocumentScanEditorController(
               draft: draft,
               processScannedDocumentUseCase: processScannedDocumentUseCase,
+              startDocumentScanUseCase:
+                  context.read<StartDocumentScanUseCase>(),
             ),
             child: const DocumentScanEditorPage(),
           ),
@@ -253,12 +296,17 @@ class _DocumentsView extends StatelessWidget {
       }
 
       controller.setSelectedDocument(capturedDocument);
-    } catch (_) {
+    } catch (error) {
       if (!context.mounted) {
         return;
       }
 
-      controller.setErrorMessage(strings.scanOpenError);
+      final message = error is StateError &&
+              error.message == 'camera_permission_denied'
+          ? strings.cameraPermissionDeniedError
+          : strings.scanOpenError;
+
+      controller.setErrorMessage(message);
     }
   }
 }

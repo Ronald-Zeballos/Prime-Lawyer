@@ -1,0 +1,3 @@
+ALTER TABLE "Document"
+ADD COLUMN "pageCount" INTEGER,
+ADD COLUMN "fileSizeBytes" INTEGER;

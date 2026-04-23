@@ -7,6 +7,7 @@ import '../../../../shared/providers/session_provider.dart';
 import '../../domain/entities/case_file.dart';
 import '../../domain/usecases/get_collaborative_repository_cases_use_case.dart';
 import '../controllers/knowledge_repository_controller.dart';
+import 'knowledge_repository_summary_page.dart';
 
 class KnowledgeRepositoryPage extends StatelessWidget {
   const KnowledgeRepositoryPage({super.key});
@@ -133,11 +134,14 @@ class _KnowledgeRepositoryView extends StatelessWidget {
                       return _RepositoryCaseCard(
                         caseFile: caseFile,
                         isOwnedByCurrentUser: isOwnedByCurrentUser,
-                        onOpenSummary: () => _showRepositorySummary(
+                        onPrimaryAction: () => _openRepositorySummary(
                           context,
                           caseFile: caseFile,
                           isOwnedByCurrentUser: isOwnedByCurrentUser,
                         ),
+                        onOpenOwnedCaseFile: isOwnedByCurrentUser
+                            ? () => _openOwnedCaseFile(context, caseFile)
+                            : null,
                       );
                     },
                   ),
@@ -150,84 +154,49 @@ class _KnowledgeRepositoryView extends StatelessWidget {
     );
   }
 
-  Future<void> _showRepositorySummary(
+  Future<void> _openOwnedCaseFile(
+    BuildContext context,
+    CaseFile caseFile,
+  ) async {
+    final strings = context.strings;
+    final caseFileId = caseFile.id.trim();
+
+    if (caseFileId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(strings.repositoryCaseOpenFailed)),
+      );
+      return;
+    }
+
+    try {
+      await Navigator.of(context).pushNamed(
+        AppRoutes.caseFileDetail,
+        arguments: caseFileId,
+      );
+    } catch (_) {
+      if (!context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(strings.repositoryCaseOpenFailed)),
+      );
+    }
+  }
+
+  Future<void> _openRepositorySummary(
     BuildContext context, {
     required CaseFile caseFile,
     required bool isOwnedByCurrentUser,
   }) {
-    final parentContext = context;
-    final strings = context.strings;
-
-    return showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  caseFile.displayLabel,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 10),
-                if ((caseFile.description ?? '').trim().isNotEmpty)
-                  Text(caseFile.description!),
-                if ((caseFile.description ?? '').trim().isNotEmpty)
-                  const SizedBox(height: 16),
-                _RepositorySummaryLine(
-                  label: strings.processTypeDetailLabel,
-                  value: caseFile.processType,
-                ),
-                _RepositorySummaryLine(
-                  label: strings.statusLabel,
-                  value: strings.caseStatus(caseFile.status),
-                ),
-                _RepositorySummaryLine(
-                  label: strings.knowledgeStatusLabel,
-                  value: strings.knowledgeStatus(caseFile.knowledgeStatus),
-                ),
-                _RepositorySummaryLine(
-                  label: strings.closedAtLabel,
-                  value: caseFile.closedAt == null
-                      ? strings.notClosedYet
-                      : strings.formatDateTime(caseFile.closedAt!),
-                ),
-                _RepositorySummaryLine(
-                  label: strings.publishedAtLabel,
-                  value: caseFile.publishedAt == null
-                      ? strings.notPublishedYet
-                      : strings.formatDateTime(caseFile.publishedAt!),
-                ),
-                const SizedBox(height: 18),
-                if (isOwnedByCurrentUser)
-                  FilledButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(parentContext).pushNamed(
-                        AppRoutes.caseFileDetail,
-                        arguments: caseFile.id,
-                      );
-                    },
-                    icon: const Icon(Icons.open_in_new_rounded),
-                    label: Text(strings.openOwnedRepositoryCaseAction),
-                  )
-                else
-                  Text(
-                    strings.repositorySharedCaseNotice,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
+    return Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => KnowledgeRepositorySummaryPage(
+          caseFile: caseFile,
+          isOwnedByCurrentUser: isOwnedByCurrentUser,
+          onOpenCaseFile: () => _openOwnedCaseFile(context, caseFile),
+        ),
+      ),
     );
   }
 }
@@ -236,12 +205,14 @@ class _RepositoryCaseCard extends StatelessWidget {
   const _RepositoryCaseCard({
     required this.caseFile,
     required this.isOwnedByCurrentUser,
-    required this.onOpenSummary,
+    required this.onPrimaryAction,
+    required this.onOpenOwnedCaseFile,
   });
 
   final CaseFile caseFile;
   final bool isOwnedByCurrentUser;
-  final VoidCallback onOpenSummary;
+  final VoidCallback onPrimaryAction;
+  final VoidCallback? onOpenOwnedCaseFile;
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +220,7 @@ class _RepositoryCaseCard extends StatelessWidget {
 
     return Card(
       child: InkWell(
-        onTap: onOpenSummary,
+        onTap: onPrimaryAction,
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -332,18 +303,21 @@ class _RepositoryCaseCard extends StatelessWidget {
               const SizedBox(height: 14),
               Align(
                 alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: onOpenSummary,
-                  icon: Icon(
-                    isOwnedByCurrentUser
-                        ? Icons.open_in_new_rounded
-                        : Icons.visibility_outlined,
-                  ),
-                  label: Text(
-                    isOwnedByCurrentUser
-                        ? strings.openOwnedRepositoryCaseAction
-                        : strings.repositoryViewSummaryAction,
-                  ),
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: onPrimaryAction,
+                      icon: const Icon(Icons.visibility_outlined),
+                      label: Text(strings.repositoryViewSummaryAction),
+                    ),
+                    if (onOpenOwnedCaseFile != null)
+                      TextButton(
+                        onPressed: onOpenOwnedCaseFile,
+                        child: Text(strings.openOwnedRepositoryCaseAction),
+                      ),
+                  ],
                 ),
               ),
             ],
@@ -370,37 +344,6 @@ class _RepositoryChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(label),
-    );
-  }
-}
-
-class _RepositorySummaryLine extends StatelessWidget {
-  const _RepositorySummaryLine({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context)
-                .textTheme
-                .labelLarge
-                ?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 2),
-          Text(value),
-        ],
-      ),
     );
   }
 }

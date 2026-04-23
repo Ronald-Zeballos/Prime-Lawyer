@@ -24,11 +24,32 @@ class ClientRepositoryImpl implements ClientRepository {
   }
 
   @override
+  Future<void> deleteClient(String clientId) {
+    return _remoteDataSource.deleteClient(clientId);
+  }
+
+  @override
   Future<List<Client>> getClients({
     String? term,
   }) async {
     final clientModels = await _remoteDataSource.getClients(term: term);
 
     return clientModels.map(ClientMapper.toDomain).toList();
+  }
+
+  @override
+  Future<Client> updateClient(UpdateClientInput input) async {
+    final clientModel = await _remoteDataSource.updateClient(
+      clientId: input.clientId,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      documentNumber: input.documentNumber,
+      phone: input.phone,
+      email: input.email,
+      address: input.address,
+      notes: input.notes,
+    );
+
+    return ClientMapper.toDomain(clientModel);
   }
 }

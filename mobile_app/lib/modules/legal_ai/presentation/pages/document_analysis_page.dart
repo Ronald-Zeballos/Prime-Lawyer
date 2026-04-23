@@ -5,6 +5,7 @@ import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
 import '../../../documents/domain/entities/document.dart';
 import '../../../documents/presentation/pages/documents_page.dart';
+import '../../../documents/domain/usecases/process_document_ocr_use_case.dart';
 import '../../domain/entities/document_analysis_document_match.dart';
 import '../../domain/entities/document_analysis_match.dart';
 import '../../domain/usecases/get_document_analysis_preview_use_case.dart';
@@ -23,9 +24,10 @@ class DocumentAnalysisPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<DocumentAnalysisController>(
       create: (context) => DocumentAnalysisController(
-        documentId: document.id,
+        document: document,
         getDocumentAnalysisPreviewUseCase:
             context.read<GetDocumentAnalysisPreviewUseCase>(),
+        processDocumentOcrUseCase: context.read<ProcessDocumentOcrUseCase>(),
       )..load(),
       child: _DocumentAnalysisView(document: document),
     );
@@ -42,6 +44,7 @@ class _DocumentAnalysisView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<DocumentAnalysisController>();
+    final resolvedDocument = controller.document;
     final strings = context.strings;
 
     return Scaffold(
@@ -65,8 +68,8 @@ class _DocumentAnalysisView extends StatelessWidget {
                       Navigator.of(context).pushNamed(
                         AppRoutes.legalAiConsultation,
                         arguments: ContextualLegalConsultationPageArgs(
-                          preselectedCaseFileId: document.caseFileId,
-                          preselectedDocumentId: document.id,
+                          preselectedCaseFileId: resolvedDocument.caseFileId,
+                          preselectedDocumentId: resolvedDocument.id,
                         ),
                       );
                     },
@@ -156,7 +159,7 @@ class _DocumentAnalysisView extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          document.originalName,
+                          resolvedDocument.originalName,
                           style: Theme.of(context)
                               .textTheme
                               .headlineSmall
@@ -241,6 +244,12 @@ class _DocumentAnalysisView extends StatelessWidget {
                             ),
                             _NeutralChip(label: analysis.sourceUploadSource),
                             _NeutralChip(label: analysis.sourceDocumentType),
+                            if (resolvedDocument.pageCount != null)
+                              _NeutralChip(
+                                label: strings.scanPagesCount(
+                                  resolvedDocument.pageCount!,
+                                ),
+                              ),
                           ],
                         ),
                       ],

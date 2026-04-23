@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../clients/domain/entities/client.dart';
 import '../../domain/repositories/case_file_repository.dart';
 
 class CreateCaseFileSheet extends StatefulWidget {
   const CreateCaseFileSheet({
     super.key,
     required this.onSubmit,
+    required this.clients,
     this.isSubmitting = false,
     this.errorMessage,
   });
 
   final Future<bool> Function(CreateCaseFileInput input) onSubmit;
+  final List<Client> clients;
   final bool isSubmitting;
   final String? errorMessage;
 
@@ -33,6 +36,15 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
   final _processTypeController = TextEditingController();
 
   String _selectedConfidentialityLevel = _confidentialityOptions.first;
+  String? _selectedClientId;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.clients.isNotEmpty) {
+      _selectedClientId = widget.clients.first.id;
+    }
+  }
 
   @override
   void dispose() {
@@ -70,6 +82,50 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 16),
+                if (widget.clients.isEmpty) ...[
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF4E4),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(strings.createClientBeforeCaseFile),
+                  ),
+                  const SizedBox(height: 16),
+                ] else ...[
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedClientId,
+                    decoration: InputDecoration(
+                      labelText: strings.clientLabel,
+                    ),
+                    items: widget.clients
+                        .map(
+                          (client) => DropdownMenuItem<String>(
+                            value: client.id,
+                            child: Text(
+                              '${client.fullName} · ${client.documentNumber}',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: widget.isSubmitting
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _selectedClientId = value;
+                            });
+                          },
+                    validator: (value) {
+                      if ((value ?? '').trim().isEmpty) {
+                        return strings.clientRequiredError;
+                      }
+
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 TextFormField(
                   controller: _internalCodeController,
                   decoration: InputDecoration(
@@ -164,7 +220,9 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                 ],
                 const SizedBox(height: 20),
                 FilledButton(
-                  onPressed: widget.isSubmitting ? null : _submit,
+                  onPressed: widget.isSubmitting || widget.clients.isEmpty
+                      ? null
+                      : _submit,
                   child: Text(
                     widget.isSubmitting
                         ? strings.creating
@@ -186,6 +244,7 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
 
     final wasCreated = await widget.onSubmit(
       CreateCaseFileInput(
+        clientId: _selectedClientId!,
         internalCode: _internalCodeController.text.trim(),
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim().isEmpty

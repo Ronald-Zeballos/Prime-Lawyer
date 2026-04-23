@@ -46,6 +46,7 @@ class CaseFilesRemoteDataSource {
   }
 
   Future<CaseFileModel> createCaseFile({
+    required String clientId,
     required String internalCode,
     required String title,
     String? description,
@@ -55,6 +56,7 @@ class CaseFilesRemoteDataSource {
     final response = await _apiClient.postJson(
       '/case-files',
       body: {
+        'clientId': clientId,
         'internalCode': internalCode,
         'title': title,
         'description': description,

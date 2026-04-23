@@ -7,6 +7,9 @@ class Document {
     required this.storagePath,
     required this.hash,
     required this.uploadSource,
+    required this.source,
+    required this.pageCount,
+    required this.fileSizeBytes,
     required this.ocrStatus,
     required this.ocrText,
     required this.ocrProcessedAt,
@@ -23,6 +26,9 @@ class Document {
   final String storagePath;
   final String hash;
   final String uploadSource;
+  final String source;
+  final int? pageCount;
+  final int? fileSizeBytes;
   final String ocrStatus;
   final String? ocrText;
   final DateTime? ocrProcessedAt;
@@ -36,6 +42,8 @@ class Document {
       originalName.toLowerCase().endsWith('.pdf');
 
   bool get hasOcrText => ocrText != null && ocrText!.trim().isNotEmpty;
+
+  bool get isScannedDocument => source == 'CAMERA';
 
   String get ocrPreview {
     final normalizedText =

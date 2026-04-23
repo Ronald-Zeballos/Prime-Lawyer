@@ -115,6 +115,18 @@ class RegisterDocumentSheet extends StatelessWidget {
                           strings.ocrStatus(selectedDocument!.ocrStatusValue),
                         ),
                       ),
+                      if (selectedDocument!.hasOcrText) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          strings.ocrTextPreviewTitle,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(selectedDocument!.ocrPreview),
+                      ],
                     ],
                     const SizedBox(height: 10),
                     TextButton(

@@ -31,6 +31,15 @@ class DocumentsRemoteDataSource {
     );
   }
 
+  Future<DocumentModel> processDocumentOcr(String documentId) async {
+    final response = await _apiClient.postJson(
+      '/documents/$documentId/ocr/process',
+      body: const <String, dynamic>{},
+    );
+
+    return DocumentModel.fromJson(response as Map<String, dynamic>);
+  }
+
   Future<DocumentModel> registerDocument({
     required String caseFileId,
     required CapturedDocument document,
@@ -44,6 +53,10 @@ class DocumentsRemoteDataSource {
       fields: {
         'caseFileId': caseFileId,
         'uploadSource': uploadSource,
+        'source': document.documentSourceValue,
+        'pageCount': document.pageCount.toString(),
+        'fileSizeBytes': document.sizeBytes.toString(),
+        if (document.hasOcrText) 'ocrText': document.ocrText!.trim(),
       },
     );
 

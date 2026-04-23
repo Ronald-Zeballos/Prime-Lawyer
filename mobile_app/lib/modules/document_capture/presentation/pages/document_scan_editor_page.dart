@@ -18,6 +18,21 @@ class DocumentScanEditorPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(strings.scanDocumentEditorTitle),
+        actions: [
+          IconButton(
+            onPressed: controller.isProcessing || controller.isAddingPages
+                ? null
+                : controller.addMorePages,
+            tooltip: strings.scanAddPage,
+            icon: controller.isAddingPages
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.add_a_photo_outlined),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -48,6 +63,15 @@ class DocumentScanEditorPage extends StatelessWidget {
                       Text(
                         strings.scanReorderHint,
                         style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed:
+                            controller.isProcessing || controller.isAddingPages
+                                ? null
+                                : controller.addMorePages,
+                        icon: const Icon(Icons.note_add_outlined),
+                        label: Text(strings.scanAddPage),
                       ),
                     ],
                   ),
@@ -97,9 +121,24 @@ class DocumentScanEditorPage extends StatelessWidget {
                     : Center(
                         child: Padding(
                           padding: const EdgeInsets.all(24),
-                          child: Text(
-                            strings.scanNoPagesError,
-                            textAlign: TextAlign.center,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                strings.scanNoPagesError,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              FilledButton.icon(
+                                onPressed: controller.isProcessing ||
+                                        controller.isAddingPages
+                                    ? null
+                                    : controller.addMorePages,
+                                icon:
+                                    const Icon(Icons.document_scanner_outlined),
+                                label: Text(strings.scanAddPage),
+                              ),
+                            ],
                           ),
                         ),
                       ),

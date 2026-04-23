@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -13,6 +16,7 @@ import { Request } from 'express';
 import { AuthenticatedUserDto } from '../../../identity-access/application/dto/authenticated-user.dto';
 import { JwtAuthGuard } from '../../../identity-access/presentation/guards/jwt-auth.guard';
 import { CreateClientUseCase } from '../../application/use-cases/create-client/create-client.use-case';
+import { DeleteClientUseCase } from '../../application/use-cases/delete-client/delete-client.use-case';
 import { GetClientUseCase } from '../../application/use-cases/get-client/get-client.use-case';
 import { SearchClientsUseCase } from '../../application/use-cases/search-clients/search-clients.use-case';
 import { UpdateClientUseCase } from '../../application/use-cases/update-client/update-client.use-case';
@@ -28,6 +32,7 @@ export class ClientsController {
   constructor(
     private readonly createClientUseCase: CreateClientUseCase,
     private readonly updateClientUseCase: UpdateClientUseCase,
+    private readonly deleteClientUseCase: DeleteClientUseCase,
     private readonly getClientUseCase: GetClientUseCase,
     private readonly searchClientsUseCase: SearchClientsUseCase,
   ) {}
@@ -92,5 +97,20 @@ export class ClientsController {
     const client = await this.getClientUseCase.execute({ id });
 
     return ClientResponse.fromDto(client);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(
+    @Param('id') id: string,
+    @Req()
+    httpRequest: Request & {
+      user: AuthenticatedUserDto;
+    },
+  ): Promise<void> {
+    await this.deleteClientUseCase.execute({
+      id,
+      performedById: httpRequest.user.id,
+    });
   }
 }

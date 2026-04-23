@@ -9,7 +9,9 @@ export interface ClientRepository {
   findByDocumentNumber(
     documentNumber: DocumentNumber,
   ): Promise<ClientEntity | null>;
+  countLinkedCaseFiles(id: ClientId): Promise<number>;
   search(term?: string): Promise<ClientEntity[]>;
   create(client: ClientEntity): Promise<ClientEntity>;
   update(client: ClientEntity): Promise<ClientEntity>;
+  delete(id: ClientId): Promise<void>;
 }

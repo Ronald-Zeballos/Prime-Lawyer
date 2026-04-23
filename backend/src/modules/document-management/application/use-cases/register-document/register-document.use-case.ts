@@ -17,7 +17,11 @@ import {
   UserRepository,
 } from '../../../../identity-access/domain/repositories/user.repository';
 import { UserId } from '../../../../identity-access/domain/value-objects/user-id.vo';
-import { DocumentEntity, OCRStatus } from '../../../domain/entities/document.entity';
+import {
+  DocumentEntity,
+  DocumentSource,
+  OCRStatus,
+} from '../../../domain/entities/document.entity';
 import {
   DOCUMENT_REPOSITORY,
   DocumentRepository,
@@ -33,6 +37,10 @@ export type RegisterDocumentCommand = {
   originalName: string;
   fileType: string;
   uploadSource: string;
+  source?: string;
+  pageCount?: number | null;
+  fileSizeBytes?: number | null;
+  ocrText?: string | null;
   uploadedById: string;
   fileBuffer: Buffer;
 };
@@ -77,6 +85,7 @@ export class RegisterDocumentUseCase
     });
 
     const now = new Date();
+    const normalizedOcrText = command.ocrText?.trim() ?? null;
     const normalizedFileType = this.normalizeUploadedFileType(
       command.originalName,
       command.fileType,
@@ -89,7 +98,14 @@ export class RegisterDocumentUseCase
       storagePath: storedFile.storagePath,
       hash: storedFile.hash,
       uploadSource: command.uploadSource,
-      ocrStatus: OCRStatus.PENDING,
+      source: command.source ?? DocumentSource.FILE_UPLOAD,
+      pageCount: command.pageCount,
+      fileSizeBytes: command.fileSizeBytes ?? command.fileBuffer.length,
+      ocrStatus: normalizedOcrText == null
+          ? OCRStatus.PENDING
+          : OCRStatus.COMPLETED,
+      ocrText: normalizedOcrText,
+      ocrProcessedAt: normalizedOcrText == null ? null : now,
       uploadedById: command.uploadedById,
       uploadedAt: now,
       createdAt: now,
@@ -108,6 +124,9 @@ export class RegisterDocumentUseCase
         originalName: createdDocument.originalName,
         fileType: createdDocument.fileType.value,
         uploadSource: createdDocument.uploadSource,
+        source: createdDocument.source,
+        pageCount: createdDocument.pageCount,
+        fileSizeBytes: createdDocument.fileSizeBytes,
         ocrStatus: createdDocument.ocrStatus,
       },
     });

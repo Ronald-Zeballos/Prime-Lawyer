@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/errors/api_exception.dart';
-import '../../../../core/services/api_health_service.dart';
 import '../../../../shared/localization/app_strings_context.dart';
 import '../../../../shared/models/app_language.dart';
 import '../../../../shared/providers/api_base_url_provider.dart';
@@ -430,8 +428,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 icon: const Icon(Icons.save_outlined),
                                 label: Text(strings.saveApiBaseUrl),
                               ),
-
-
                               if (_apiFeedbackMessage != null) ...[
                                 const SizedBox(height: 12),
                                 Container(
@@ -514,10 +510,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     );
   }
 
-
-
-
-
   void _syncInputAndShowFeedback(
     BuildContext context, {
     required ApiBaseUrlActionResult result,
@@ -545,18 +537,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         isError: true,
       );
     }
-  }
-
-
-
-  void _setApiActionInProgress(bool value) {
-    if (!mounted || _isApiActionInProgress == value) {
-      return;
-    }
-
-    setState(() {
-      _isApiActionInProgress = value;
-    });
   }
 
   void _setApiFeedback(

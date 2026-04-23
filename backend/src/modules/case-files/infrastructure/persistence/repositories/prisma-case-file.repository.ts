@@ -123,7 +123,7 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
       data: {
         id: caseFile.id.value,
         internalCode: caseFile.internalCode,
-        clientId: null,
+        clientId: caseFile.clientId,
         ownerUserId: caseFile.ownerUserId,
         title: caseFile.title,
         subject: caseFile.title,
@@ -151,6 +151,7 @@ export class PrismaCaseFileRepository implements CaseFileRepository {
       where: { id: caseFile.id.value },
       data: {
         internalCode: caseFile.internalCode,
+        clientId: caseFile.clientId,
         ownerUserId: caseFile.ownerUserId,
         title: caseFile.title,
         subject: caseFile.title,

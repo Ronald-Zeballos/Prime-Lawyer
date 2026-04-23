@@ -2,6 +2,7 @@ class CaseFileModel {
   const CaseFileModel({
     required this.id,
     required this.internalCode,
+    required this.clientId,
     required this.ownerUserId,
     required this.title,
     required this.description,
@@ -20,6 +21,7 @@ class CaseFileModel {
 
   final String id;
   final String internalCode;
+  final String? clientId;
   final String ownerUserId;
   final String title;
   final String? description;
@@ -39,6 +41,7 @@ class CaseFileModel {
     return CaseFileModel(
       id: json['id'] as String,
       internalCode: json['internalCode'] as String,
+      clientId: json['clientId'] as String?,
       ownerUserId: json['ownerUserId'] as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String?,

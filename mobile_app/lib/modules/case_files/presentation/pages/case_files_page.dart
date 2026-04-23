@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../clients/domain/usecases/get_clients_use_case.dart';
 import '../../domain/usecases/create_case_file_use_case.dart';
 import '../../domain/usecases/get_case_files_use_case.dart';
 import '../controllers/case_files_controller.dart';
@@ -18,6 +19,7 @@ class CaseFilesPage extends StatelessWidget {
       create: (context) => CaseFilesController(
         getCaseFilesUseCase: context.read<GetCaseFilesUseCase>(),
         createCaseFileUseCase: context.read<CreateCaseFileUseCase>(),
+        getClientsUseCase: context.read<GetClientsUseCase>(),
       )..loadInitialData(),
       child: const _CaseFilesView(),
     );
@@ -51,7 +53,9 @@ class _CaseFilesView extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openCreateCaseFileSheet(context),
+        onPressed: () => controller.hasClients
+            ? _openCreateCaseFileSheet(context)
+            : _showCreateClientRequiredMessage(context),
         icon: const Icon(Icons.create_new_folder_outlined),
         label: Text(strings.newCaseFile),
       ),
@@ -108,7 +112,9 @@ class _CaseFilesView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          strings.noCaseFilesListDescription,
+                          controller.hasClients
+                              ? strings.noCaseFilesListWithClientsDescription
+                              : strings.noCaseFilesListWithoutClientsDescription,
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -127,11 +133,17 @@ class _CaseFilesView extends StatelessWidget {
 
                       return CaseFileListItem(
                         caseFile: caseFile,
-                        onTap: () {
-                          Navigator.of(context).pushNamed(
+                        onTap: () async {
+                          await Navigator.of(context).pushNamed(
                             AppRoutes.caseFileDetail,
                             arguments: caseFile.id,
                           );
+
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          await controller.refresh();
                         },
                       );
                     },
@@ -148,6 +160,7 @@ class _CaseFilesView extends StatelessWidget {
   Future<void> _openCreateCaseFileSheet(BuildContext context) {
     final controller = context.read<CaseFilesController>();
     controller.clearError();
+    final strings = context.strings;
 
     return showModalBottomSheet<void>(
       context: context,
@@ -156,12 +169,35 @@ class _CaseFilesView extends StatelessWidget {
         value: controller,
         child: Consumer<CaseFilesController>(
           builder: (context, value, _) => CreateCaseFileSheet(
+            clients: value.clients,
             isSubmitting: value.isSubmitting,
             errorMessage: value.errorMessage,
-            onSubmit: value.createCaseFile,
+            onSubmit: (input) async {
+              final success = await value.createCaseFile(input);
+
+              if (!context.mounted) {
+                return success;
+              }
+
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(strings.caseFileCreatedSuccess)),
+                );
+              }
+
+              return success;
+            },
           ),
         ),
       ),
+    );
+  }
+
+  void _showCreateClientRequiredMessage(BuildContext context) {
+    final strings = context.strings;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(strings.createClientBeforeCaseFile)),
     );
   }
 }

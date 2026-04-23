@@ -39,7 +39,9 @@ import '../modules/clients/data/datasources/clients_remote_data_source.dart';
 import '../modules/clients/data/repositories/client_repository_impl.dart';
 import '../modules/clients/domain/repositories/client_repository.dart';
 import '../modules/clients/domain/usecases/create_client_use_case.dart';
+import '../modules/clients/domain/usecases/delete_client_use_case.dart';
 import '../modules/clients/domain/usecases/get_clients_use_case.dart';
+import '../modules/clients/domain/usecases/update_client_use_case.dart';
 import '../modules/contract_marketplace/data/datasources/contract_marketplace_remote_data_source.dart';
 import '../modules/contract_marketplace/data/repositories/contract_marketplace_repository_impl.dart';
 import '../modules/contract_marketplace/domain/repositories/contract_marketplace_repository.dart';
@@ -53,6 +55,7 @@ import '../modules/documents/data/repositories/document_repository_impl.dart';
 import '../modules/documents/domain/repositories/document_repository.dart';
 import '../modules/documents/domain/usecases/get-document-file-use-case.dart';
 import '../modules/documents/domain/usecases/get_case_documents_use_case.dart';
+import '../modules/documents/domain/usecases/process_document_ocr_use_case.dart';
 import '../modules/documents/domain/usecases/register_document_use_case.dart';
 import '../modules/home/domain/usecases/get_home_dashboard_use_case.dart';
 import '../modules/home/presentation/pages/home_page.dart';
@@ -153,6 +156,16 @@ class PrimeLawyerApp extends StatelessWidget {
             context.read<ClientRepository>(),
           ),
         ),
+        Provider<UpdateClientUseCase>(
+          create: (context) => UpdateClientUseCase(
+            context.read<ClientRepository>(),
+          ),
+        ),
+        Provider<DeleteClientUseCase>(
+          create: (context) => DeleteClientUseCase(
+            context.read<ClientRepository>(),
+          ),
+        ),
         Provider<ContractMarketplaceRemoteDataSource>(
           create: (context) => ContractMarketplaceRemoteDataSource(
             context.read<ApiClient>(),
@@ -235,7 +248,7 @@ class PrimeLawyerApp extends StatelessWidget {
           ),
         ),
         Provider<NativeDocumentScannerService>(
-          create: (_) => const NativeDocumentScannerService(),
+          create: (_) => NativeDocumentScannerService(),
         ),
         Provider<DocumentCaptureFileStorage>(
           create: (_) => DocumentCaptureFileStorage(),
@@ -300,6 +313,11 @@ class PrimeLawyerApp extends StatelessWidget {
         ),
         Provider<RegisterDocumentUseCase>(
           create: (context) => RegisterDocumentUseCase(
+            context.read<DocumentRepository>(),
+          ),
+        ),
+        Provider<ProcessDocumentOcrUseCase>(
+          create: (context) => ProcessDocumentOcrUseCase(
             context.read<DocumentRepository>(),
           ),
         ),

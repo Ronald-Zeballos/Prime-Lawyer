@@ -269,10 +269,75 @@ class AppStrings {
   String get creating => isSpanish ? 'Creando...' : 'Creating...';
   String get createClientAction =>
       isSpanish ? 'Crear cliente' : 'Create client';
+  String get clientCreatedSuccess => isSpanish
+      ? 'Cliente creado correctamente.'
+      : 'Client created successfully.';
   String get clientsTitle => isSpanish ? 'Clientes' : 'Clients';
   String get refreshClients =>
       isSpanish ? 'Actualizar clientes' : 'Refresh clients';
   String get newClient => isSpanish ? 'Nuevo cliente' : 'New client';
+  String get manageClientTitle =>
+      isSpanish ? 'Gestionar cliente' : 'Manage client';
+  String get manageClientAction =>
+      isSpanish ? 'Gestionar' : 'Manage';
+  String get editClientTitle =>
+      isSpanish ? 'Editar cliente' : 'Edit client';
+  String get editClientAction =>
+      isSpanish ? 'Editar cliente' : 'Edit client';
+  String get saveClientChangesAction =>
+      isSpanish ? 'Guardar cambios' : 'Save changes';
+  String get savingChanges =>
+      isSpanish ? 'Guardando...' : 'Saving...';
+  String get clientUpdatedSuccess => isSpanish
+      ? 'Cliente actualizado correctamente.'
+      : 'Client updated successfully.';
+  String get clientDeletedSuccess => isSpanish
+      ? 'Cliente eliminado correctamente.'
+      : 'Client deleted successfully.';
+  String get deleteClientAction =>
+      isSpanish ? 'Eliminar cliente' : 'Delete client';
+  String get deleteClientConfirmAction =>
+      isSpanish ? 'Eliminar definitivamente' : 'Delete permanently';
+  String get deleteClientConfirmationTitle => isSpanish
+      ? 'Confirmar eliminación'
+      : 'Confirm deletion';
+  String deleteClientConfirmationMessage(String clientName) => isSpanish
+      ? 'Se eliminará el cliente $clientName. Esta acción no se puede deshacer.'
+      : 'Client $clientName will be deleted. This action cannot be undone.';
+  String get deleteClientBlockedTitle => isSpanish
+      ? 'No se puede eliminar este cliente'
+      : 'This client cannot be deleted';
+  String get deleteClientBlockedMessage => isSpanish
+      ? 'No se puede eliminar este cliente porque tiene casos asociados.'
+      : 'This client cannot be deleted because it has linked case files.';
+  String deleteClientBlockedDescription(int caseFilesCount) => isSpanish
+      ? 'Este cliente tiene $caseFilesCount expedientes vinculados. Para proteger la integridad del historial legal, primero revisa o reasigna esos expedientes.'
+      : 'This client still has $caseFilesCount linked case files. Review or reassign those matters first to protect legal history integrity.';
+  String get deleteClientFailed => isSpanish
+      ? 'No se pudo eliminar el cliente.'
+      : 'Could not delete the client.';
+  String get clientUnavailable => isSpanish
+      ? 'El cliente ya no está disponible.'
+      : 'The client is no longer available.';
+  String activeCaseFilesSummary(int count) => isSpanish
+      ? '$count activos'
+      : '$count active';
+  String get linkedCaseFilesTitle =>
+      isSpanish ? 'Expedientes asociados' : 'Linked case files';
+  String get linkedCaseFilesDescription => isSpanish
+      ? 'Consulta rápidamente los expedientes vinculados a este cliente.'
+      : 'Quickly review the case files linked to this client.';
+  String get noLinkedCaseFilesTitle => isSpanish
+      ? 'Sin expedientes vinculados'
+      : 'No linked case files';
+  String get noLinkedCaseFilesDescription => isSpanish
+      ? 'Este cliente todavía no tiene expedientes asociados.'
+      : 'This client does not have linked case files yet.';
+  String get openLinkedCaseFileAction => isSpanish
+      ? 'Abrir expediente vinculado'
+      : 'Open linked case file';
+  String get cancelAction => isSpanish ? 'Cancelar' : 'Cancel';
+  String get confirmAction => isSpanish ? 'Confirmar' : 'Confirm';
   String get noClientsListTitle =>
       isSpanish ? 'No hay clientes todavía' : 'No clients yet';
   String get noClientsListDescription => isSpanish
@@ -314,6 +379,9 @@ class AppStrings {
       isSpanish ? 'Nivel de confidencialidad' : 'Confidentiality level';
   String get createCaseFileAction =>
       isSpanish ? 'Crear expediente' : 'Create case file';
+  String get caseFileCreatedSuccess => isSpanish
+      ? 'Expediente creado correctamente.'
+      : 'Case file created successfully.';
   String get caseFileDetailTitle =>
       isSpanish ? 'Detalle del expediente' : 'Case file detail';
   String get openCaseFileAction =>
@@ -372,6 +440,7 @@ class AppStrings {
       : 'Reorder, rotate, or delete pages before generating the final PDF.';
   String scanPagesCount(int count) =>
       isSpanish ? '$count páginas detectadas' : '$count pages detected';
+  String get scanAddPage => isSpanish ? 'Agregar página' : 'Add page';
   String get scanReorderHint => isSpanish
       ? 'Mantén presionado y arrastra para cambiar el orden.'
       : 'Long press and drag to change the order.';
@@ -400,6 +469,9 @@ class AppStrings {
   String get scanOpenError => isSpanish
       ? 'No se pudo abrir el escáner del dispositivo.'
       : 'The device scanner could not be opened.';
+  String get cameraPermissionDeniedError => isSpanish
+      ? 'No se concedió permiso de cámara. Habilítalo e inténtalo nuevamente.'
+      : 'Camera permission was denied. Enable it and try again.';
   String get scanPreviewUnavailable => isSpanish
       ? 'No se pudo mostrar la vista previa.'
       : 'Could not display the preview.';
@@ -631,6 +703,9 @@ class AppStrings {
   String get uploading => isSpanish ? 'Subiendo...' : 'Uploading...';
   String get uploadDocument =>
       isSpanish ? 'Subir documento' : 'Upload document';
+  String get documentRegisteredSuccess => isSpanish
+      ? 'Documento registrado correctamente.'
+      : 'Document registered successfully.';
   String uploadedAt(String value) =>
       isSpanish ? 'Subido: $value' : 'Uploaded at: $value';
   String hashLabel(String value) => 'Hash: $value';
@@ -667,6 +742,8 @@ class AppStrings {
     switch (value) {
       case 'PENDING':
         return isSpanish ? 'PENDIENTE' : 'PENDING';
+      case 'PROCESSING':
+        return isSpanish ? 'PROCESANDO' : 'PROCESSING';
       case 'DONE':
       case 'COMPLETED':
         return isSpanish ? 'COMPLETADO' : 'COMPLETED';
@@ -715,8 +792,18 @@ class AppStrings {
       isSpanish ? 'Publicado: $value' : 'Published: $value';
   String get repositoryViewSummaryAction =>
       isSpanish ? 'Ver resumen' : 'View summary';
+  String get repositoryLegalSummaryTitle =>
+      isSpanish ? 'Resumen jurídico' : 'Legal summary';
+  String get repositorySummaryUnavailable => isSpanish
+      ? 'Este caso publicado no tiene un resumen descriptivo disponible todavía.'
+      : 'This published case does not have a descriptive summary yet.';
+  String get repositoryOriginalCaseLabel =>
+      isSpanish ? 'Expediente relacionado' : 'Related case file';
   String get openOwnedRepositoryCaseAction =>
       isSpanish ? 'Abrir mi expediente' : 'Open my case file';
+  String get repositoryCaseOpenFailed => isSpanish
+      ? 'No se pudo abrir el expediente vinculado a este caso publicado.'
+      : 'Could not open the case file linked to this published case.';
   String get repositorySharedCaseNotice => isSpanish
       ? 'Este caso ya forma parte del repositorio compartido y se muestra como referencia colaborativa.'
       : 'This case already belongs to the shared repository and is shown as collaborative reference.';
@@ -727,6 +814,12 @@ class AppStrings {
   String get changeCaseStatusDescription => isSpanish
       ? 'Selecciona el estado operativo actual del expediente.'
       : 'Select the current operational status for this case file.';
+  String get confirmCaseStatusChangeTitle => isSpanish
+      ? 'Confirmar cambio de estado'
+      : 'Confirm status change';
+  String confirmCaseStatusChangeMessage(String status) => isSpanish
+      ? 'El expediente se actualizará a $status. ¿Deseas continuar?'
+      : 'The case file will be updated to $status. Do you want to continue?';
   String caseStatusUpdated(String status) => isSpanish
       ? 'Estado actualizado a $status.'
       : 'Status updated to $status.';

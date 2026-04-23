@@ -10,6 +10,10 @@ import { ConfidentialityLevel } from '../../domain/value-objects/confidentiality
 export class CreateCaseFileRequest {
   @IsString()
   @IsNotEmpty()
+  clientId!: string;
+
+  @IsString()
+  @IsNotEmpty()
   @MaxLength(50)
   internalCode!: string;
 

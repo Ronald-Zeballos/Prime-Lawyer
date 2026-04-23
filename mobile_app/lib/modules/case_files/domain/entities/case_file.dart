@@ -2,6 +2,7 @@ class CaseFile {
   const CaseFile({
     required this.id,
     required this.internalCode,
+    required this.clientId,
     required this.ownerUserId,
     required this.title,
     required this.description,
@@ -20,6 +21,7 @@ class CaseFile {
 
   final String id;
   final String internalCode;
+  final String? clientId;
   final String ownerUserId;
   final String title;
   final String? description;
