@@ -430,47 +430,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 icon: const Icon(Icons.save_outlined),
                                 label: Text(strings.saveApiBaseUrl),
                               ),
-                              const SizedBox(height: 10),
-                              FilledButton.tonalIcon(
-                                onPressed: _isApiActionInProgress
-                                    ? null
-                                    : () => _testApiConnection(context),
-                                icon: const Icon(Icons.wifi_tethering_rounded),
-                                label: Text(strings.testApiConnection),
-                              ),
-                              const SizedBox(height: 10),
-                              OutlinedButton.icon(
-                                onPressed: _isApiActionInProgress
-                                    ? null
-                                    : () => _resetApiBaseUrl(context),
-                                icon: const Icon(Icons.restart_alt_rounded),
-                                label: Text(strings.resetApiBaseUrl),
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton.icon(
-                                      onPressed: _isApiActionInProgress
-                                          ? null
-                                          : () => _useEmulatorUrl(context),
-                                      icon: const Icon(
-                                          Icons.phone_android_rounded),
-                                      label: Text(strings.useEmulatorUrl),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: OutlinedButton.icon(
-                                      onPressed: _isApiActionInProgress
-                                          ? null
-                                          : () => _useDeviceUrl(context),
-                                      icon: const Icon(Icons.router_rounded),
-                                      label: Text(strings.useDeviceUrl),
-                                    ),
-                                  ),
-                                ],
-                              ),
+
+
                               if (_apiFeedbackMessage != null) ...[
                                 const SizedBox(height: 12),
                                 Container(
@@ -553,86 +514,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     );
   }
 
-  Future<void> _resetApiBaseUrl(BuildContext context) async {
-    FocusScope.of(context).unfocus();
 
-    final apiBaseUrlProvider = context.read<ApiBaseUrlProvider>();
-    final strings = context.strings;
 
-    _setApiActionInProgress(true);
 
-    try {
-      final result = await apiBaseUrlProvider.resetToDefault();
-
-      if (!mounted) {
-        return;
-      }
-
-      _syncInputAndShowFeedback(
-        context,
-        result: result,
-        successMessageApplied: strings.apiBaseUrlReset,
-        successMessageAlreadyActive: strings.apiBaseUrlAlreadyActive,
-        errorMessageUnavailable: strings.apiBaseUrlLocalNetworkMissing,
-      );
-    } finally {
-      _setApiActionInProgress(false);
-    }
-  }
-
-  Future<void> _useEmulatorUrl(BuildContext context) async {
-    FocusScope.of(context).unfocus();
-
-    final apiBaseUrlProvider = context.read<ApiBaseUrlProvider>();
-    final strings = context.strings;
-
-    _setApiActionInProgress(true);
-
-    try {
-      final result = await apiBaseUrlProvider.useEmulatorApiBaseUrl();
-
-      if (!mounted) {
-        return;
-      }
-
-      _syncInputAndShowFeedback(
-        context,
-        result: result,
-        successMessageApplied: strings.apiBaseUrlEmulatorApplied,
-        successMessageAlreadyActive: strings.apiBaseUrlEmulatorAlreadyActive,
-      );
-    } finally {
-      _setApiActionInProgress(false);
-    }
-  }
-
-  Future<void> _useDeviceUrl(BuildContext context) async {
-    FocusScope.of(context).unfocus();
-
-    final apiBaseUrlProvider = context.read<ApiBaseUrlProvider>();
-    final strings = context.strings;
-
-    _setApiActionInProgress(true);
-
-    try {
-      final result = await apiBaseUrlProvider.useLocalNetworkApiBaseUrl();
-
-      if (!mounted) {
-        return;
-      }
-
-      _syncInputAndShowFeedback(
-        context,
-        result: result,
-        successMessageApplied: strings.apiBaseUrlLocalNetworkApplied,
-        successMessageAlreadyActive:
-            strings.apiBaseUrlLocalNetworkAlreadyActive,
-        errorMessageUnavailable: strings.apiBaseUrlLocalNetworkMissing,
-      );
-    } finally {
-      _setApiActionInProgress(false);
-    }
-  }
 
   void _syncInputAndShowFeedback(
     BuildContext context, {
@@ -663,72 +547,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     }
   }
 
-  Future<void> _testApiConnection(BuildContext context) async {
-    FocusScope.of(context).unfocus();
 
-    final apiBaseUrlProvider = context.read<ApiBaseUrlProvider>();
-    final manualApiBaseUrl = _apiBaseUrlController.text.trim();
-    final strings = context.strings;
-
-    _setApiActionInProgress(true);
-    _setApiFeedback(
-      strings.apiConnectionChecking,
-      isError: false,
-    );
-
-    try {
-      if (manualApiBaseUrl.isNotEmpty) {
-        if (!_apiBaseUrlFormKey.currentState!.validate()) {
-          return;
-        }
-
-        await apiBaseUrlProvider.setApiBaseUrl(manualApiBaseUrl);
-      }
-
-      if (!mounted) {
-        return;
-      }
-
-      final isHealthy = await context.read<ApiHealthService>().ping();
-
-      if (!mounted) {
-        return;
-      }
-
-      final resolvedApiBaseUrl =
-          context.read<ApiBaseUrlProvider>().currentApiBaseUrl.trim();
-
-      _showSnackBar(
-        context,
-        isHealthy
-            ? '${strings.apiConnectionStatusOk}\n${strings.apiConnectionCheckedUrl(resolvedApiBaseUrl)}'
-            : '${strings.apiConnectionStatusError}\n${strings.apiConnectionCheckedUrl(resolvedApiBaseUrl)}',
-        isError: !isHealthy,
-      );
-    } on ApiException catch (error) {
-      if (!mounted) {
-        return;
-      }
-
-      _showSnackBar(
-        context,
-        error.message,
-        isError: true,
-      );
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-
-      _showSnackBar(
-        context,
-        strings.apiConnectionFailure,
-        isError: true,
-      );
-    } finally {
-      _setApiActionInProgress(false);
-    }
-  }
 
   void _setApiActionInProgress(bool value) {
     if (!mounted || _isApiActionInProgress == value) {
