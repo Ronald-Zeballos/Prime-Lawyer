@@ -101,11 +101,9 @@ class AppStrings {
       isSpanish ? 'Usar URL Emulador' : 'Use Emulator URL';
   String get useDeviceUrl =>
       isSpanish ? 'Usar URL Red Local' : 'Use Local Network URL';
-  String get ocrTextPreviewTitle =>
-      isSpanish ? 'Preview OCR' : 'OCR preview';
-  String ocrProcessedAt(String value) => isSpanish
-      ? 'OCR procesado: $value'
-      : 'OCR processed: $value';
+  String get ocrTextPreviewTitle => isSpanish ? 'Preview OCR' : 'OCR preview';
+  String ocrProcessedAt(String value) =>
+      isSpanish ? 'OCR procesado: $value' : 'OCR processed: $value';
   String get settingsTitle => isSpanish ? 'Configuración' : 'Settings';
   String get languageTitle => isSpanish ? 'Idioma' : 'Language';
   String get languageDescription => isSpanish
@@ -361,6 +359,50 @@ class AppStrings {
   String get chooseFile => isSpanish ? 'Elegir archivo' : 'Choose file';
   String get changeFile => isSpanish ? 'Cambiar archivo' : 'Change file';
   String get useCamera => isSpanish ? 'Usar camara' : 'Use camera';
+  String get scanDocumentAction => isSpanish ? 'Escanear' : 'Scan';
+  String get scanSelectedDocumentTitle =>
+      isSpanish ? 'Documento escaneado' : 'Scanned document';
+  String scanSelectedDocumentSummary(int pages, String ocrStatus) => isSpanish
+      ? '$pages páginas · OCR $ocrStatus'
+      : '$pages pages · OCR $ocrStatus';
+  String get scanDocumentEditorTitle =>
+      isSpanish ? 'Revisar escaneo' : 'Review scan';
+  String get scanDocumentEditorDescription => isSpanish
+      ? 'Reordena, rota o elimina paginas antes de generar el PDF final.'
+      : 'Reorder, rotate, or delete pages before generating the final PDF.';
+  String scanPagesCount(int count) =>
+      isSpanish ? '$count páginas detectadas' : '$count pages detected';
+  String get scanReorderHint => isSpanish
+      ? 'Mantén presionado y arrastra para cambiar el orden.'
+      : 'Long press and drag to change the order.';
+  String get scanRotatePage => isSpanish ? 'Rotar página' : 'Rotate page';
+  String get scanDeletePage => isSpanish ? 'Eliminar página' : 'Delete page';
+  String get scanPageLabelPrefix => isSpanish ? 'Página' : 'Page';
+  String get scanGeneratePdf =>
+      isSpanish ? 'Generar PDF y OCR' : 'Generate PDF and OCR';
+  String get scanProcessingTitle =>
+      isSpanish ? 'Procesando documento' : 'Processing document';
+  String get scanPreparingProgress =>
+      isSpanish ? 'Preparando escaneo...' : 'Preparing scan...';
+  String scanOptimizingProgress(int current, int total) => isSpanish
+      ? 'Optimizando páginas $current de $total'
+      : 'Optimizing pages $current of $total';
+  String scanOcrProgress(int current, int total) => isSpanish
+      ? 'Extrayendo texto $current de $total'
+      : 'Extracting text $current of $total';
+  String get scanGeneratingPdfProgress =>
+      isSpanish ? 'Generando PDF final' : 'Generating final PDF';
+  String get scanReadyProgress =>
+      isSpanish ? 'Documento listo' : 'Document ready';
+  String get scanNoPagesError => isSpanish
+      ? 'Necesitas al menos una página para generar el documento.'
+      : 'You need at least one page to generate the document.';
+  String get scanOpenError => isSpanish
+      ? 'No se pudo abrir el escáner del dispositivo.'
+      : 'The device scanner could not be opened.';
+  String get scanPreviewUnavailable => isSpanish
+      ? 'No se pudo mostrar la vista previa.'
+      : 'Could not display the preview.';
   String get selectedDocumentTitle =>
       isSpanish ? 'Documento listo para subir' : 'Document ready to upload';
   String get openPdfAction => isSpanish ? 'Abrir PDF' : 'Open PDF';
@@ -428,8 +470,7 @@ class AppStrings {
   String aiProcessTypeAutoHint(String processType) => isSpanish
       ? 'Tipo de proceso aplicado automaticamente: $processType'
       : 'Process type applied automatically: $processType';
-  String get aiQuestionLabel =>
-      isSpanish ? 'Pregunta legal' : 'Legal question';
+  String get aiQuestionLabel => isSpanish ? 'Pregunta legal' : 'Legal question';
   String get aiQuestionHint => isSpanish
       ? 'Ejemplo: ¿Qué contexto recuperado habla de incumplimiento de contrato y cuáles son los próximos pasos sugeridos?'
       : 'Example: Which recovered context talks about contract breach and what are the suggested next steps?';
@@ -453,17 +494,15 @@ class AppStrings {
       : 'What next steps does the recovered context suggest?';
   String get aiSubmitQuestion =>
       isSpanish ? 'Consultar IA legal' : 'Ask legal AI';
-  String get aiSubmittingQuestion => isSpanish
-      ? 'Consultando IA...'
-      : 'Consulting AI...';
+  String get aiSubmittingQuestion =>
+      isSpanish ? 'Consultando IA...' : 'Consulting AI...';
   String get aiNoAnswerYetTitle =>
       isSpanish ? 'Aún no hay respuesta' : 'No answer yet';
   String get aiNoAnswerYetDescription => isSpanish
       ? 'Selecciona el contexto que quieras usar, escribe tu pregunta y la app responderá solo con información recuperada.'
       : 'Select the context you want to use, write your question, and the app will answer only with recovered information.';
-  String get aiConsultationHistoryTitle => isSpanish
-      ? 'Consultas recientes'
-      : 'Recent consultations';
+  String get aiConsultationHistoryTitle =>
+      isSpanish ? 'Consultas recientes' : 'Recent consultations';
   String get aiConsultationHistoryDescription => isSpanish
       ? 'Puedes volver a abrir respuestas ya generadas durante esta sesión.'
       : 'You can reopen answers generated earlier in this session.';
@@ -475,8 +514,9 @@ class AppStrings {
       isSpanish ? 'Copiar respuesta' : 'Copy answer';
   String get aiNewQuestionAction =>
       isSpanish ? 'Nueva consulta' : 'New question';
-  String get aiAnswerCopied =>
-      isSpanish ? 'Respuesta copiada al portapapeles.' : 'Answer copied to clipboard.';
+  String get aiAnswerCopied => isSpanish
+      ? 'Respuesta copiada al portapapeles.'
+      : 'Answer copied to clipboard.';
   String get aiFollowUpSuggestionsTitle => isSpanish
       ? 'Preguntas sugeridas para continuar'
       : 'Suggested follow-up questions';
@@ -498,10 +538,10 @@ class AppStrings {
         return value;
     }
   }
+
   String aiQueryIdLabel(String value) =>
       isSpanish ? 'Consulta: $value' : 'Query: $value';
-  String get aiSourceCaseTitle =>
-      isSpanish ? 'Caso fuente' : 'Source case';
+  String get aiSourceCaseTitle => isSpanish ? 'Caso fuente' : 'Source case';
   String get aiSourceDocumentTitle =>
       isSpanish ? 'Documento fuente' : 'Source document';
   String get aiRecommendedNextStepsTitle =>
@@ -539,14 +579,12 @@ class AppStrings {
         return relation;
     }
   }
-  String selectedCaseContextLabel(String internalCode) => isSpanish
-      ? 'Caso: $internalCode'
-      : 'Case: $internalCode';
-  String selectedDocumentContextLabel(String documentName) => isSpanish
-      ? 'Documento: $documentName'
-      : 'Document: $documentName';
-  String get aiOpenCaseAction =>
-      isSpanish ? 'Abrir caso' : 'Open case';
+
+  String selectedCaseContextLabel(String internalCode) =>
+      isSpanish ? 'Caso: $internalCode' : 'Case: $internalCode';
+  String selectedDocumentContextLabel(String documentName) =>
+      isSpanish ? 'Documento: $documentName' : 'Document: $documentName';
+  String get aiOpenCaseAction => isSpanish ? 'Abrir caso' : 'Open case';
   String get aiOpenDocumentsAction =>
       isSpanish ? 'Abrir documentos' : 'Open documents';
   String get analysisSummaryTitle =>
@@ -629,8 +667,10 @@ class AppStrings {
     switch (value) {
       case 'PENDING':
         return isSpanish ? 'PENDIENTE' : 'PENDING';
+      case 'DONE':
       case 'COMPLETED':
         return isSpanish ? 'COMPLETADO' : 'COMPLETED';
+      case 'ERROR':
       case 'FAILED':
         return isSpanish ? 'FALLIDO' : 'FAILED';
       default:
@@ -653,47 +693,37 @@ class AppStrings {
   String get caseVisibilityLabel => isSpanish ? 'Visibilidad' : 'Visibility';
   String get knowledgeStatusLabel =>
       isSpanish ? 'Estado de conocimiento' : 'Knowledge status';
-  String get knowledgeRepositoryTitle => isSpanish
-      ? 'Repositorio colaborativo'
-      : 'Collaborative repository';
-  String get refreshKnowledgeRepository => isSpanish
-      ? 'Actualizar repositorio'
-      : 'Refresh repository';
-  String get knowledgeRepositorySearchLabel => isSpanish
-      ? 'Buscar casos publicados'
-      : 'Search published cases';
+  String get knowledgeRepositoryTitle =>
+      isSpanish ? 'Repositorio colaborativo' : 'Collaborative repository';
+  String get refreshKnowledgeRepository =>
+      isSpanish ? 'Actualizar repositorio' : 'Refresh repository';
+  String get knowledgeRepositorySearchLabel =>
+      isSpanish ? 'Buscar casos publicados' : 'Search published cases';
   String get knowledgeRepositorySearchHint => isSpanish
       ? 'Escribe código, asunto o tipo de proceso'
       : 'Type an internal code, matter, or process type';
-  String get knowledgeRepositoryEmptyTitle => isSpanish
-      ? 'Aún no hay casos publicados'
-      : 'No published cases yet';
+  String get knowledgeRepositoryEmptyTitle =>
+      isSpanish ? 'Aún no hay casos publicados' : 'No published cases yet';
   String get knowledgeRepositoryEmptyDescription => isSpanish
       ? 'Publica un expediente cerrado para iniciar la base de conocimiento compartida.'
       : 'Publish a closed case file to start the shared knowledge base.';
-  String get knowledgeRepositoryPublishedBadge => isSpanish
-      ? 'PUBLICADO'
-      : 'PUBLISHED';
-  String repositoryClosedOn(String value) => isSpanish
-      ? 'Cerrado: $value'
-      : 'Closed: $value';
-  String repositoryPublishedOn(String value) => isSpanish
-      ? 'Publicado: $value'
-      : 'Published: $value';
+  String get knowledgeRepositoryPublishedBadge =>
+      isSpanish ? 'PUBLICADO' : 'PUBLISHED';
+  String repositoryClosedOn(String value) =>
+      isSpanish ? 'Cerrado: $value' : 'Closed: $value';
+  String repositoryPublishedOn(String value) =>
+      isSpanish ? 'Publicado: $value' : 'Published: $value';
   String get repositoryViewSummaryAction =>
       isSpanish ? 'Ver resumen' : 'View summary';
-  String get openOwnedRepositoryCaseAction => isSpanish
-      ? 'Abrir mi expediente'
-      : 'Open my case file';
+  String get openOwnedRepositoryCaseAction =>
+      isSpanish ? 'Abrir mi expediente' : 'Open my case file';
   String get repositorySharedCaseNotice => isSpanish
       ? 'Este caso ya forma parte del repositorio compartido y se muestra como referencia colaborativa.'
       : 'This case already belongs to the shared repository and is shown as collaborative reference.';
-  String get knowledgeRepositorySectionTitle => isSpanish
-      ? 'Repositorio colaborativo'
-      : 'Collaborative repository';
-  String get changeCaseStatusAction => isSpanish
-      ? 'Cambiar estado'
-      : 'Change status';
+  String get knowledgeRepositorySectionTitle =>
+      isSpanish ? 'Repositorio colaborativo' : 'Collaborative repository';
+  String get changeCaseStatusAction =>
+      isSpanish ? 'Cambiar estado' : 'Change status';
   String get changeCaseStatusDescription => isSpanish
       ? 'Selecciona el estado operativo actual del expediente.'
       : 'Select the current operational status for this case file.';
@@ -703,11 +733,9 @@ class AppStrings {
   String get caseStatusUpdateFailed => isSpanish
       ? 'No se pudo actualizar el estado del expediente.'
       : 'Could not update the case status.';
-  String get publishCaseAction =>
-      isSpanish ? 'Publicar caso' : 'Publish case';
-  String get unpublishCaseAction => isSpanish
-      ? 'Retirar del repositorio'
-      : 'Remove from repository';
+  String get publishCaseAction => isSpanish ? 'Publicar caso' : 'Publish case';
+  String get unpublishCaseAction =>
+      isSpanish ? 'Retirar del repositorio' : 'Remove from repository';
   String get closeCaseToPublishAction => isSpanish
       ? 'Cierra el caso para publicarlo'
       : 'Close the case before publishing';
@@ -739,9 +767,8 @@ class AppStrings {
       ? 'Cierra o archiva el expediente para habilitar la publicación al repositorio.'
       : 'Close or archive the case file to enable repository publication.';
 
-  String get contractMarketplaceTitle => isSpanish
-      ? 'Marketplace de contratos'
-      : 'Contract marketplace';
+  String get contractMarketplaceTitle =>
+      isSpanish ? 'Marketplace de contratos' : 'Contract marketplace';
   String get refreshContractMarketplace => isSpanish
       ? 'Actualizar marketplace de contratos'
       : 'Refresh contract marketplace';
@@ -754,27 +781,23 @@ class AppStrings {
   String get contractMarketplaceHeroDescription => isSpanish
       ? 'Este MVP ya lista plantillas activas, abre formularios dinámicos y genera un PDF real. Cuando lleguen nuevas plantillas, solo habrá que cargar su schema.'
       : 'This MVP already lists active templates, opens dynamic forms, and generates a real PDF. When new templates arrive, we will only need to load their schema.';
-  String get contractTemplatesSectionTitle => isSpanish
-      ? 'Plantillas activas'
-      : 'Active templates';
-  String get contractTemplatesEmptyTitle => isSpanish
-      ? 'No hay plantillas activas'
-      : 'No active templates';
+  String get contractTemplatesSectionTitle =>
+      isSpanish ? 'Plantillas activas' : 'Active templates';
+  String get contractTemplatesEmptyTitle =>
+      isSpanish ? 'No hay plantillas activas' : 'No active templates';
   String get contractTemplatesEmptyDescription => isSpanish
       ? 'El marketplace ya está listo; falta cargar las próximas plantillas.'
       : 'The marketplace is ready; upcoming templates still need to be loaded.';
-  String get generatedContractsSectionTitle => isSpanish
-      ? 'Contratos generados'
-      : 'Generated contracts';
+  String get generatedContractsSectionTitle =>
+      isSpanish ? 'Contratos generados' : 'Generated contracts';
   String get noGeneratedContractsTitle => isSpanish
       ? 'Todavía no generaste contratos'
       : 'You have not generated contracts yet';
   String get noGeneratedContractsDescription => isSpanish
       ? 'Completa un formulario dinámico y aquí verás tus contratos listos para abrir.'
       : 'Complete a dynamic form and your ready-to-open contracts will show up here.';
-  String get upcomingTemplatesTitle => isSpanish
-      ? 'Próximas plantillas'
-      : 'Upcoming templates';
+  String get upcomingTemplatesTitle =>
+      isSpanish ? 'Próximas plantillas' : 'Upcoming templates';
   String get upcomingTemplatesDescription => isSpanish
       ? 'Dejamos el espacio preparado para que el equipo legal cargue nuevas plantillas sin rehacer el flujo.'
       : 'We left this area ready so the legal team can upload new templates without reworking the flow.';
@@ -782,51 +805,39 @@ class AppStrings {
       ? 'Espacio listo para conectar la plantilla final apenas nos la compartan.'
       : 'This slot is ready to connect the final template as soon as the legal team shares it.';
   String get comingSoonLabel => isSpanish ? 'Próximamente' : 'Coming soon';
-  String get openContractTemplateAction => isSpanish
-      ? 'Abrir formulario'
-      : 'Open form';
-  String get openGeneratedContractAction => isSpanish
-      ? 'Abrir PDF generado'
-      : 'Open generated PDF';
-  String contractFieldCountLabel(int count) => isSpanish
-      ? '$count campos'
-      : '$count fields';
-  String contractGeneratedOn(String date) => isSpanish
-      ? 'Generado: $date'
-      : 'Generated: $date';
-  String get contractTemplateFormTitle => isSpanish
-      ? 'Formulario de contrato'
-      : 'Contract form';
+  String get openContractTemplateAction =>
+      isSpanish ? 'Abrir formulario' : 'Open form';
+  String get openGeneratedContractAction =>
+      isSpanish ? 'Abrir PDF generado' : 'Open generated PDF';
+  String contractFieldCountLabel(int count) =>
+      isSpanish ? '$count campos' : '$count fields';
+  String contractGeneratedOn(String date) =>
+      isSpanish ? 'Generado: $date' : 'Generated: $date';
+  String get contractTemplateFormTitle =>
+      isSpanish ? 'Formulario de contrato' : 'Contract form';
   String get contractTemplateUnavailable => isSpanish
       ? 'La plantilla de contrato no está disponible.'
       : 'This contract template is not available.';
-  String get contractGenerateAction => isSpanish
-      ? 'Generar contrato en PDF'
-      : 'Generate PDF contract';
-  String get contractGenerating => isSpanish
-      ? 'Generando contrato...'
-      : 'Generating contract...';
+  String get contractGenerateAction =>
+      isSpanish ? 'Generar contrato en PDF' : 'Generate PDF contract';
+  String get contractGenerating =>
+      isSpanish ? 'Generando contrato...' : 'Generating contract...';
   String get contractGeneratedSuccess => isSpanish
       ? 'Contrato generado correctamente.'
       : 'Contract generated successfully.';
   String get contractPdfUnavailable => isSpanish
       ? 'El PDF del contrato no está disponible todavía.'
       : 'The contract PDF is not available yet.';
-  String get contractSummarySectionTitle => isSpanish
-      ? 'Resumen del contrato'
-      : 'Contract summary';
-  String get contractNotesSectionTitle => isSpanish
-      ? 'Notas de la plantilla'
-      : 'Template notes';
-  String get contractSignaturesSectionTitle => isSpanish
-      ? 'Firmas'
-      : 'Signatures';
-  String contractFieldRequired(String fieldLabel) => isSpanish
-      ? '$fieldLabel es obligatorio.'
-      : '$fieldLabel is required.';
-  String get contractGeneralGroupLabel => isSpanish
-      ? 'Información general'
-      : 'General information';
+  String get contractSummarySectionTitle =>
+      isSpanish ? 'Resumen del contrato' : 'Contract summary';
+  String get contractNotesSectionTitle =>
+      isSpanish ? 'Notas de la plantilla' : 'Template notes';
+  String get contractSignaturesSectionTitle =>
+      isSpanish ? 'Firmas' : 'Signatures';
+  String contractFieldRequired(String fieldLabel) =>
+      isSpanish ? '$fieldLabel es obligatorio.' : '$fieldLabel is required.';
+  String get contractGeneralGroupLabel =>
+      isSpanish ? 'Información general' : 'General information';
 
   String caseVisibility(String value) {
     switch (value) {

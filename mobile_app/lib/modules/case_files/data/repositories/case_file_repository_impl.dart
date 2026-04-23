@@ -59,7 +59,8 @@ class CaseFileRepositoryImpl implements CaseFileRepository {
     String? term,
     String? processType,
   }) async {
-    final caseFileModels = await _remoteDataSource.getCollaborativeRepositoryCases(
+    final caseFileModels =
+        await _remoteDataSource.getCollaborativeRepositoryCases(
       term: term,
       processType: processType,
     );
@@ -72,7 +73,8 @@ class CaseFileRepositoryImpl implements CaseFileRepository {
     required String caseFileId,
     required bool publish,
   }) async {
-    final caseFileModel = await _remoteDataSource.updateCaseKnowledgePublication(
+    final caseFileModel =
+        await _remoteDataSource.updateCaseKnowledgePublication(
       caseFileId: caseFileId,
       publish: publish,
     );

@@ -70,7 +70,8 @@ class _CreateClientSheetState extends State<CreateClientSheet> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: InputDecoration(labelText: strings.firstNameLabel),
+                  decoration:
+                      InputDecoration(labelText: strings.firstNameLabel),
                   validator: (value) {
                     if ((value ?? '').trim().isEmpty) {
                       return strings.firstNameRequiredError;

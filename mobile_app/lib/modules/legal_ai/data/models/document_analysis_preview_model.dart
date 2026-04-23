@@ -77,11 +77,10 @@ class DocumentAnalysisPreviewModel {
           .whereType<Map<String, dynamic>>()
           .map(DocumentAnalysisMatchModel.fromJson)
           .toList(),
-      documentMatches:
-          ((json['documentMatches'] as List<dynamic>?) ?? const [])
-              .whereType<Map<String, dynamic>>()
-              .map(DocumentAnalysisDocumentMatchModel.fromJson)
-              .toList(),
+      documentMatches: ((json['documentMatches'] as List<dynamic>?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(DocumentAnalysisDocumentMatchModel.fromJson)
+          .toList(),
     );
   }
 }

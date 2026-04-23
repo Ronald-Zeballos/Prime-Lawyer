@@ -71,8 +71,8 @@ class RegisterDocumentSheet extends StatelessWidget {
                 Expanded(
                   child: FilledButton.tonalIcon(
                     onPressed: isSubmitting ? null : onCaptureFromCamera,
-                    icon: const Icon(Icons.photo_camera_outlined),
-                    label: Text(strings.useCamera),
+                    icon: const Icon(Icons.document_scanner_outlined),
+                    label: Text(strings.scanDocumentAction),
                   ),
                 ),
               ],
@@ -89,7 +89,9 @@ class RegisterDocumentSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      strings.selectedDocumentTitle,
+                      selectedDocument!.isScannerDocument
+                          ? strings.scanSelectedDocumentTitle
+                          : strings.selectedDocumentTitle,
                       style: Theme.of(context)
                           .textTheme
                           .labelLarge
@@ -104,7 +106,16 @@ class RegisterDocumentSheet extends StatelessWidget {
                           ?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 6),
-                    Text(strings.sizeBytes(selectedDocument!.bytes.length)),
+                    Text(strings.sizeBytes(selectedDocument!.sizeBytes)),
+                    if (selectedDocument!.isScannerDocument) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        strings.scanSelectedDocumentSummary(
+                          selectedDocument!.pageCount,
+                          strings.ocrStatus(selectedDocument!.ocrStatusValue),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 10),
                     TextButton(
                       onPressed: isSubmitting ? null : onClearSelection,

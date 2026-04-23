@@ -8,7 +8,8 @@ class ProfileRemoteDataSource {
 
   Future<ProfileUserModel> getMyProfile() async {
     final response = await _apiClient.get('/profile/me');
-    final user = (response as Map<String, dynamic>)['user'] as Map<String, dynamic>;
+    final user =
+        (response as Map<String, dynamic>)['user'] as Map<String, dynamic>;
 
     return ProfileUserModel.fromJson(user);
   }
@@ -28,7 +29,8 @@ class ProfileRemoteDataSource {
         if (bio != null) 'bio': bio,
       },
     );
-    final user = (response as Map<String, dynamic>)['user'] as Map<String, dynamic>;
+    final user =
+        (response as Map<String, dynamic>)['user'] as Map<String, dynamic>;
 
     return ProfileUserModel.fromJson(user);
   }

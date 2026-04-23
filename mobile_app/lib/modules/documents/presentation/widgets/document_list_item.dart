@@ -43,7 +43,8 @@ class DocumentListItem extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text(strings.uploadedAt(strings.formatDateTime(document.uploadedAt))),
+            Text(strings
+                .uploadedAt(strings.formatDateTime(document.uploadedAt))),
             if (document.ocrProcessedAt != null) ...[
               const SizedBox(height: 4),
               Text(

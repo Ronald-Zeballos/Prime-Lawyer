@@ -35,7 +35,8 @@ class DocumentAnalysisMatchModel {
       visibility: json['visibility'] as String? ?? '',
       knowledgeStatus: json['knowledgeStatus'] as String? ?? '',
       score: (json['score'] as num?)?.round() ?? 0,
-      matchedDocumentCount: (json['matchedDocumentCount'] as num?)?.round() ?? 0,
+      matchedDocumentCount:
+          (json['matchedDocumentCount'] as num?)?.round() ?? 0,
       snippet: json['snippet'] as String?,
       matchReasons: ((json['matchReasons'] as List<dynamic>?) ?? const [])
           .whereType<String>()

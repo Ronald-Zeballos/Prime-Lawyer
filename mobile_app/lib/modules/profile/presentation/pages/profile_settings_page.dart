@@ -98,9 +98,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           final isAuthenticated = sessionProvider.isAuthenticated;
           final resolvedApiBaseUrl =
               apiBaseUrlProvider.currentApiBaseUrl.trim();
-          final displayedApiBaseUrl = resolvedApiBaseUrl.isEmpty
-              ? 'No URL'
-              : resolvedApiBaseUrl;
+          final displayedApiBaseUrl =
+              resolvedApiBaseUrl.isEmpty ? 'No URL' : resolvedApiBaseUrl;
 
           _syncProfileFields(profile);
 
@@ -386,7 +385,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           ),
                           child: Text(displayedApiBaseUrl),
                         ),
-
                         const SizedBox(height: 12),
                         Text(
                           strings.realDeviceApiHint,
@@ -404,7 +402,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 decoration: InputDecoration(
                                   labelText: strings.apiBaseUrlLabel,
                                   hintText: strings.apiBaseUrlHint,
-
                                 ),
                                 validator: (value) {
                                   final normalizedValue = value?.trim() ?? '';
@@ -457,7 +454,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                       onPressed: _isApiActionInProgress
                                           ? null
                                           : () => _useEmulatorUrl(context),
-                                      icon: const Icon(Icons.phone_android_rounded),
+                                      icon: const Icon(
+                                          Icons.phone_android_rounded),
                                       label: Text(strings.useEmulatorUrl),
                                     ),
                                   ),
@@ -627,7 +625,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         context,
         result: result,
         successMessageApplied: strings.apiBaseUrlLocalNetworkApplied,
-        successMessageAlreadyActive: strings.apiBaseUrlLocalNetworkAlreadyActive,
+        successMessageAlreadyActive:
+            strings.apiBaseUrlLocalNetworkAlreadyActive,
         errorMessageUnavailable: strings.apiBaseUrlLocalNetworkMissing,
       );
     } finally {

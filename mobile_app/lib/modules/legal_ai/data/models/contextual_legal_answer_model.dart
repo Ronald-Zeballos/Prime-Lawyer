@@ -47,10 +47,11 @@ class ContextualLegalAnswerModel {
       sourceDocument: sourceDocument is Map<String, dynamic>
           ? LegalAiSourceDocumentModel.fromJson(sourceDocument)
           : null,
-      usedContextCases: ((json['usedContextCases'] as List<dynamic>?) ?? const [])
-          .whereType<Map<String, dynamic>>()
-          .map(LegalAiContextCaseModel.fromJson)
-          .toList(),
+      usedContextCases:
+          ((json['usedContextCases'] as List<dynamic>?) ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .map(LegalAiContextCaseModel.fromJson)
+              .toList(),
       usedContextDocuments:
           ((json['usedContextDocuments'] as List<dynamic>?) ?? const [])
               .whereType<Map<String, dynamic>>()

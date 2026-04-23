@@ -19,7 +19,8 @@ class ContractMarketplaceRemoteDataSource {
   }
 
   Future<ContractTemplateModel> getTemplateBySlug(String slug) async {
-    final response = await _apiClient.get('/contract-marketplace/templates/$slug');
+    final response =
+        await _apiClient.get('/contract-marketplace/templates/$slug');
 
     return ContractTemplateModel.fromJson(response as Map<String, dynamic>);
   }

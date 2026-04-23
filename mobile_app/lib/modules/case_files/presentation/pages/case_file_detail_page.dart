@@ -25,7 +25,8 @@ class CaseFileDetailPage extends StatelessWidget {
     return ChangeNotifierProvider<CaseFileDetailController>(
       create: (context) => CaseFileDetailController(
         getCaseFileDetailUseCase: context.read<GetCaseFileDetailUseCase>(),
-        changeCaseFileStatusUseCase: context.read<ChangeCaseFileStatusUseCase>(),
+        changeCaseFileStatusUseCase:
+            context.read<ChangeCaseFileStatusUseCase>(),
         updateCaseKnowledgePublicationUseCase:
             context.read<UpdateCaseKnowledgePublicationUseCase>(),
       )..load(caseFileId),
@@ -121,7 +122,8 @@ class _CaseFileDetailView extends StatelessWidget {
                                   ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                           ),
-                          _StatusChip(label: strings.caseStatus(caseFile.status)),
+                          _StatusChip(
+                              label: strings.caseStatus(caseFile.status)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -149,7 +151,8 @@ class _CaseFileDetailView extends StatelessWidget {
                       ),
                       _DetailLine(
                         label: strings.knowledgeStatusLabel,
-                        value: strings.knowledgeStatus(caseFile.knowledgeStatus),
+                        value:
+                            strings.knowledgeStatus(caseFile.knowledgeStatus),
                       ),
                       _DetailLine(
                         label: strings.openedAtLabel,
@@ -193,7 +196,8 @@ class _CaseFileDetailView extends StatelessWidget {
                                 : () {
                                     Navigator.of(context).pushNamed(
                                       AppRoutes.legalAiConsultation,
-                                      arguments: ContextualLegalConsultationPageArgs(
+                                      arguments:
+                                          ContextualLegalConsultationPageArgs(
                                         preselectedCaseFileId: caseFile.id,
                                       ),
                                     );
@@ -221,7 +225,8 @@ class _CaseFileDetailView extends StatelessWidget {
                 onPublish: () => _handlePublication(context, publish: true),
                 onUnpublish: () => _handlePublication(context, publish: false),
                 onOpenRepository: () {
-                  Navigator.of(context).pushNamed(AppRoutes.knowledgeRepository);
+                  Navigator.of(context)
+                      .pushNamed(AppRoutes.knowledgeRepository);
                 },
               ),
             ],

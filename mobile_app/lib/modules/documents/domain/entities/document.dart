@@ -38,7 +38,8 @@ class Document {
   bool get hasOcrText => ocrText != null && ocrText!.trim().isNotEmpty;
 
   String get ocrPreview {
-    final normalizedText = (ocrText ?? '').replaceAll(RegExp(r'\s+'), ' ').trim();
+    final normalizedText =
+        (ocrText ?? '').replaceAll(RegExp(r'\s+'), ' ').trim();
 
     if (normalizedText.length <= 220) {
       return normalizedText;

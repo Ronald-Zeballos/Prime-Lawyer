@@ -18,8 +18,7 @@ class ContextualLegalConsultationController extends ChangeNotifier {
     String? initialDocumentId,
   })  : _getCaseFilesUseCase = getCaseFilesUseCase,
         _getCaseDocumentsUseCase = getCaseDocumentsUseCase,
-        _askContextualLegalQuestionUseCase =
-            askContextualLegalQuestionUseCase,
+        _askContextualLegalQuestionUseCase = askContextualLegalQuestionUseCase,
         _initialCaseFileId = initialCaseFileId,
         _initialDocumentId = initialDocumentId;
 

@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/errors/api_exception.dart';
 import '../../../document_capture/domain/entities/captured_document.dart';
-import '../../../document_capture/domain/usecases/capture_document_from_camera_use_case.dart';
 import '../../../document_capture/domain/usecases/pick_document_use_case.dart';
 import '../../domain/entities/document.dart';
 import '../../domain/repositories/document_repository.dart';
@@ -15,18 +14,15 @@ class DocumentsController extends ChangeNotifier {
     required GetCaseDocumentsUseCase getCaseDocumentsUseCase,
     required RegisterDocumentUseCase registerDocumentUseCase,
     required PickDocumentUseCase pickDocumentUseCase,
-    required CaptureDocumentFromCameraUseCase captureDocumentFromCameraUseCase,
   })  : _caseFileId = caseFileId,
         _getCaseDocumentsUseCase = getCaseDocumentsUseCase,
         _registerDocumentUseCase = registerDocumentUseCase,
-        _pickDocumentUseCase = pickDocumentUseCase,
-        _captureDocumentFromCameraUseCase = captureDocumentFromCameraUseCase;
+        _pickDocumentUseCase = pickDocumentUseCase;
 
   final String _caseFileId;
   final GetCaseDocumentsUseCase _getCaseDocumentsUseCase;
   final RegisterDocumentUseCase _registerDocumentUseCase;
   final PickDocumentUseCase _pickDocumentUseCase;
-  final CaptureDocumentFromCameraUseCase _captureDocumentFromCameraUseCase;
 
   final List<Document> _documents = [];
   bool _isLoading = false;
@@ -83,20 +79,9 @@ class DocumentsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> captureFromCamera() async {
+  void setSelectedDocument(CapturedDocument document) {
+    _selectedDocument = document;
     _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final capturedDocument = await _captureDocumentFromCameraUseCase.execute();
-
-      if (capturedDocument != null) {
-        _selectedDocument = capturedDocument;
-      }
-    } catch (_) {
-      _errorMessage = 'We could not open the camera right now.';
-    }
-
     notifyListeners();
   }
 
@@ -148,6 +133,11 @@ class DocumentsController extends ChangeNotifier {
     }
 
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  void setErrorMessage(String value) {
+    _errorMessage = value;
     notifyListeners();
   }
 }

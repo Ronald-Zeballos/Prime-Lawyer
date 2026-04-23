@@ -34,8 +34,7 @@ class LegalAiRemoteDataSource {
       'limit': limit,
     }..removeWhere(
         (key, value) =>
-            value == null ||
-            (value is String && value.trim().isEmpty),
+            value == null || (value is String && value.trim().isEmpty),
       );
 
     final response = await _apiClient.postJson(

@@ -145,28 +145,33 @@ class _DocumentAnalysisView extends StatelessWidget {
                           ),
                           child: Text(
                             strings.analysisPreviewBadge,
-                            style:
-                                Theme.of(context).textTheme.labelLarge?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
                           ),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           document.originalName,
-                          style:
-                              Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           analysis.summary,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.92),
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.92),
+                                  ),
                         ),
                         const SizedBox(height: 16),
                         Wrap(
@@ -308,7 +313,8 @@ class _DocumentAnalysisView extends StatelessWidget {
                                     ?.copyWith(fontWeight: FontWeight.w700),
                               ),
                               const SizedBox(height: 6),
-                              Text(strings.analysisNoDocumentMatchesDescription),
+                              Text(
+                                  strings.analysisNoDocumentMatchesDescription),
                             ],
                           ),
                   ),
@@ -511,7 +517,8 @@ class _CaseMatchCard extends StatelessWidget {
             Text(match.snippet!),
           ],
           const SizedBox(height: 10),
-          Text(strings.analysisMatchedDocumentsCount(match.matchedDocumentCount)),
+          Text(strings
+              .analysisMatchedDocumentsCount(match.matchedDocumentCount)),
           const SizedBox(height: 12),
           for (final reason in match.matchReasons)
             Padding(
@@ -629,7 +636,8 @@ class _DocumentMatchCard extends StatelessWidget {
                 AppRoutes.documents,
                 arguments: DocumentsPageArgs(
                   caseFileId: match.caseFileId,
-                  caseFileTitle: '${match.caseInternalCode} · ${match.caseTitle}',
+                  caseFileTitle:
+                      '${match.caseInternalCode} · ${match.caseTitle}',
                 ),
               );
             },

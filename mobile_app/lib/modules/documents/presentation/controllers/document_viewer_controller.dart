@@ -59,7 +59,8 @@ class DocumentViewerController extends ChangeNotifier {
   }
 
   String _safeFileName(String fileName) {
-    final normalized = fileName.trim().replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+    final normalized =
+        fileName.trim().replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
 
     if (normalized.toLowerCase().endsWith('.pdf')) {
       return normalized;

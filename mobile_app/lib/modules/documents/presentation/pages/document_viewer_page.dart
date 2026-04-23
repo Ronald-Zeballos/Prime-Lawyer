@@ -46,16 +46,17 @@ class _DocumentViewerView extends StatelessWidget {
       appBar: AppBar(
         title: Text(document.originalName),
       ),
-      bottomNavigationBar: controller.isLoading || controller.errorMessage != null
-          ? null
-          : SafeArea(
-              minimum: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: FilledButton.icon(
-                onPressed: () => _showAnalysisPreviewInfo(context),
-                icon: const Icon(Icons.auto_awesome_rounded),
-                label: Text(strings.analyzeDocument),
-              ),
-            ),
+      bottomNavigationBar:
+          controller.isLoading || controller.errorMessage != null
+              ? null
+              : SafeArea(
+                  minimum: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: FilledButton.icon(
+                    onPressed: () => _showAnalysisPreviewInfo(context),
+                    icon: const Icon(Icons.auto_awesome_rounded),
+                    label: Text(strings.analyzeDocument),
+                  ),
+                ),
       body: Builder(
         builder: (context) {
           if (controller.isLoading) {
@@ -128,7 +129,8 @@ class _DocumentViewerView extends StatelessWidget {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => DocumentAnalysisPage(document: document),
+                        builder: (_) =>
+                            DocumentAnalysisPage(document: document),
                       ),
                     );
                   },

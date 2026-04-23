@@ -86,7 +86,8 @@ class _CreateCaseFileSheetState extends State<CreateCaseFileSheet> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _titleController,
-                  decoration: InputDecoration(labelText: strings.caseTitleLabel),
+                  decoration:
+                      InputDecoration(labelText: strings.caseTitleLabel),
                   validator: (value) {
                     if ((value ?? '').trim().isEmpty) {
                       return strings.caseTitleRequiredError;

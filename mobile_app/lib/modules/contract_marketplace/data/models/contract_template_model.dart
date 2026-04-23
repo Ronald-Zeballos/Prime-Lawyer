@@ -48,16 +48,15 @@ class ContractTemplateModel extends ContractTemplate {
             helperText: field['helperText'] as String?,
             group: field['group'] as String?,
             defaultValue: field['defaultValue'],
-            options:
-                (field['options'] as List<dynamic>? ?? const <dynamic>[])
-                    .whereType<Map<String, dynamic>>()
-                    .map(
-                      (option) => ContractTemplateFieldOption(
-                        value: option['value'] as String,
-                        label: option['label'] as String,
-                      ),
-                    )
-                    .toList(),
+            options: (field['options'] as List<dynamic>? ?? const <dynamic>[])
+                .whereType<Map<String, dynamic>>()
+                .map(
+                  (option) => ContractTemplateFieldOption(
+                    value: option['value'] as String,
+                    label: option['label'] as String,
+                  ),
+                )
+                .toList(),
           ),
         )
         .toList();
@@ -80,10 +79,9 @@ class ContractTemplateModel extends ContractTemplate {
               ),
             )
             .toList();
-    final notes =
-        (value['notes'] as List<dynamic>? ?? const <dynamic>[])
-            .whereType<String>()
-            .toList();
+    final notes = (value['notes'] as List<dynamic>? ?? const <dynamic>[])
+        .whereType<String>()
+        .toList();
 
     return ContractTemplateSchema(
       version: value['version'] as int? ?? 1,

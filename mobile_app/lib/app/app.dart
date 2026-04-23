@@ -25,9 +25,16 @@ import '../modules/case_files/domain/usecases/get_case_file_detail_use_case.dart
 import '../modules/case_files/domain/usecases/get_case_files_use_case.dart';
 import '../modules/case_files/domain/usecases/update_case_knowledge_publication_use_case.dart';
 import '../modules/document_capture/data/repositories/mobile_document_capture_repository.dart';
+import '../modules/document_capture/data/services/document_capture_file_storage.dart';
+import '../modules/document_capture/data/services/document_ocr_service.dart';
+import '../modules/document_capture/data/services/document_page_image_processor.dart';
+import '../modules/document_capture/data/services/document_pdf_service.dart';
+import '../modules/document_capture/data/services/native_document_scanner_service.dart';
 import '../modules/document_capture/domain/repositories/document_capture_repository.dart';
 import '../modules/document_capture/domain/usecases/capture_document_from_camera_use_case.dart';
+import '../modules/document_capture/domain/usecases/process_scanned_document_use_case.dart';
 import '../modules/document_capture/domain/usecases/pick_document_use_case.dart';
+import '../modules/document_capture/domain/usecases/start_document_scan_use_case.dart';
 import '../modules/clients/data/datasources/clients_remote_data_source.dart';
 import '../modules/clients/data/repositories/client_repository_impl.dart';
 import '../modules/clients/domain/repositories/client_repository.dart';
@@ -227,11 +234,42 @@ class PrimeLawyerApp extends StatelessWidget {
             caseFileRepository: context.read<CaseFileRepository>(),
           ),
         ),
+        Provider<NativeDocumentScannerService>(
+          create: (_) => const NativeDocumentScannerService(),
+        ),
+        Provider<DocumentCaptureFileStorage>(
+          create: (_) => DocumentCaptureFileStorage(),
+        ),
+        Provider<DocumentPageImageProcessor>(
+          create: (_) => const DocumentPageImageProcessor(),
+        ),
+        Provider<DocumentPdfService>(
+          create: (_) => const DocumentPdfService(),
+        ),
+        Provider<DocumentOcrService>(
+          create: (_) => const DocumentOcrService(),
+        ),
         Provider<DocumentCaptureRepository>(
-          create: (_) => MobileDocumentCaptureRepository(),
+          create: (context) => MobileDocumentCaptureRepository(
+            scannerService: context.read<NativeDocumentScannerService>(),
+            fileStorage: context.read<DocumentCaptureFileStorage>(),
+            imageProcessor: context.read<DocumentPageImageProcessor>(),
+            pdfService: context.read<DocumentPdfService>(),
+            ocrService: context.read<DocumentOcrService>(),
+          ),
         ),
         Provider<PickDocumentUseCase>(
           create: (context) => PickDocumentUseCase(
+            context.read<DocumentCaptureRepository>(),
+          ),
+        ),
+        Provider<StartDocumentScanUseCase>(
+          create: (context) => StartDocumentScanUseCase(
+            context.read<DocumentCaptureRepository>(),
+          ),
+        ),
+        Provider<ProcessScannedDocumentUseCase>(
+          create: (context) => ProcessScannedDocumentUseCase(
             context.read<DocumentCaptureRepository>(),
           ),
         ),

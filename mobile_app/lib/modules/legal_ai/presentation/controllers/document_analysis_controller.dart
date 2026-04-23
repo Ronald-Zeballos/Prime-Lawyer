@@ -7,10 +7,10 @@ import '../../domain/usecases/get_document_analysis_preview_use_case.dart';
 class DocumentAnalysisController extends ChangeNotifier {
   DocumentAnalysisController({
     required String documentId,
-    required GetDocumentAnalysisPreviewUseCase getDocumentAnalysisPreviewUseCase,
+    required GetDocumentAnalysisPreviewUseCase
+        getDocumentAnalysisPreviewUseCase,
   })  : _documentId = documentId,
-        _getDocumentAnalysisPreviewUseCase =
-            getDocumentAnalysisPreviewUseCase;
+        _getDocumentAnalysisPreviewUseCase = getDocumentAnalysisPreviewUseCase;
 
   final String _documentId;
   final GetDocumentAnalysisPreviewUseCase _getDocumentAnalysisPreviewUseCase;

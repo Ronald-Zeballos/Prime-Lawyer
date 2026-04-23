@@ -146,7 +146,8 @@ class ApiClient {
     Map<String, String>? queryParameters,
   }) async {
     final normalizedPath = path.startsWith('/') ? path : '/$path';
-    final uri = Uri.parse('${_apiBaseUrlProvider.currentApiBaseUrl}$normalizedPath');
+    final uri =
+        Uri.parse('${_apiBaseUrlProvider.currentApiBaseUrl}$normalizedPath');
 
     if (queryParameters == null || queryParameters.isEmpty) {
       return uri;

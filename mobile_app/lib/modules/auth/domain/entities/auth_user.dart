@@ -26,5 +26,6 @@ class AuthUser {
   final bool isActive;
 
   String get fullName => '$firstName $lastName'.trim();
-  String get displayLabel => displayName.trim().isEmpty ? fullName : displayName;
+  String get displayLabel =>
+      displayName.trim().isEmpty ? fullName : displayName;
 }

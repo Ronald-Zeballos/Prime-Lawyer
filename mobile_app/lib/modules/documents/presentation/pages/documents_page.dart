@@ -3,8 +3,12 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
-import '../../../document_capture/domain/usecases/capture_document_from_camera_use_case.dart';
+import '../../../document_capture/domain/entities/captured_document.dart';
+import '../../../document_capture/domain/usecases/process_scanned_document_use_case.dart';
 import '../../../document_capture/domain/usecases/pick_document_use_case.dart';
+import '../../../document_capture/domain/usecases/start_document_scan_use_case.dart';
+import '../../../document_capture/presentation/controllers/document_scan_editor_controller.dart';
+import '../../../document_capture/presentation/pages/document_scan_editor_page.dart';
 import '../../../legal_ai/presentation/pages/contextual_legal_consultation_page.dart';
 import '../../domain/usecases/get_case_documents_use_case.dart';
 import '../../domain/usecases/register_document_use_case.dart';
@@ -39,8 +43,6 @@ class DocumentsPage extends StatelessWidget {
         getCaseDocumentsUseCase: context.read<GetCaseDocumentsUseCase>(),
         registerDocumentUseCase: context.read<RegisterDocumentUseCase>(),
         pickDocumentUseCase: context.read<PickDocumentUseCase>(),
-        captureDocumentFromCameraUseCase:
-            context.read<CaptureDocumentFromCameraUseCase>(),
       )..loadDocuments(),
       child: _DocumentsView(args: args),
     );
@@ -168,7 +170,8 @@ class _DocumentsView extends StatelessWidget {
                         onOpen: () {
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
-                              builder: (_) => DocumentViewerPage(document: document),
+                              builder: (_) =>
+                                  DocumentViewerPage(document: document),
                             ),
                           );
                         },
@@ -208,12 +211,54 @@ class _DocumentsView extends StatelessWidget {
             isSubmitting: value.isSubmitting,
             errorMessage: value.errorMessage,
             onPickDocument: value.pickDocument,
-            onCaptureFromCamera: value.captureFromCamera,
+            onCaptureFromCamera: () => _startDocumentScan(context),
             onSubmit: value.registerSelectedDocument,
             onClearSelection: value.clearSelection,
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _startDocumentScan(BuildContext context) async {
+    final controller = context.read<DocumentsController>();
+    final strings = context.strings;
+
+    controller.clearError();
+
+    try {
+      final draft = await context.read<StartDocumentScanUseCase>().execute();
+
+      if (!context.mounted || draft == null) {
+        return;
+      }
+
+      final processScannedDocumentUseCase =
+          context.read<ProcessScannedDocumentUseCase>();
+      final capturedDocument =
+          await Navigator.of(context).push<CapturedDocument>(
+        MaterialPageRoute<CapturedDocument>(
+          builder: (_) => ChangeNotifierProvider<DocumentScanEditorController>(
+            create: (_) => DocumentScanEditorController(
+              draft: draft,
+              processScannedDocumentUseCase: processScannedDocumentUseCase,
+            ),
+            child: const DocumentScanEditorPage(),
+          ),
+        ),
+      );
+
+      if (!context.mounted || capturedDocument == null) {
+        return;
+      }
+
+      controller.setSelectedDocument(capturedDocument);
+    } catch (_) {
+      if (!context.mounted) {
+        return;
+      }
+
+      controller.setErrorMessage(strings.scanOpenError);
+    }
   }
 }

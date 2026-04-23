@@ -48,9 +48,8 @@ class _LoginViewState extends State<_LoginView> {
     final apiBaseUrlProvider = context.watch<ApiBaseUrlProvider>();
     final strings = context.strings;
     final resolvedApiBaseUrl = apiBaseUrlProvider.currentApiBaseUrl.trim();
-    final apiBaseUrlLabel = resolvedApiBaseUrl.isEmpty
-        ? 'No URL'
-        : resolvedApiBaseUrl;
+    final apiBaseUrlLabel =
+        resolvedApiBaseUrl.isEmpty ? 'No URL' : resolvedApiBaseUrl;
 
     return Scaffold(
       body: SafeArea(

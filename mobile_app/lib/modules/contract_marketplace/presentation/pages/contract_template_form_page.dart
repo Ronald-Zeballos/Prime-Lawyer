@@ -167,8 +167,11 @@ class _DynamicContractFormState extends State<_DynamicContractForm> {
     final groupedFields = <String, List<ContractTemplateField>>{};
 
     for (final field in _schema.fields) {
-      final groupName = (field.group ?? strings.contractGeneralGroupLabel).trim();
-      groupedFields.putIfAbsent(groupName, () => <ContractTemplateField>[]).add(field);
+      final groupName =
+          (field.group ?? strings.contractGeneralGroupLabel).trim();
+      groupedFields
+          .putIfAbsent(groupName, () => <ContractTemplateField>[])
+          .add(field);
     }
 
     return ListView(
@@ -203,7 +206,8 @@ class _DynamicContractFormState extends State<_DynamicContractForm> {
                 children: [
                   _InfoChip(label: _schema.category),
                   _InfoChip(
-                    label: strings.contractFieldCountLabel(_schema.fields.length),
+                    label:
+                        strings.contractFieldCountLabel(_schema.fields.length),
                   ),
                   _InfoChip(
                     label: _formatPrice(

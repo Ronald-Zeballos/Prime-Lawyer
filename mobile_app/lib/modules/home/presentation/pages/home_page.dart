@@ -113,7 +113,8 @@ class _HomeView extends StatelessWidget {
                           label: '${dashboard.totalCaseFiles} case files',
                         ),
                         _HeroPill(
-                          label: '${dashboard.activeCaseFilesCount} active cases',
+                          label:
+                              '${dashboard.activeCaseFilesCount} active cases',
                         ),
                       ],
                     ),

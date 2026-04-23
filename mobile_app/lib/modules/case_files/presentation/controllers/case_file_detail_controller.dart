@@ -32,8 +32,7 @@ class CaseFileDetailController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isUpdatingStatus => _isUpdatingStatus;
   bool get isUpdatingPublication => _isUpdatingPublication;
-  bool get isBusy =>
-      _isLoading || _isUpdatingStatus || _isUpdatingPublication;
+  bool get isBusy => _isLoading || _isUpdatingStatus || _isUpdatingPublication;
   String? get errorMessage => _errorMessage;
   CaseFile? get caseFile => _caseFile;
 

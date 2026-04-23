@@ -65,7 +65,8 @@ class KnowledgeRepositoryController extends ChangeNotifier {
     } on ApiException catch (error) {
       _errorMessage = error.message;
     } catch (_) {
-      _errorMessage = 'We could not load the collaborative repository right now.';
+      _errorMessage =
+          'We could not load the collaborative repository right now.';
     }
 
     _isLoading = false;
