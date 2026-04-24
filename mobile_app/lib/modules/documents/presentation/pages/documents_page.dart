@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
 import '../../../document_capture/domain/entities/captured_document.dart';
 import '../../../document_capture/domain/usecases/process_scanned_document_use_case.dart';
 import '../../../document_capture/domain/usecases/pick_document_use_case.dart';
@@ -61,14 +64,16 @@ class _DocumentsView extends StatelessWidget {
     final controller = context.watch<DocumentsController>();
     final strings = context.strings;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.documentsTitle),
+    return PrimePageScaffold(
+      appBar: PrimeBrandAppBar(
+        title: strings.documentsTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
         actions: [
-          IconButton(
-            onPressed: controller.isLoading ? null : controller.refresh,
+          PrimeHeaderIconButton(
+            icon: Icons.refresh_rounded,
             tooltip: strings.refreshDocuments,
-            icon: const Icon(Icons.refresh_rounded),
+            onPressed: controller.isLoading ? null : controller.refresh,
           ),
         ],
       ),
@@ -85,7 +90,7 @@ class _DocumentsView extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFE8E1D7),
+                color: AppTheme.softBeige,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Column(
@@ -130,7 +135,7 @@ class _DocumentsView extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFBE7E5),
+                  color: AppTheme.errorSoft,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -301,10 +306,10 @@ class _DocumentsView extends StatelessWidget {
         return;
       }
 
-      final message = error is StateError &&
-              error.message == 'camera_permission_denied'
-          ? strings.cameraPermissionDeniedError
-          : strings.scanOpenError;
+      final message =
+          error is StateError && error.message == 'camera_permission_denied'
+              ? strings.cameraPermissionDeniedError
+              : strings.scanOpenError;
 
       controller.setErrorMessage(message);
     }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
 import '../../../documents/domain/entities/document.dart';
 import '../../../documents/presentation/pages/documents_page.dart';
 import '../../../documents/domain/usecases/process_document_ocr_use_case.dart';
@@ -48,13 +50,15 @@ class _DocumentAnalysisView extends StatelessWidget {
     final strings = context.strings;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.analysisPreviewTitle),
+      appBar: PrimeBrandAppBar(
+        title: strings.analysisPreviewTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
         actions: [
-          IconButton(
-            onPressed: controller.isLoading ? null : controller.refresh,
+          PrimeHeaderIconButton(
+            icon: Icons.refresh_rounded,
             tooltip: strings.refreshAnalysisAction,
-            icon: const Icon(Icons.refresh_rounded),
+            onPressed: controller.isLoading ? null : controller.refresh,
           ),
         ],
       ),
@@ -126,8 +130,8 @@ class _DocumentAnalysisView extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [
-                          Color(0xFF223447),
-                          Color(0xFF36597B),
+                          AppTheme.primaryNavy,
+                          AppTheme.secondaryNavy,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,

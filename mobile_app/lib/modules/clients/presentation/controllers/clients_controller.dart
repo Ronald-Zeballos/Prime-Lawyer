@@ -117,7 +117,8 @@ class ClientsController extends ChangeNotifier {
 
     try {
       final updatedClient = await _updateClientUseCase.execute(input);
-      final index = _clients.indexWhere((client) => client.id == input.clientId);
+      final index =
+          _clients.indexWhere((client) => client.id == input.clientId);
 
       if (index == -1) {
         _clients.insert(0, updatedClient);

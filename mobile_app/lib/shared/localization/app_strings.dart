@@ -278,16 +278,12 @@ class AppStrings {
   String get newClient => isSpanish ? 'Nuevo cliente' : 'New client';
   String get manageClientTitle =>
       isSpanish ? 'Gestionar cliente' : 'Manage client';
-  String get manageClientAction =>
-      isSpanish ? 'Gestionar' : 'Manage';
-  String get editClientTitle =>
-      isSpanish ? 'Editar cliente' : 'Edit client';
-  String get editClientAction =>
-      isSpanish ? 'Editar cliente' : 'Edit client';
+  String get manageClientAction => isSpanish ? 'Gestionar' : 'Manage';
+  String get editClientTitle => isSpanish ? 'Editar cliente' : 'Edit client';
+  String get editClientAction => isSpanish ? 'Editar cliente' : 'Edit client';
   String get saveClientChangesAction =>
       isSpanish ? 'Guardar cambios' : 'Save changes';
-  String get savingChanges =>
-      isSpanish ? 'Guardando...' : 'Saving...';
+  String get savingChanges => isSpanish ? 'Guardando...' : 'Saving...';
   String get clientUpdatedSuccess => isSpanish
       ? 'Cliente actualizado correctamente.'
       : 'Client updated successfully.';
@@ -298,9 +294,8 @@ class AppStrings {
       isSpanish ? 'Eliminar cliente' : 'Delete client';
   String get deleteClientConfirmAction =>
       isSpanish ? 'Eliminar definitivamente' : 'Delete permanently';
-  String get deleteClientConfirmationTitle => isSpanish
-      ? 'Confirmar eliminación'
-      : 'Confirm deletion';
+  String get deleteClientConfirmationTitle =>
+      isSpanish ? 'Confirmar eliminación' : 'Confirm deletion';
   String deleteClientConfirmationMessage(String clientName) => isSpanish
       ? 'Se eliminará el cliente $clientName. Esta acción no se puede deshacer.'
       : 'Client $clientName will be deleted. This action cannot be undone.';
@@ -319,23 +314,20 @@ class AppStrings {
   String get clientUnavailable => isSpanish
       ? 'El cliente ya no está disponible.'
       : 'The client is no longer available.';
-  String activeCaseFilesSummary(int count) => isSpanish
-      ? '$count activos'
-      : '$count active';
+  String activeCaseFilesSummary(int count) =>
+      isSpanish ? '$count activos' : '$count active';
   String get linkedCaseFilesTitle =>
       isSpanish ? 'Expedientes asociados' : 'Linked case files';
   String get linkedCaseFilesDescription => isSpanish
       ? 'Consulta rápidamente los expedientes vinculados a este cliente.'
       : 'Quickly review the case files linked to this client.';
-  String get noLinkedCaseFilesTitle => isSpanish
-      ? 'Sin expedientes vinculados'
-      : 'No linked case files';
+  String get noLinkedCaseFilesTitle =>
+      isSpanish ? 'Sin expedientes vinculados' : 'No linked case files';
   String get noLinkedCaseFilesDescription => isSpanish
       ? 'Este cliente todavía no tiene expedientes asociados.'
       : 'This client does not have linked case files yet.';
-  String get openLinkedCaseFileAction => isSpanish
-      ? 'Abrir expediente vinculado'
-      : 'Open linked case file';
+  String get openLinkedCaseFileAction =>
+      isSpanish ? 'Abrir expediente vinculado' : 'Open linked case file';
   String get cancelAction => isSpanish ? 'Cancelar' : 'Cancel';
   String get confirmAction => isSpanish ? 'Confirmar' : 'Confirm';
   String get noClientsListTitle =>
@@ -814,9 +806,8 @@ class AppStrings {
   String get changeCaseStatusDescription => isSpanish
       ? 'Selecciona el estado operativo actual del expediente.'
       : 'Select the current operational status for this case file.';
-  String get confirmCaseStatusChangeTitle => isSpanish
-      ? 'Confirmar cambio de estado'
-      : 'Confirm status change';
+  String get confirmCaseStatusChangeTitle =>
+      isSpanish ? 'Confirmar cambio de estado' : 'Confirm status change';
   String confirmCaseStatusChangeMessage(String status) => isSpanish
       ? 'El expediente se actualizará a $status. ¿Deseas continuar?'
       : 'The case file will be updated to $status. Do you want to continue?';

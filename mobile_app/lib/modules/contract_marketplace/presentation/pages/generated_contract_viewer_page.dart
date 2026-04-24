@@ -3,6 +3,8 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
 import '../../domain/entities/generated_contract.dart';
 import '../../domain/usecases/get_generated_contract_pdf_use_case.dart';
 import '../controllers/generated_contract_viewer_controller.dart';
@@ -40,14 +42,16 @@ class _GeneratedContractViewerView extends StatelessWidget {
     final controller = context.watch<GeneratedContractViewerController>();
     final strings = context.strings;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(contract.documentTitle),
+    return PrimePageScaffold(
+      appBar: PrimeBrandAppBar(
+        title: contract.documentTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
         actions: [
-          IconButton(
-            onPressed: () => _showContractSummary(context),
+          PrimeHeaderIconButton(
+            icon: Icons.info_outline_rounded,
             tooltip: strings.contractSummarySectionTitle,
-            icon: const Icon(Icons.info_outline_rounded),
+            onPressed: () => _showContractSummary(context),
           ),
         ],
       ),

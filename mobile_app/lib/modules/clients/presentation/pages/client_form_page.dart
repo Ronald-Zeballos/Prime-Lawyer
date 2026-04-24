@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
 import '../../domain/repositories/client_repository.dart';
 import '../controllers/clients_controller.dart';
 import '../widgets/client_form_sheet.dart';
@@ -30,13 +32,16 @@ class ClientFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<ClientsController>();
     final strings = context.strings;
-    final client =
-        isEditing && clientId != null ? controller.getClientById(clientId!) : null;
+    final client = isEditing && clientId != null
+        ? controller.getClientById(clientId!)
+        : null;
 
     if (isEditing && client == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(strings.editClientTitle),
+      return PrimePageScaffold(
+        appBar: PrimeBrandAppBar(
+          title: strings.editClientTitle,
+          leadingIcon: Icons.arrow_back_rounded,
+          leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
         ),
         body: Center(
           child: Padding(
@@ -50,11 +55,11 @@ class ClientFormPage extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          isEditing ? strings.editClientTitle : strings.createClientTitle,
-        ),
+    return PrimePageScaffold(
+      appBar: PrimeBrandAppBar(
+        title: isEditing ? strings.editClientTitle : strings.createClientTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
       ),
       body: ClientFormSheet(
         showHeader: false,
@@ -62,8 +67,7 @@ class ClientFormPage extends StatelessWidget {
         submitLabel: isEditing
             ? strings.saveClientChangesAction
             : strings.createClientAction,
-        submittingLabel:
-            isEditing ? strings.savingChanges : strings.creating,
+        submittingLabel: isEditing ? strings.savingChanges : strings.creating,
         initialData: client == null
             ? null
             : ClientFormData(

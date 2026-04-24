@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
 import '../../../../shared/providers/session_provider.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_empty_state.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
+import '../../../../shared/widgets/prime_search_field.dart';
+import '../../../../shared/widgets/prime_status_chip.dart';
+import '../../../../shared/widgets/prime_surface_card.dart';
 import '../../domain/entities/case_file.dart';
 import '../../domain/usecases/get_collaborative_repository_cases_use_case.dart';
 import '../controllers/knowledge_repository_controller.dart';
@@ -24,8 +31,28 @@ class KnowledgeRepositoryPage extends StatelessWidget {
   }
 }
 
-class _KnowledgeRepositoryView extends StatelessWidget {
+class _KnowledgeRepositoryView extends StatefulWidget {
   const _KnowledgeRepositoryView();
+
+  @override
+  State<_KnowledgeRepositoryView> createState() =>
+      _KnowledgeRepositoryViewState();
+}
+
+class _KnowledgeRepositoryViewState extends State<_KnowledgeRepositoryView> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,122 +61,116 @@ class _KnowledgeRepositoryView extends StatelessWidget {
     final currentUserId =
         context.watch<SessionProvider>().currentUser?.id.trim() ?? '';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.knowledgeRepositoryTitle),
+    if (_searchController.text != controller.searchTerm) {
+      _searchController.value = TextEditingValue(
+        text: controller.searchTerm,
+        selection:
+            TextSelection.collapsed(offset: controller.searchTerm.length),
+      );
+    }
+
+    return PrimePageScaffold(
+      appBar: PrimeBrandAppBar(
+        title: strings.knowledgeRepositoryTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
         actions: [
-          IconButton(
-            onPressed: controller.isLoading ? null : controller.refresh,
+          PrimeHeaderIconButton(
+            icon: Icons.refresh_rounded,
             tooltip: strings.refreshKnowledgeRepository,
-            icon: const Icon(Icons.refresh_rounded),
+            onPressed: controller.isLoading ? null : controller.refresh,
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            child: TextField(
-              onChanged: controller.onSearchChanged,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search_rounded),
-                labelText: strings.knowledgeRepositorySearchLabel,
-                hintText: strings.knowledgeRepositorySearchHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
+      body: Builder(
+        builder: (context) {
+          if (controller.isLoading && !controller.hasCaseFiles) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: controller.refresh,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.pagePadding,
+                8,
+                AppTheme.pagePadding,
+                40,
               ),
-            ),
-          ),
-          if (controller.errorMessage != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFBE7E5),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  controller.errorMessage!,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
+              children: [
+                PrimeSurfaceCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        strings.isSpanish
+                            ? 'Repositorio colaborativo'
+                            : 'Collaborative repository',
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        strings.isSpanish
+                            ? 'Consulta casos publicados y vuelve al expediente real cuando te pertenezca.'
+                            : 'Review published cases and jump back to the real case file when it belongs to you.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                      ),
+                      const SizedBox(height: 18),
+                      PrimeSearchField(
+                        controller: _searchController,
+                        hintText: strings.knowledgeRepositorySearchHint,
+                        onChanged: controller.onSearchChanged,
+                        onClear: () {
+                          _searchController.clear();
+                          controller.onSearchChanged('');
+                        },
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ),
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                if (controller.isLoading && !controller.hasCaseFiles) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                if (!controller.hasCaseFiles) {
-                  return RefreshIndicator(
-                    onRefresh: controller.refresh,
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(24),
-                      children: [
-                        const SizedBox(height: 80),
-                        Icon(
-                          Icons.library_books_outlined,
-                          size: 56,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          strings.knowledgeRepositoryEmptyTitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          strings.knowledgeRepositoryEmptyDescription,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                if (controller.errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  _RepositoryErrorBanner(message: controller.errorMessage!),
+                ],
+                const SizedBox(height: AppTheme.sectionSpacing),
+                if (!controller.hasCaseFiles)
+                  PrimeSurfaceCard(
+                    child: PrimeEmptyState(
+                      icon: Icons.library_books_outlined,
+                      title: strings.knowledgeRepositoryEmptyTitle,
+                      description: strings.knowledgeRepositoryEmptyDescription,
                     ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: controller.refresh,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-                    itemCount: controller.caseFiles.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final caseFile = controller.caseFiles[index];
-                      final isOwnedByCurrentUser =
-                          caseFile.ownerUserId.trim() == currentUserId;
-
-                      return _RepositoryCaseCard(
+                  )
+                else
+                  for (final caseFile in controller.caseFiles) ...[
+                    _RepositoryCaseCard(
+                      caseFile: caseFile,
+                      isOwnedByCurrentUser:
+                          caseFile.ownerUserId.trim() == currentUserId,
+                      onViewSummary: () => _openRepositorySummary(
+                        context,
                         caseFile: caseFile,
-                        isOwnedByCurrentUser: isOwnedByCurrentUser,
-                        onPrimaryAction: () => _openRepositorySummary(
-                          context,
-                          caseFile: caseFile,
-                          isOwnedByCurrentUser: isOwnedByCurrentUser,
-                        ),
-                        onOpenOwnedCaseFile: isOwnedByCurrentUser
-                            ? () => _openOwnedCaseFile(context, caseFile)
-                            : null,
-                      );
-                    },
-                  ),
-                );
-              },
+                        isOwnedByCurrentUser:
+                            caseFile.ownerUserId.trim() == currentUserId,
+                      ),
+                      onOpenOwnedCaseFile:
+                          caseFile.ownerUserId.trim() == currentUserId
+                              ? () => _openOwnedCaseFile(context, caseFile)
+                              : null,
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+              ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -205,145 +226,135 @@ class _RepositoryCaseCard extends StatelessWidget {
   const _RepositoryCaseCard({
     required this.caseFile,
     required this.isOwnedByCurrentUser,
-    required this.onPrimaryAction,
+    required this.onViewSummary,
     required this.onOpenOwnedCaseFile,
   });
 
   final CaseFile caseFile;
   final bool isOwnedByCurrentUser;
-  final VoidCallback onPrimaryAction;
+  final VoidCallback onViewSummary;
   final VoidCallback? onOpenOwnedCaseFile;
 
   @override
   Widget build(BuildContext context) {
     final strings = context.strings;
 
-    return Card(
-      child: InkWell(
-        onTap: onPrimaryAction,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
+    return PrimeSurfaceCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      caseFile.internalCode,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE3F0E5),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      strings.knowledgeRepositoryPublishedBadge,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1F6A3A),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                caseFile.title,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              if ((caseFile.description ?? '').trim().isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  caseFile.description!,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _RepositoryChip(label: caseFile.processType),
-                  _RepositoryChip(label: strings.caseStatus(caseFile.status)),
-                  _RepositoryChip(
-                    label: strings.knowledgeStatus(caseFile.knowledgeStatus),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                caseFile.closedAt == null
-                    ? strings.notClosedYet
-                    : strings.repositoryClosedOn(
-                        strings.formatShortDate(caseFile.closedAt!),
-                      ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                caseFile.publishedAt == null
-                    ? strings.notPublishedYet
-                    : strings.repositoryPublishedOn(
-                        strings.formatShortDate(caseFile.publishedAt!),
-                      ),
-              ),
-              const SizedBox(height: 14),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    OutlinedButton.icon(
-                      onPressed: onPrimaryAction,
-                      icon: const Icon(Icons.visibility_outlined),
-                      label: Text(strings.repositoryViewSummaryAction),
+                    Text(
+                      caseFile.internalCode,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
-                    if (onOpenOwnedCaseFile != null)
-                      TextButton(
-                        onPressed: onOpenOwnedCaseFile,
-                        child: Text(strings.openOwnedRepositoryCaseAction),
-                      ),
+                    const SizedBox(height: 6),
+                    Text(
+                      caseFile.title,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
                   ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              PrimeStatusChip.knowledgeStatus(
+                status: 'PUBLISHED',
+                label: strings.knowledgeRepositoryPublishedBadge,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if ((caseFile.description ?? '').trim().isNotEmpty)
+            Text(
+              caseFile.description!,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+            ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              PrimeStatusChip.caseStatus(
+                status: caseFile.status,
+                label: strings.caseStatus(caseFile.status),
+              ),
+              PrimeStatusChip.confidentiality(
+                level: caseFile.confidentialityLevel,
+                label: strings.confidentialityLevel(
+                  caseFile.confidentialityLevel,
                 ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 14),
+          Text(
+            '${strings.closedAtLabel}: ${caseFile.closedAt == null ? strings.notClosedYet : strings.formatDateTime(caseFile.closedAt!)}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          Text(
+            '${strings.publishedAtLabel}: ${caseFile.publishedAt == null ? strings.notPublishedYet : strings.formatDateTime(caseFile.publishedAt!)}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 18),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              FilledButton.tonalIcon(
+                onPressed: onViewSummary,
+                icon: const Icon(Icons.article_outlined),
+                label: Text(strings.repositoryViewSummaryAction),
+              ),
+              if (isOwnedByCurrentUser)
+                OutlinedButton.icon(
+                  onPressed: onOpenOwnedCaseFile,
+                  icon: const Icon(Icons.open_in_new_rounded),
+                  label: Text(strings.openOwnedRepositoryCaseAction),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class _RepositoryChip extends StatelessWidget {
-  const _RepositoryChip({
-    required this.label,
+class _RepositoryErrorBanner extends StatelessWidget {
+  const _RepositoryErrorBanner({
+    required this.message,
   });
 
-  final String label;
+  final String message;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFF2E4D2),
-        borderRadius: BorderRadius.circular(999),
+        color: AppTheme.errorSoft,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.error.withValues(alpha: 0.16)),
       ),
-      child: Text(label),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Text(
+          message,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppTheme.error,
+              ),
+        ),
+      ),
     );
   }
 }

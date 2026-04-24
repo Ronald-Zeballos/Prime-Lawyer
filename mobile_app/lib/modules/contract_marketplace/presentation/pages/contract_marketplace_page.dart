@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_bottom_nav.dart';
+import '../../../../shared/widgets/prime_empty_state.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
+import '../../../../shared/widgets/prime_status_chip.dart';
+import '../../../../shared/widgets/prime_surface_card.dart';
 import '../../domain/entities/contract_template.dart';
 import '../../domain/entities/generated_contract.dart';
 import '../../domain/usecases/get_active_contract_templates_use_case.dart';
@@ -41,14 +48,20 @@ class _ContractMarketplaceView extends StatelessWidget {
     final controller = context.watch<ContractMarketplaceController>();
     final strings = context.strings;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.contractMarketplaceTitle),
+    return PrimePageScaffold(
+      currentTab: PrimeRootTab.marketplace,
+      appBar: PrimeBrandAppBar(
+        title: strings.contractMarketplaceTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver a inicio' : 'Back home',
+        onLeadingPressed: () {
+          PrimeBottomNav.openTab(context, PrimeRootTab.home);
+        },
         actions: [
-          IconButton(
-            onPressed: controller.isLoading ? null : controller.refresh,
+          PrimeHeaderIconButton(
+            icon: Icons.refresh_rounded,
             tooltip: strings.refreshContractMarketplace,
-            icon: const Icon(Icons.refresh_rounded),
+            onPressed: controller.isLoading ? null : controller.refresh,
           ),
         ],
       ),
@@ -65,60 +78,72 @@ class _ContractMarketplaceView extends StatelessWidget {
           return RefreshIndicator(
             onRefresh: controller.refresh,
             child: ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.pagePadding,
+                8,
+                AppTheme.pagePadding,
+                132,
+              ),
               children: [
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF7F2EA),
-                    borderRadius: BorderRadius.circular(24),
+                    gradient: const LinearGradient(
+                      colors: [
+                        AppTheme.primaryNavy,
+                        AppTheme.secondaryNavy,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(34),
+                    boxShadow: AppTheme.cardShadow,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      PrimeStatusChip.accent(
+                        strings.isSpanish
+                            ? 'Prime templates'
+                            : 'Prime templates',
+                      ),
+                      const SizedBox(height: 16),
                       Text(
                         strings.contractMarketplaceHeroTitle,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.w700),
+                        style:
+                            Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  color: AppTheme.surface,
+                                ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(strings.contractMarketplaceHeroDescription),
+                      const SizedBox(height: 10),
+                      Text(
+                        strings.contractMarketplaceHeroDescription,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: AppTheme.surface.withValues(alpha: 0.92),
+                            ),
+                      ),
                     ],
                   ),
                 ),
                 if (controller.errorMessage != null) ...[
                   const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFBE7E5),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      controller.errorMessage!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
+                  _MarketplaceErrorBanner(message: controller.errorMessage!),
                 ],
-                const SizedBox(height: 20),
-                Text(
-                  strings.contractTemplatesSectionTitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                const SizedBox(height: AppTheme.sectionSpacing),
+                _SectionHeader(
+                  title: strings.contractTemplatesSectionTitle,
+                  subtitle: strings.isSpanish
+                      ? 'Plantillas activas listas para abrir formulario.'
+                      : 'Active templates ready to open their forms.',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 if (!controller.hasTemplates)
-                  _EmptySectionCard(
-                    title: strings.contractTemplatesEmptyTitle,
-                    description: strings.contractTemplatesEmptyDescription,
-                    icon: Icons.description_outlined,
+                  PrimeSurfaceCard(
+                    child: PrimeEmptyState(
+                      icon: Icons.description_outlined,
+                      title: strings.contractTemplatesEmptyTitle,
+                      description: strings.contractTemplatesEmptyDescription,
+                    ),
                   )
                 else
                   for (final template in controller.templates) ...[
@@ -126,37 +151,33 @@ class _ContractMarketplaceView extends StatelessWidget {
                       template: template,
                       onOpen: () => _openTemplate(context, template),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                   ],
-                const SizedBox(height: 12),
-                Text(
-                  strings.upcomingTemplatesTitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                const SizedBox(height: AppTheme.sectionSpacing),
+                _SectionHeader(
+                  title: strings.upcomingTemplatesTitle,
+                  subtitle: strings.upcomingTemplatesDescription,
                 ),
-                const SizedBox(height: 8),
-                Text(strings.upcomingTemplatesDescription),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 for (final templateName in _upcomingTemplates) ...[
                   _UpcomingTemplateCard(title: templateName),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                 ],
-                const SizedBox(height: 8),
-                Text(
-                  strings.generatedContractsSectionTitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                const SizedBox(height: AppTheme.sectionSpacing),
+                _SectionHeader(
+                  title: strings.generatedContractsSectionTitle,
+                  subtitle: strings.isSpanish
+                      ? 'Documentos ya generados para seguir el flujo legal real.'
+                      : 'Generated documents ready to continue the real legal flow.',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 if (!controller.hasGeneratedContracts)
-                  _EmptySectionCard(
-                    title: strings.noGeneratedContractsTitle,
-                    description: strings.noGeneratedContractsDescription,
-                    icon: Icons.picture_as_pdf_outlined,
+                  PrimeSurfaceCard(
+                    child: PrimeEmptyState(
+                      icon: Icons.picture_as_pdf_outlined,
+                      title: strings.noGeneratedContractsTitle,
+                      description: strings.noGeneratedContractsDescription,
+                    ),
                   )
                 else
                   for (final contract in controller.generatedContracts) ...[
@@ -164,7 +185,7 @@ class _ContractMarketplaceView extends StatelessWidget {
                       contract: contract,
                       onOpen: () => _openContract(context, contract),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                   ],
               ],
             ),
@@ -218,111 +239,47 @@ class _TemplateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = context.strings;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return PrimeSurfaceCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            template.name,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 10),
+          if ((template.description ?? '').trim().isNotEmpty)
             Text(
-              template.name,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            if ((template.description ?? '').trim().isNotEmpty)
-              Text(template.description!),
-            if ((template.description ?? '').trim().isNotEmpty)
-              const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _Chip(
-                  label: strings.contractFieldCountLabel(template.fieldCount),
-                ),
-                _Chip(
-                  label: _formatPrice(
-                    template.priceCents,
-                    template.currency,
+              template.description!,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textSecondary,
                   ),
-                ),
-              ],
             ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () async {
-                await onOpen();
-              },
-              icon: const Icon(Icons.edit_note_rounded),
-              label: Text(strings.openContractTemplateAction),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatPrice(int priceCents, String currency) {
-    final majorUnits = (priceCents / 100).toStringAsFixed(2);
-
-    return '$currency $majorUnits';
-  }
-}
-
-class _GeneratedContractCard extends StatelessWidget {
-  const _GeneratedContractCard({
-    required this.contract,
-    required this.onOpen,
-  });
-
-  final GeneratedContract contract;
-  final Future<void> Function() onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = context.strings;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              contract.documentTitle,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            Text(contract.summary),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _Chip(label: contract.templateName),
-                _Chip(
-                  label: strings.contractGeneratedOn(
-                    strings.formatShortDate(contract.createdAt),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            FilledButton.tonalIcon(
-              onPressed: () async {
-                await onOpen();
-              },
-              icon: const Icon(Icons.picture_as_pdf_outlined),
-              label: Text(strings.openGeneratedContractAction),
-            ),
-          ],
-        ),
+          if ((template.description ?? '').trim().isNotEmpty)
+            const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              PrimeStatusChip.accent(
+                strings.contractFieldCountLabel(template.fieldCount),
+              ),
+              PrimeStatusChip.accent(
+                _formatPrice(template.priceCents, template.currency),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          FilledButton.icon(
+            onPressed: () async {
+              await onOpen();
+            },
+            icon: const Icon(Icons.edit_note_rounded),
+            label: Text(strings.openContractTemplateAction),
+          ),
+        ],
       ),
     );
   }
@@ -337,94 +294,155 @@ class _UpcomingTemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = context.strings;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(strings.contractTemplatePendingUploadDescription),
-                ],
-              ),
+    return PrimeSurfaceCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  context.strings.isSpanish
+                      ? 'Este flujo queda listo para conectarse cuando el estudio jurídico comparta la plantilla final.'
+                      : 'This flow is ready to connect as soon as the legal team shares the final template.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.textSecondary,
+                      ),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            _Chip(label: strings.comingSoonLabel),
-          ],
-        ),
+          ),
+          const SizedBox(width: 16),
+          PrimeStatusChip.neutral(
+            context.strings.isSpanish ? 'Próximamente' : 'Coming soon',
+          ),
+        ],
       ),
     );
   }
 }
 
-class _EmptySectionCard extends StatelessWidget {
-  const _EmptySectionCard({
+class _GeneratedContractCard extends StatelessWidget {
+  const _GeneratedContractCard({
+    required this.contract,
+    required this.onOpen,
+  });
+
+  final GeneratedContract contract;
+  final Future<void> Function() onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return PrimeSurfaceCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            contract.documentTitle,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            contract.summary,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              PrimeStatusChip.accent(contract.templateName),
+              PrimeStatusChip.neutral(
+                _formatPrice(contract.priceCents, contract.currency),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          OutlinedButton.icon(
+            onPressed: () async {
+              await onOpen();
+            },
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            label: Text(context.strings.isSpanish ? 'Abrir PDF' : 'Open PDF'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
     required this.title,
-    required this.description,
-    required this.icon,
+    required this.subtitle,
   });
 
   final String title;
-  final String description;
-  final IconData icon;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+}
+
+class _MarketplaceErrorBanner extends StatelessWidget {
+  const _MarketplaceErrorBanner({
+    required this.message,
+  });
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppTheme.errorSoft,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.error.withValues(alpha: 0.16)),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          children: [
-            Icon(icon, size: 36),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              textAlign: TextAlign.center,
-            ),
-          ],
+        padding: const EdgeInsets.all(14),
+        child: Text(
+          message,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppTheme.error,
+              ),
         ),
       ),
     );
   }
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.label,
-  });
+String _formatPrice(int priceCents, String currency) {
+  final normalizedPrice = (priceCents / 100).toStringAsFixed(2);
 
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2E4D2),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(label),
-    );
-  }
+  return '$currency $normalizedPrice';
 }

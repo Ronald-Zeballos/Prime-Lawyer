@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
 import '../../../documents/presentation/pages/documents_page.dart';
 import '../../../legal_ai/presentation/pages/contextual_legal_consultation_page.dart';
 import '../../domain/entities/case_file.dart';
@@ -44,16 +47,18 @@ class _CaseFileDetailView extends StatelessWidget {
     final caseFile = controller.caseFile;
     final strings = context.strings;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.caseFileDetailTitle),
+    return PrimePageScaffold(
+      appBar: PrimeBrandAppBar(
+        title: strings.caseFileDetailTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
         actions: [
-          IconButton(
+          PrimeHeaderIconButton(
+            icon: Icons.refresh_rounded,
+            tooltip: strings.refreshCaseFiles,
             onPressed: controller.isBusy || caseFile == null
                 ? null
                 : () => controller.load(caseFile.id),
-            tooltip: strings.refreshCaseFiles,
-            icon: const Icon(Icons.refresh_rounded),
           ),
         ],
       ),
@@ -93,7 +98,7 @@ class _CaseFileDetailView extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFBE7E5),
+                      color: AppTheme.errorSoft,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
@@ -605,28 +610,28 @@ class _StatusChip extends StatelessWidget {
   switch (status) {
     case 'OPEN':
       return (
-        background: const Color(0xFFE3F2E7),
-        foreground: const Color(0xFF1F6A3A),
+        background: AppTheme.successSoft,
+        foreground: AppTheme.successText,
       );
     case 'IN_PROGRESS':
       return (
-        background: const Color(0xFFFFF1D6),
-        foreground: const Color(0xFF8B5A00),
+        background: AppTheme.warningSoft,
+        foreground: AppTheme.warningText,
       );
     case 'CLOSED':
       return (
-        background: const Color(0xFFE6ECF5),
-        foreground: const Color(0xFF335C8A),
+        background: AppTheme.infoSoft,
+        foreground: AppTheme.infoText,
       );
     case 'ARCHIVED':
       return (
-        background: const Color(0xFFEDE7E3),
-        foreground: const Color(0xFF6A5B54),
+        background: AppTheme.neutralSoft,
+        foreground: AppTheme.neutralText,
       );
     default:
       return (
-        background: const Color(0xFFF2E4D2),
-        foreground: const Color(0xFF4A4038),
+        background: AppTheme.softBeige,
+        foreground: AppTheme.primaryNavy,
       );
   }
 }

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
 import '../../../case_files/domain/entities/case_file.dart';
 import '../controllers/clients_controller.dart';
 import 'client_form_page.dart';
@@ -23,9 +26,11 @@ class ClientManagementPage extends StatelessWidget {
     final strings = context.strings;
 
     if (client == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(strings.manageClientTitle),
+      return PrimePageScaffold(
+        appBar: PrimeBrandAppBar(
+          title: strings.manageClientTitle,
+          leadingIcon: Icons.arrow_back_rounded,
+          leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
         ),
         body: Center(
           child: Padding(
@@ -40,18 +45,21 @@ class ClientManagementPage extends StatelessWidget {
     }
 
     final relatedCaseFiles = controller.linkedCaseFilesForClient(client.id);
-    final activeCaseFilesCount = controller.activeLinkedCaseFilesCount(client.id);
+    final activeCaseFilesCount =
+        controller.activeLinkedCaseFilesCount(client.id);
     final hasLinkedCaseFiles = relatedCaseFiles.isNotEmpty;
     final isDeleting = controller.isDeletingClient(client.id);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.manageClientTitle),
+    return PrimePageScaffold(
+      appBar: PrimeBrandAppBar(
+        title: strings.manageClientTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
         actions: [
-          IconButton(
-            onPressed: controller.isLoading ? null : controller.refresh,
+          PrimeHeaderIconButton(
+            icon: Icons.refresh_rounded,
             tooltip: strings.refreshClients,
-            icon: const Icon(Icons.refresh_rounded),
+            onPressed: controller.isLoading ? null : controller.refresh,
           ),
         ],
       ),
@@ -79,7 +87,8 @@ class ClientManagementPage extends StatelessWidget {
                       runSpacing: 8,
                       children: [
                         _InfoChip(
-                          label: strings.caseFilesCount(relatedCaseFiles.length),
+                          label:
+                              strings.caseFilesCount(relatedCaseFiles.length),
                         ),
                         _InfoChip(
                           label: strings.activeCaseFilesSummary(
@@ -163,7 +172,7 @@ class ClientManagementPage extends StatelessWidget {
             if (hasLinkedCaseFiles) ...[
               const SizedBox(height: 16),
               Card(
-                color: const Color(0xFFFFF4E4),
+                color: AppTheme.warningSoft,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(

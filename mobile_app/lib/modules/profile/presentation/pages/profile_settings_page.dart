@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
 import '../../../../shared/models/app_language.dart';
 import '../../../../shared/providers/api_base_url_provider.dart';
 import '../../../../shared/providers/app_language_provider.dart';
 import '../../../../shared/providers/session_provider.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_bottom_nav.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../../domain/usecases/get_my_profile_use_case.dart';
@@ -101,9 +105,21 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
           _syncProfileFields(profile);
 
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(strings.settingsTitle),
+          return PrimePageScaffold(
+            currentTab: PrimeRootTab.profile,
+            appBar: PrimeBrandAppBar(
+              title: strings.settingsTitle,
+              actions: [
+                PrimeHeaderIconButton(
+                  icon: Icons.logout_rounded,
+                  tooltip: strings.signOut,
+                  onPressed: sessionProvider.isAuthenticated
+                      ? () async {
+                          await context.read<SessionProvider>().clearSession();
+                        }
+                      : null,
+                ),
+              ],
             ),
             body: ListView(
               padding: const EdgeInsets.all(20),
@@ -136,7 +152,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF7F2EA),
+                              color: AppTheme.softBeige,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
@@ -164,7 +180,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF7F2EA),
+                            color: AppTheme.softBeige,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(strings.passwordChangeComingSoon),
@@ -195,7 +211,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF7F2EA),
+                              color: AppTheme.softBeige,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(strings.profileRequiresSession),
@@ -206,7 +222,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               width: double.infinity,
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFBE7E5),
+                                color: AppTheme.errorSoft,
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
@@ -378,7 +394,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF7F2EA),
+                            color: AppTheme.softBeige,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(displayedApiBaseUrl),
@@ -435,8 +451,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                   padding: const EdgeInsets.all(14),
                                   decoration: BoxDecoration(
                                     color: _apiFeedbackIsError
-                                        ? const Color(0xFFFBE7E5)
-                                        : const Color(0xFFE8F1E7),
+                                        ? AppTheme.errorSoft
+                                        : AppTheme.successSoft,
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Text(
@@ -444,7 +460,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                     style: TextStyle(
                                       color: _apiFeedbackIsError
                                           ? Theme.of(context).colorScheme.error
-                                          : const Color(0xFF1F5F31),
+                                          : AppTheme.successText,
                                     ),
                                   ),
                                 ),

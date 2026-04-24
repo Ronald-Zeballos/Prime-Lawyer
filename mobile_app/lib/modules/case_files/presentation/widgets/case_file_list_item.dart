@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_status_chip.dart';
+import '../../../../shared/widgets/prime_surface_card.dart';
 import '../../domain/entities/case_file.dart';
 
 class CaseFileListItem extends StatelessWidget {
@@ -17,109 +20,78 @@ class CaseFileListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = context.strings;
 
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+      onTap: onTap,
+      child: PrimeSurfaceCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        caseFile.internalCode,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        caseFile.title,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                TextButton.icon(
+                  onPressed: onTap,
+                  icon: const Icon(Icons.arrow_outward_rounded),
+                  label: Text(strings.openCaseFileAction),
+                ),
+              ],
+            ),
+            if ((caseFile.description ?? '').trim().isNotEmpty) ...[
+              const SizedBox(height: 12),
               Text(
-                caseFile.internalCode,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 6),
-              Text(caseFile.title),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _InfoChip(
-                    label: strings.caseStatus(caseFile.status),
-                    backgroundColor: _statusPalette(caseFile.status).background,
-                    foregroundColor: _statusPalette(caseFile.status).foreground,
-                  ),
-                  _InfoChip(label: caseFile.processType),
-                  _InfoChip(
-                    label: strings.knowledgeStatus(caseFile.knowledgeStatus),
-                  ),
-                  _InfoChip(
-                    label: strings.confidentialityLevel(
-                      caseFile.confidentialityLevel,
+                caseFile.description!,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.textSecondary,
                     ),
-                  ),
-                ],
               ),
             ],
-          ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                PrimeStatusChip.caseStatus(
+                  status: caseFile.status,
+                  label: strings.caseStatus(caseFile.status),
+                ),
+                PrimeStatusChip.knowledgeStatus(
+                  status: caseFile.knowledgeStatus,
+                  label: strings.knowledgeStatus(caseFile.knowledgeStatus),
+                ),
+                PrimeStatusChip.confidentiality(
+                  level: caseFile.confidentialityLevel,
+                  label: strings.confidentialityLevel(
+                    caseFile.confidentialityLevel,
+                  ),
+                ),
+                PrimeStatusChip.neutral(caseFile.processType),
+              ],
+            ),
+          ],
         ),
       ),
     );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({
-    required this.label,
-    this.backgroundColor = const Color(0xFFF2E4D2),
-    this.foregroundColor = const Color(0xFF4A4038),
-  });
-
-  final String label;
-  final Color backgroundColor;
-  final Color foregroundColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: foregroundColor,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
-({Color background, Color foreground}) _statusPalette(String status) {
-  switch (status) {
-    case 'OPEN':
-      return (
-        background: const Color(0xFFE3F2E7),
-        foreground: const Color(0xFF1F6A3A),
-      );
-    case 'IN_PROGRESS':
-      return (
-        background: const Color(0xFFFFF1D6),
-        foreground: const Color(0xFF8B5A00),
-      );
-    case 'CLOSED':
-      return (
-        background: const Color(0xFFE6ECF5),
-        foreground: const Color(0xFF335C8A),
-      );
-    case 'ARCHIVED':
-      return (
-        background: const Color(0xFFEDE7E3),
-        foreground: const Color(0xFF6A5B54),
-      );
-    default:
-      return (
-        background: const Color(0xFFF2E4D2),
-        foreground: const Color(0xFF4A4038),
-      );
   }
 }

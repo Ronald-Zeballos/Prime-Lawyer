@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/models/session_user.dart';
+import '../../../../shared/providers/session_provider.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_bottom_nav.dart';
+import '../../../../shared/widgets/prime_empty_state.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
+import '../../../../shared/widgets/prime_status_chip.dart';
+import '../../../../shared/widgets/prime_surface_card.dart';
 import '../../../case_files/domain/entities/case_file.dart';
 import '../../../clients/domain/entities/client.dart';
+import '../../domain/entities/home_dashboard.dart';
 import '../../domain/usecases/get_home_dashboard_use_case.dart';
 import '../controllers/home_dashboard_controller.dart';
-import '../../../../shared/providers/session_provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -28,406 +37,558 @@ class _HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final strings = context.strings;
+    final controller = context.watch<HomeDashboardController>();
     final sessionProvider = context.watch<SessionProvider>();
-    final dashboardController = context.watch<HomeDashboardController>();
     final currentUser = sessionProvider.currentUser;
-    final dashboard = dashboardController.dashboard;
+    final strings = context.strings;
+    final dashboard = controller.dashboard;
 
-    if (dashboardController.isLoading && dashboard == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Prime Lawyer'),
-          actions: [
-            IconButton(
-              onPressed: () async {
-                await context.read<SessionProvider>().clearSession();
-              },
-              tooltip: 'Sign out',
-              icon: const Icon(Icons.logout_rounded),
-            ),
-          ],
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Prime Lawyer'),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await context.read<SessionProvider>().clearSession();
-            },
-            tooltip: 'Sign out',
-            icon: const Icon(Icons.logout_rounded),
-          ),
-        ],
+    return PrimePageScaffold(
+      currentTab: PrimeRootTab.home,
+      appBar: PrimeBrandAppBar(
+        prominentBrand: true,
+        leadingIcon: Icons.settings_outlined,
+        leadingTooltip: strings.openSettings,
+        onLeadingPressed: () {
+          Navigator.of(context).pushNamed(AppRoutes.profile);
+        },
       ),
-      body: RefreshIndicator(
-        onRefresh: dashboardController.refresh,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(24),
+      body: Builder(
+        builder: (context) {
+          if (controller.isLoading && dashboard == null) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: controller.refresh,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.pagePadding,
+                8,
+                AppTheme.pagePadding,
+                132,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    currentUser == null
-                        ? 'Welcome back'
-                        : 'Welcome, ${currentUser.displayLabel}',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: colorScheme.onPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    currentUser == null
-                        ? 'The session is active and ready for the next legal actions.'
-                        : 'Signed in as ${currentUser.displayLabel} (${currentUser.role}). Your dashboard is now reading live data from the MVP backend.',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onPrimary,
-                        ),
-                  ),
-                  if (dashboard != null) ...[
-                    const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        _HeroPill(
-                          label: '${dashboard.totalClients} clients',
-                        ),
-                        _HeroPill(
-                          label: '${dashboard.totalCaseFiles} case files',
-                        ),
-                        _HeroPill(
-                          label:
-                              '${dashboard.activeCaseFilesCount} active cases',
-                        ),
-                      ],
+              children: [
+                _HomeHeroBanner(
+                  currentUser: currentUser,
+                ),
+                if (controller.errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  _ErrorMessageBanner(message: controller.errorMessage!),
+                ],
+                const SizedBox(height: AppTheme.sectionSpacing),
+                _SectionTitle(
+                  title: strings.currentSnapshot,
+                  subtitle: strings.syncedWithBackend,
+                ),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 14,
+                  runSpacing: 14,
+                  children: [
+                    _SummaryMetricCard(
+                      icon: Icons.groups_2_rounded,
+                      label: strings.clientsMetricLabel,
+                      value: '${dashboard?.totalClients ?? 0}',
+                      caption: strings.clientsMetricCaption,
+                      onTap: () =>
+                          PrimeBottomNav.openTab(context, PrimeRootTab.clients),
+                    ),
+                    _SummaryMetricCard(
+                      icon: Icons.work_rounded,
+                      label: strings.totalCaseFilesMetricLabel,
+                      value: '${dashboard?.totalCaseFiles ?? 0}',
+                      caption: strings.totalCaseFilesMetricCaption,
+                      onTap: () => PrimeBottomNav.openTab(
+                        context,
+                        PrimeRootTab.caseFiles,
+                      ),
+                    ),
+                    _SummaryMetricCard(
+                      icon: Icons.timelapse_rounded,
+                      label: strings.activeCasesMetricLabel,
+                      value: '${dashboard?.activeCaseFilesCount ?? 0}',
+                      caption:
+                          strings.isSpanish ? 'En progreso' : 'In progress',
+                      onTap: () => PrimeBottomNav.openTab(
+                        context,
+                        PrimeRootTab.caseFiles,
+                      ),
                     ),
                   ],
-                ],
-              ),
-            ),
-            if (dashboardController.errorMessage != null) ...[
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFBE7E5),
-                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: Text(
-                  dashboardController.errorMessage!,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                const SizedBox(height: AppTheme.sectionSpacing),
+                _SectionTitle(
+                  title: strings.isSpanish ? 'IA Asistencia' : 'AI assistance',
+                  subtitle: strings.legalAiQuestionCardDescription,
                 ),
-              ),
-            ],
-            const SizedBox(height: 20),
-            Text(
-              'Quick actions',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AppRoutes.clients);
-              },
-              icon: const Icon(Icons.people_alt_outlined),
-              label: const Text('Manage clients'),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AppRoutes.caseFiles);
-              },
-              icon: const Icon(Icons.folder_open_outlined),
-              label: const Text('Manage case files'),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.tonalIcon(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AppRoutes.contractMarketplace);
-              },
-              icon: const Icon(Icons.description_outlined),
-              label: Text(strings.openContractMarketplace),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.tonalIcon(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AppRoutes.legalAiConsultation);
-              },
-              icon: const Icon(Icons.auto_awesome_rounded),
-              label: Text(strings.consultLegalAi),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).pushNamed(AppRoutes.knowledgeRepository);
-              },
-              icon: const Icon(Icons.library_books_outlined),
-              label: Text(strings.openKnowledgeRepository),
-            ),
-            if (dashboard != null && dashboard.recentCaseFiles.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              FilledButton.tonalIcon(
-                onPressed: () {
-                  Navigator.of(context).pushNamed(
-                    AppRoutes.caseFileDetail,
-                    arguments: dashboard.recentCaseFiles.first.id,
-                  );
-                },
-                icon: const Icon(Icons.playlist_play_rounded),
-                label: Text(
-                  'Resume ${dashboard.recentCaseFiles.first.internalCode}',
+                const SizedBox(height: 14),
+                _AiAssistanceCard(
+                  dashboard: dashboard,
+                  onOpenAi: () {
+                    Navigator.of(context)
+                        .pushNamed(AppRoutes.legalAiConsultation);
+                  },
+                  onOpenRepository: () {
+                    Navigator.of(context)
+                        .pushNamed(AppRoutes.knowledgeRepository);
+                  },
+                  onResumeCase:
+                      dashboard == null || !dashboard.hasRecentCaseFiles
+                          ? null
+                          : () {
+                              Navigator.of(context).pushNamed(
+                                AppRoutes.caseFileDetail,
+                                arguments: dashboard.recentCaseFiles.first.id,
+                              );
+                            },
                 ),
-              ),
-            ],
-            const SizedBox(height: 20),
-            Text(
-              'Current snapshot',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _DashboardMetricCard(
-                    icon: Icons.people_alt_outlined,
-                    label: 'Clients',
-                    value: '${dashboard?.totalClients ?? 0}',
-                    caption: 'Registered people and firms',
-                  ),
+                const SizedBox(height: AppTheme.sectionSpacing),
+                _SectionTitle(
+                  title: strings.recentActivityTitle,
+                  subtitle: strings.workspaceDescription,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _DashboardMetricCard(
-                    icon: Icons.folder_open_outlined,
-                    label: 'Active cases',
-                    value: '${dashboard?.activeCaseFilesCount ?? 0}',
-                    caption: 'Open or in progress',
-                  ),
+                const SizedBox(height: 14),
+                _RecentActivityCard(
+                  dashboard: dashboard,
+                  onOpenCaseFile: (caseFileId) {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.caseFileDetail,
+                      arguments: caseFileId,
+                    );
+                  },
+                  onOpenClients: () {
+                    PrimeBottomNav.openTab(context, PrimeRootTab.clients);
+                  },
+                  onOpenCaseFiles: () {
+                    PrimeBottomNav.openTab(context, PrimeRootTab.caseFiles);
+                  },
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            _SectionCard(
-              title: 'Recent clients',
-              child: dashboard == null || !dashboard.hasRecentClients
-                  ? const _EmptySectionMessage(
-                      icon: Icons.person_add_alt_1_rounded,
-                      title: 'No clients yet',
-                      description:
-                          'Create your first client and it will appear here.',
-                    )
-                  : Column(
-                      children: [
-                        for (final client in dashboard.recentClients)
-                          _RecentClientTile(client: client),
-                      ],
-                    ),
-            ),
-            const SizedBox(height: 16),
-            _SectionCard(
-              title: 'Recent case files',
-              child: dashboard == null || !dashboard.hasRecentCaseFiles
-                  ? const _EmptySectionMessage(
-                      icon: Icons.create_new_folder_outlined,
-                      title: 'No case files yet',
-                      description:
-                          'Create a case file and the dashboard will surface it here.',
-                    )
-                  : Column(
-                      children: [
-                        for (final caseFile in dashboard.recentCaseFiles)
-                          _RecentCaseFileTile(
-                            caseFile: caseFile,
-                            onOpen: () {
-                              Navigator.of(context).pushNamed(
-                                AppRoutes.caseFileDetail,
-                                arguments: caseFile.id,
-                              );
-                            },
-                          ),
-                      ],
-                    ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 }
 
-class _HeroPill extends StatelessWidget {
-  const _HeroPill({
-    required this.label,
+class _HomeHeroBanner extends StatelessWidget {
+  const _HomeHeroBanner({
+    required this.currentUser,
   });
 
-  final String label;
+  final SessionUser? currentUser;
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.strings;
+
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(999),
+        gradient: const LinearGradient(
+          colors: [
+            AppTheme.primaryNavy,
+            AppTheme.secondaryNavy,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(34),
+        boxShadow: AppTheme.cardShadow,
       ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onPrimary,
-              fontWeight: FontWeight.w600,
-            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PrimeStatusChip.accent(
+            strings.isSpanish ? 'Prime workspace' : 'Prime workspace',
+          ),
+          const SizedBox(height: 18),
+          Text(
+            currentUser == null
+                ? strings.welcomeBack
+                : strings.welcomeUser(currentUser!.displayLabel),
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  color: AppTheme.surface,
+                ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _DashboardMetricCard extends StatelessWidget {
-  const _DashboardMetricCard({
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+}
+
+class _SummaryMetricCard extends StatelessWidget {
+  const _SummaryMetricCard({
     required this.icon,
     required this.label,
     required this.value,
     required this.caption,
+    required this.onTap,
   });
 
   final IconData icon;
   final String label;
   final String value;
   final String caption;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon),
-            const SizedBox(height: 16),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            Text(caption),
-          ],
+    final availableWidth =
+        MediaQuery.of(context).size.width - (AppTheme.pagePadding * 2) - 14;
+
+    return SizedBox(
+      width: availableWidth * 0.5,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        onTap: onTap,
+        child: PrimeSurfaceCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.softBeige,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  color: AppTheme.primaryNavy,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      color: AppTheme.primaryNavy,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                caption,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({
-    required this.title,
-    required this.child,
+class _AiAssistanceCard extends StatelessWidget {
+  const _AiAssistanceCard({
+    required this.dashboard,
+    required this.onOpenAi,
+    required this.onOpenRepository,
+    required this.onResumeCase,
   });
 
-  final String title;
-  final Widget child;
+  final HomeDashboard? dashboard;
+  final VoidCallback onOpenAi;
+  final VoidCallback onOpenRepository;
+  final VoidCallback? onResumeCase;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
+    final strings = context.strings;
+
+    return PrimeSurfaceCard(
+      color: const Color(0xFFFAF7F1),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryNavy,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppTheme.accentGold,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.consultLegalAi,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      strings.legalAiConsultationSubtitle,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          FilledButton.icon(
+            onPressed: onOpenAi,
+            icon: const Icon(Icons.auto_awesome_rounded),
+            label: Text(strings.aiSubmitQuestion),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: onOpenRepository,
+            icon: const Icon(Icons.library_books_outlined),
+            label: Text(strings.openKnowledgeRepository),
+          ),
+          if (onResumeCase != null && dashboard != null) ...[
+            const SizedBox(height: 14),
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: onResumeCase,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.softBeige,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.play_circle_outline_rounded,
+                      color: AppTheme.primaryNavy,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        strings.resumeCaseFile(
+                          dashboard!.recentCaseFiles.first.internalCode,
+                        ),
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 16,
+                      color: AppTheme.primaryNavy,
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 12),
-            child,
           ],
-        ),
+        ],
       ),
     );
   }
 }
 
-class _EmptySectionMessage extends StatelessWidget {
-  const _EmptySectionMessage({
-    required this.icon,
-    required this.title,
-    required this.description,
+class _RecentActivityCard extends StatelessWidget {
+  const _RecentActivityCard({
+    required this.dashboard,
+    required this.onOpenCaseFile,
+    required this.onOpenClients,
+    required this.onOpenCaseFiles,
   });
 
-  final IconData icon;
-  final String title;
-  final String description;
+  final HomeDashboard? dashboard;
+  final ValueChanged<String> onOpenCaseFile;
+  final VoidCallback onOpenClients;
+  final VoidCallback onOpenCaseFiles;
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.strings;
+
+    return PrimeSurfaceCard(
+      child: dashboard == null ||
+              (!dashboard!.hasRecentClients && !dashboard!.hasRecentCaseFiles)
+          ? PrimeEmptyState(
+              icon: Icons.assignment_outlined,
+              title: strings.isSpanish
+                  ? 'Aún no hay actividad reciente'
+                  : 'No recent activity yet',
+              description: strings.workspaceDescription,
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (dashboard!.hasRecentCaseFiles) ...[
+                  Text(
+                    strings.recentCaseFilesTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  for (final caseFile
+                      in dashboard!.recentCaseFiles.take(3)) ...[
+                    _RecentCaseTile(
+                      caseFile: caseFile,
+                      onOpen: () => onOpenCaseFile(caseFile.id),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ],
+                if (dashboard!.hasRecentClients) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    strings.recentClientsTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  for (final client in dashboard!.recentClients.take(3)) ...[
+                    _RecentClientTile(client: client),
+                    const SizedBox(height: 10),
+                  ],
+                ],
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: onOpenClients,
+                      icon: const Icon(Icons.groups_2_outlined),
+                      label: Text(strings.manageClients),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: onOpenCaseFiles,
+                      icon: const Icon(Icons.work_outline_rounded),
+                      label: Text(strings.manageCaseFiles),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _RecentCaseTile extends StatelessWidget {
+  const _RecentCaseTile({
+    required this.caseFile,
+    required this.onOpen,
+  });
+
+  final CaseFile caseFile;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = context.strings;
+
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F2EA),
-        borderRadius: BorderRadius.circular(18),
+        color: AppTheme.appBackground,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.softBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppTheme.infoSoft,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.description_outlined,
+              color: AppTheme.primaryNavy,
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  caseFile.internalCode,
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
-                const SizedBox(height: 6),
-                Text(description),
+                const SizedBox(height: 4),
+                Text(
+                  caseFile.title,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    PrimeStatusChip.caseStatus(
+                      status: caseFile.status,
+                      label: strings.caseStatus(caseFile.status),
+                    ),
+                    PrimeStatusChip.neutral(caseFile.processType),
+                  ],
+                ),
               ],
             ),
+          ),
+          const SizedBox(width: 12),
+          TextButton(
+            onPressed: onOpen,
+            child: Text(strings.openCaseFileAction),
           ),
         ],
       ),
@@ -444,202 +605,79 @@ class _RecentClientTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F2EA),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              child: Text(
-                client.firstName.isEmpty
-                    ? '?'
-                    : client.firstName[0].toUpperCase(),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    client.fullName,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 4),
-                  Text('Document: ${client.documentNumber}'),
-                  const SizedBox(height: 4),
-                  Text('Created ${_formatDashboardDate(client.createdAt)}'),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RecentCaseFileTile extends StatelessWidget {
-  const _RecentCaseFileTile({
-    required this.caseFile,
-    required this.onOpen,
-  });
-
-  final CaseFile caseFile;
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F2EA),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    caseFile.internalCode,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ),
-                _CaseStatusChip(status: caseFile.status),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              caseFile.title,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            if ((caseFile.description ?? '').isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                caseFile.description!,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-            const SizedBox(height: 4),
-            Text('Opened ${_formatDashboardDate(caseFile.openedAt)}'),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: OutlinedButton.icon(
-                onPressed: onOpen,
-                icon: const Icon(Icons.open_in_new_rounded),
-                label: const Text('Open case file'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CaseStatusChip extends StatelessWidget {
-  const _CaseStatusChip({
-    required this.status,
-  });
-
-  final String status;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = _statusPalette(status, Theme.of(context).colorScheme);
+    final initials = '${client.firstName.isNotEmpty ? client.firstName[0] : ''}'
+            '${client.lastName.isNotEmpty ? client.lastName[0] : ''}'
+        .toUpperCase();
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: palette.background,
-        borderRadius: BorderRadius.circular(999),
+        color: AppTheme.appBackground,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.softBorder),
       ),
-      child: Text(
-        status.replaceAll('_', ' '),
-        style: TextStyle(
-          color: palette.foreground,
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-        ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: AppTheme.softBeige,
+            foregroundColor: AppTheme.primaryNavy,
+            child: Text(
+              initials.isEmpty ? 'PL' : initials,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  client.fullName,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  client.documentNumber,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-({Color background, Color foreground}) _statusPalette(
-  String status,
-  ColorScheme colorScheme,
-) {
-  switch (status) {
-    case 'OPEN':
-      return (
-        background: const Color(0xFFE3F2E7),
-        foreground: const Color(0xFF1F6A3A),
-      );
-    case 'IN_PROGRESS':
-      return (
-        background: const Color(0xFFFFF1D6),
-        foreground: const Color(0xFF8B5A00),
-      );
-    case 'CLOSED':
-      return (
-        background: const Color(0xFFE6ECF5),
-        foreground: const Color(0xFF335C8A),
-      );
-    case 'ARCHIVED':
-      return (
-        background: const Color(0xFFEDE7E3),
-        foreground: const Color(0xFF6A5B54),
-      );
-    default:
-      return (
-        background: colorScheme.surfaceContainerHighest,
-        foreground: colorScheme.onSurfaceVariant,
-      );
+class _ErrorMessageBanner extends StatelessWidget {
+  const _ErrorMessageBanner({
+    required this.message,
+  });
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppTheme.errorSoft,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.error.withValues(alpha: 0.18)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Text(
+          message,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppTheme.error,
+              ),
+        ),
+      ),
+    );
   }
-}
-
-String _formatDashboardDate(DateTime date) {
-  const monthNames = <int, String>{
-    1: 'Jan',
-    2: 'Feb',
-    3: 'Mar',
-    4: 'Apr',
-    5: 'May',
-    6: 'Jun',
-    7: 'Jul',
-    8: 'Aug',
-    9: 'Sep',
-    10: 'Oct',
-    11: 'Nov',
-    12: 'Dec',
-  };
-
-  final month = monthNames[date.month] ?? '${date.month}';
-  final day = date.day.toString().padLeft(2, '0');
-
-  return '$day $month ${date.year}';
 }

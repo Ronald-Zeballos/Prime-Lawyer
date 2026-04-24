@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
 import '../../../legal_ai/presentation/pages/contextual_legal_consultation_page.dart';
 import '../../../legal_ai/presentation/pages/document_analysis_page.dart';
 import '../../domain/entities/document.dart';
@@ -43,8 +44,10 @@ class _DocumentViewerView extends StatelessWidget {
     final strings = context.strings;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(document.originalName),
+      appBar: PrimeBrandAppBar(
+        title: document.originalName,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
       ),
       bottomNavigationBar:
           controller.isLoading || controller.errorMessage != null

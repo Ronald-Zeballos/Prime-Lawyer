@@ -97,10 +97,10 @@ class DocumentScanEditorController extends ChangeNotifier {
         );
       }
     } catch (error) {
-      _errorMessage = error is StateError &&
-              error.message == 'camera_permission_denied'
-          ? 'Camera permission was denied. Please enable it and try again.'
-          : 'We could not scan additional pages right now.';
+      _errorMessage =
+          error is StateError && error.message == 'camera_permission_denied'
+              ? 'Camera permission was denied. Please enable it and try again.'
+              : 'We could not scan additional pages right now.';
     }
 
     _isAddingPages = false;

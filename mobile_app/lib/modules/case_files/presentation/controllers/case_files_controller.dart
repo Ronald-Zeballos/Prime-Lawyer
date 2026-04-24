@@ -35,31 +35,45 @@ class CaseFilesController extends ChangeNotifier {
   bool get hasCaseFiles => _caseFiles.isNotEmpty;
   bool get hasClients => _clients.isNotEmpty;
 
-  Future<void> loadInitialData() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  Future<void> loadInitialData({
+    bool silent = false,
+  }) async {
+    if (!silent) {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+    }
+
+    String? errorMessage;
 
     try {
-      final results = await Future.wait<dynamic>([
-        _getCaseFilesUseCase.execute(),
-        _getClientsUseCase.execute(),
-      ]);
-      final caseFiles = results[0] as List<CaseFile>;
-      final clients = results[1] as List<Client>;
-
+      final caseFiles = await _getCaseFilesUseCase.execute();
       _caseFiles
         ..clear()
         ..addAll(caseFiles);
+    } on ApiException catch (error) {
+      errorMessage = error.message;
+      _caseFiles.clear();
+    } catch (_) {
+      errorMessage = 'We could not load cases right now.';
+      _caseFiles.clear();
+    }
+
+    try {
+      final clients = await _getClientsUseCase.execute();
+
       _clients
         ..clear()
         ..addAll(clients);
     } on ApiException catch (error) {
-      _errorMessage = error.message;
+      errorMessage ??= error.message;
+      _clients.clear();
     } catch (_) {
-      _errorMessage = 'We could not load cases right now.';
+      errorMessage ??= 'We could not load clients right now.';
+      _clients.clear();
     }
 
+    _errorMessage = errorMessage;
     _isLoading = false;
     notifyListeners();
   }

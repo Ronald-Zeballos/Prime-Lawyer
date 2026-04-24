@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
+import '../../../../shared/widgets/prime_brand_app_bar.dart';
+import '../../../../shared/widgets/prime_page_scaffold.dart';
 import '../../domain/entities/contract_template.dart';
 import '../../domain/usecases/generate_contract_use_case.dart';
 import '../../domain/usecases/get_contract_template_use_case.dart';
@@ -41,9 +44,11 @@ class _ContractTemplateFormView extends StatelessWidget {
     final template = controller.template;
     final strings = context.strings;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.contractTemplateFormTitle),
+    return PrimePageScaffold(
+      appBar: PrimeBrandAppBar(
+        title: strings.contractTemplateFormTitle,
+        leadingIcon: Icons.arrow_back_rounded,
+        leadingTooltip: strings.isSpanish ? 'Volver' : 'Back',
       ),
       body: Builder(
         builder: (context) {
@@ -180,7 +185,7 @@ class _DynamicContractFormState extends State<_DynamicContractForm> {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: const Color(0xFFF7F2EA),
+            color: AppTheme.softBeige,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -245,7 +250,7 @@ class _DynamicContractFormState extends State<_DynamicContractForm> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFBE7E5),
+                    color: AppTheme.errorSoft,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
