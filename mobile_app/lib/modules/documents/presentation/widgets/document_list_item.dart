@@ -90,7 +90,15 @@ class DocumentListItem extends StatelessWidget {
             runSpacing: 10,
             children: [
               FilledButton.tonalIcon(
-                onPressed: document.isPdf ? onOpen : null,
+                onPressed: document.isPdf
+                    ? onOpen
+                    : () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(strings.pdfPreviewOnlyMessage),
+                          ),
+                        );
+                      },
                 icon: const Icon(Icons.picture_as_pdf_outlined),
                 label: Text(
                   document.isPdf ? strings.openPdfAction : strings.pdfOnlyLabel,

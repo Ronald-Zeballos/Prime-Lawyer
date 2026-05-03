@@ -13,6 +13,7 @@ import '../core/widgets/app_loading_view.dart';
 import '../modules/auth/data/datasources/auth_remote_data_source.dart';
 import '../modules/auth/data/repositories/auth_repository_impl.dart';
 import '../modules/auth/domain/repositories/auth_repository.dart';
+import '../modules/auth/domain/usecases/get_authenticated_user_use_case.dart';
 import '../modules/auth/domain/usecases/sign_in_use_case.dart';
 import '../modules/auth/presentation/pages/login_page.dart';
 import '../modules/case_files/data/datasources/case_files_remote_data_source.dart';
@@ -109,11 +110,12 @@ class PrimeLawyerApp extends StatelessWidget {
           create: (context) => SessionService(
             tokenStorage: context.read<TokenStorage>(),
           ),
+          dispose: (_, service) => service.dispose(),
         ),
         Provider<ApiClient>(
           create: (context) => ApiClient(
             apiBaseUrlProvider: context.read<ApiBaseUrlProvider>(),
-            tokenStorage: context.read<TokenStorage>(),
+            sessionService: context.read<SessionService>(),
           ),
         ),
         Provider<ApiHealthService>(
@@ -133,6 +135,11 @@ class PrimeLawyerApp extends StatelessWidget {
         ),
         Provider<SignInUseCase>(
           create: (context) => SignInUseCase(
+            context.read<AuthRepository>(),
+          ),
+        ),
+        Provider<GetAuthenticatedUserUseCase>(
+          create: (context) => GetAuthenticatedUserUseCase(
             context.read<AuthRepository>(),
           ),
         ),
@@ -364,6 +371,8 @@ class PrimeLawyerApp extends StatelessWidget {
         ChangeNotifierProvider<SessionProvider>(
           create: (context) => SessionProvider(
             sessionService: context.read<SessionService>(),
+            getAuthenticatedUserUseCase:
+                context.read<GetAuthenticatedUserUseCase>(),
           )..bootstrap(),
         ),
         ChangeNotifierProvider<AppLanguageProvider>(

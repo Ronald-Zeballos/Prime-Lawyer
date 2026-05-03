@@ -234,7 +234,9 @@ class _DocumentsView extends StatelessWidget {
 
     return showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (_) => ChangeNotifierProvider<DocumentsController>.value(
         value: controller,
         child: Consumer<DocumentsController>(
@@ -275,7 +277,12 @@ class _DocumentsView extends StatelessWidget {
     try {
       final draft = await context.read<StartDocumentScanUseCase>().execute();
 
-      if (!context.mounted || draft == null) {
+      if (!context.mounted) {
+        return;
+      }
+
+      if (draft == null) {
+        await _showScanFallbackDialog(context);
         return;
       }
 
@@ -312,6 +319,40 @@ class _DocumentsView extends StatelessWidget {
               : strings.scanOpenError;
 
       controller.setErrorMessage(message);
+
+      if (error is! StateError || error.message != 'camera_permission_denied') {
+        await _showScanFallbackDialog(context);
+      }
     }
+  }
+
+  Future<void> _showScanFallbackDialog(BuildContext context) async {
+    final strings = context.strings;
+    final shouldOpenUpload = await showDialog<bool>(
+      context: context,
+      useRootNavigator: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(strings.scanDocumentAction),
+          content: Text(strings.scanOpenError),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(strings.cancelAction),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(strings.uploadDocument),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!context.mounted || shouldOpenUpload != true) {
+      return;
+    }
+
+    await _openRegisterDocumentSheet(context);
   }
 }

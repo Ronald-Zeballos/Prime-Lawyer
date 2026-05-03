@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/localization/app_strings_context.dart';
 import '../../../../shared/providers/session_provider.dart';
@@ -13,6 +12,7 @@ import '../../../../shared/widgets/prime_status_chip.dart';
 import '../../../../shared/widgets/prime_surface_card.dart';
 import '../../domain/entities/case_file.dart';
 import '../../domain/usecases/get_collaborative_repository_cases_use_case.dart';
+import 'case_file_detail_page.dart';
 import '../controllers/knowledge_repository_controller.dart';
 import 'knowledge_repository_summary_page.dart';
 
@@ -190,9 +190,10 @@ class _KnowledgeRepositoryViewState extends State<_KnowledgeRepositoryView> {
     }
 
     try {
-      await Navigator.of(context).pushNamed(
-        AppRoutes.caseFileDetail,
-        arguments: caseFileId,
+      await Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute<void>(
+          builder: (_) => CaseFileDetailPage(caseFileId: caseFileId),
+        ),
       );
     } catch (_) {
       if (!context.mounted) {
@@ -215,7 +216,7 @@ class _KnowledgeRepositoryViewState extends State<_KnowledgeRepositoryView> {
         builder: (_) => KnowledgeRepositorySummaryPage(
           caseFile: caseFile,
           isOwnedByCurrentUser: isOwnedByCurrentUser,
-          onOpenCaseFile: () => _openOwnedCaseFile(context, caseFile),
+          ownedCaseFileId: isOwnedByCurrentUser ? caseFile.id : null,
         ),
       ),
     );

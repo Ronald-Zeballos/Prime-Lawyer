@@ -471,6 +471,9 @@ class AppStrings {
       isSpanish ? 'Documento listo para subir' : 'Document ready to upload';
   String get openPdfAction => isSpanish ? 'Abrir PDF' : 'Open PDF';
   String get pdfOnlyLabel => isSpanish ? 'Solo PDF' : 'PDF only';
+  String get pdfPreviewOnlyMessage => isSpanish
+      ? 'La vista previa está disponible solo para documentos PDF por ahora.'
+      : 'Preview is currently available only for PDF documents right now.';
   String get analyzeDocument =>
       isSpanish ? 'Analizar documento' : 'Analyze document';
   String get analysisPreviewTitle =>

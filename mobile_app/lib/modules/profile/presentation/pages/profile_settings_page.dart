@@ -510,20 +510,44 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
     FocusScope.of(context).unfocus();
 
-    final result = await context.read<ApiBaseUrlProvider>().setApiBaseUrl(
-          _apiBaseUrlController.text,
-        );
+    setState(() {
+      _isApiActionInProgress = true;
+      _apiFeedbackMessage = null;
+      _apiFeedbackIsError = false;
+    });
 
-    if (!mounted) {
-      return;
+    try {
+      final result = await context.read<ApiBaseUrlProvider>().setApiBaseUrl(
+            _apiBaseUrlController.text,
+          );
+
+      if (!mounted) {
+        return;
+      }
+
+      _syncInputAndShowFeedback(
+        context,
+        result: result,
+        successMessageApplied: context.strings.apiBaseUrlSaved,
+        successMessageAlreadyActive: context.strings.apiBaseUrlAlreadyActive,
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      _showSnackBar(
+        context,
+        context.strings.apiConnectionFailure,
+        isError: true,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isApiActionInProgress = false;
+        });
+      }
     }
-
-    _syncInputAndShowFeedback(
-      context,
-      result: result,
-      successMessageApplied: context.strings.apiBaseUrlSaved,
-      successMessageAlreadyActive: context.strings.apiBaseUrlAlreadyActive,
-    );
   }
 
   void _syncInputAndShowFeedback(

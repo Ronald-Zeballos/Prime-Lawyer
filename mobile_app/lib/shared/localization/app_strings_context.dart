@@ -5,7 +5,9 @@ import '../providers/app_language_provider.dart';
 import 'app_strings.dart';
 
 extension AppStringsContext on BuildContext {
-  AppStrings get strings => watch<AppLanguageProvider>().strings;
+  AppStrings get strings => debugDoingBuild
+      ? watch<AppLanguageProvider>().strings
+      : read<AppLanguageProvider>().strings;
 
   AppLanguageProvider get appLanguage => read<AppLanguageProvider>();
 }

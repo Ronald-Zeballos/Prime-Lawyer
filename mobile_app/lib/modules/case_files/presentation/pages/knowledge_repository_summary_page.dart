@@ -7,18 +7,19 @@ import '../../../../shared/widgets/prime_page_scaffold.dart';
 import '../../../../shared/widgets/prime_status_chip.dart';
 import '../../../../shared/widgets/prime_surface_card.dart';
 import '../../domain/entities/case_file.dart';
+import 'case_file_detail_page.dart';
 
 class KnowledgeRepositorySummaryPage extends StatelessWidget {
   const KnowledgeRepositorySummaryPage({
     super.key,
     required this.caseFile,
     required this.isOwnedByCurrentUser,
-    required this.onOpenCaseFile,
+    this.ownedCaseFileId,
   });
 
   final CaseFile caseFile;
   final bool isOwnedByCurrentUser;
-  final Future<void> Function() onOpenCaseFile;
+  final String? ownedCaseFileId;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +139,7 @@ class KnowledgeRepositorySummaryPage extends StatelessWidget {
           PrimeSurfaceCard(
             child: isOwnedByCurrentUser
                 ? FilledButton.icon(
-                    onPressed: onOpenCaseFile,
+                    onPressed: () => _openOwnedCaseFile(context),
                     icon: const Icon(Icons.open_in_new_rounded),
                     label: Text(strings.openOwnedRepositoryCaseAction),
                   )
@@ -148,6 +149,23 @@ class KnowledgeRepositorySummaryPage extends StatelessWidget {
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _openOwnedCaseFile(BuildContext context) async {
+    final caseFileId = ownedCaseFileId?.trim() ?? '';
+
+    if (caseFileId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.strings.repositoryCaseOpenFailed)),
+      );
+      return;
+    }
+
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (_) => CaseFileDetailPage(caseFileId: caseFileId),
       ),
     );
   }

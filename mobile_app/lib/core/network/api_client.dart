@@ -6,20 +6,20 @@ import 'package:http/http.dart' as http;
 
 import '../constants/api_constants.dart';
 import '../errors/api_exception.dart';
-import '../storage/token_storage.dart';
+import '../services/session_service.dart';
 import '../../shared/providers/api_base_url_provider.dart';
 
 class ApiClient {
   ApiClient({
     required ApiBaseUrlProvider apiBaseUrlProvider,
-    required TokenStorage tokenStorage,
+    required SessionService sessionService,
     http.Client? httpClient,
   })  : _apiBaseUrlProvider = apiBaseUrlProvider,
-        _tokenStorage = tokenStorage,
+        _sessionService = sessionService,
         _httpClient = httpClient ?? http.Client();
 
   final ApiBaseUrlProvider _apiBaseUrlProvider;
-  final TokenStorage _tokenStorage;
+  final SessionService _sessionService;
   final http.Client _httpClient;
 
   Future<dynamic> get(
@@ -36,7 +36,10 @@ class ApiClient {
           .timeout(ApiConstants.requestTimeout),
     );
 
-    return _parseResponse(response);
+    return _parseResponse(
+      response,
+      invalidateSessionOnUnauthorized: authenticated,
+    );
   }
 
   Future<List<int>> getBytes(
@@ -59,6 +62,11 @@ class ApiClient {
 
     final body = response.body.trim();
     final decodedBody = body.isEmpty ? null : jsonDecode(body);
+
+    await _invalidateSessionIfUnauthorized(
+      statusCode: response.statusCode,
+      invalidateSessionOnUnauthorized: authenticated,
+    );
 
     throw ApiException(
       statusCode: response.statusCode,
@@ -84,7 +92,10 @@ class ApiClient {
           .timeout(ApiConstants.requestTimeout),
     );
 
-    return _parseResponse(response);
+    return _parseResponse(
+      response,
+      invalidateSessionOnUnauthorized: authenticated,
+    );
   }
 
   Future<dynamic> patchJson(
@@ -105,7 +116,10 @@ class ApiClient {
           .timeout(ApiConstants.requestTimeout),
     );
 
-    return _parseResponse(response);
+    return _parseResponse(
+      response,
+      invalidateSessionOnUnauthorized: authenticated,
+    );
   }
 
   Future<dynamic> delete(
@@ -122,7 +136,10 @@ class ApiClient {
           .timeout(ApiConstants.requestTimeout),
     );
 
-    return _parseResponse(response);
+    return _parseResponse(
+      response,
+      invalidateSessionOnUnauthorized: authenticated,
+    );
   }
 
   Future<dynamic> sendMultipart(
@@ -155,7 +172,10 @@ class ApiClient {
     );
     final response = await http.Response.fromStream(streamedResponse);
 
-    return _parseResponse(response);
+    return _parseResponse(
+      response,
+      invalidateSessionOnUnauthorized: authenticated,
+    );
   }
 
   Future<Uri> _buildUri(
@@ -225,7 +245,7 @@ class ApiClient {
     }
 
     if (authenticated) {
-      final accessToken = await _tokenStorage.readAccessToken();
+      final accessToken = await _sessionService.restoreAccessToken();
 
       if (accessToken != null && accessToken.isNotEmpty) {
         headers['Authorization'] =
@@ -236,7 +256,10 @@ class ApiClient {
     return headers;
   }
 
-  dynamic _parseResponse(http.Response response) {
+  Future<dynamic> _parseResponse(
+    http.Response response, {
+    required bool invalidateSessionOnUnauthorized,
+  }) async {
     final body = response.body.trim();
     final decodedBody = body.isEmpty ? null : jsonDecode(body);
 
@@ -244,10 +267,26 @@ class ApiClient {
       return decodedBody;
     }
 
+    await _invalidateSessionIfUnauthorized(
+      statusCode: response.statusCode,
+      invalidateSessionOnUnauthorized: invalidateSessionOnUnauthorized,
+    );
+
     throw ApiException(
       statusCode: response.statusCode,
       message: _extractErrorMessage(decodedBody, response.statusCode),
     );
+  }
+
+  Future<void> _invalidateSessionIfUnauthorized({
+    required int statusCode,
+    required bool invalidateSessionOnUnauthorized,
+  }) async {
+    if (!invalidateSessionOnUnauthorized || statusCode != 401) {
+      return;
+    }
+
+    await _sessionService.invalidateSession();
   }
 
   String _extractErrorMessage(dynamic decodedBody, int statusCode) {

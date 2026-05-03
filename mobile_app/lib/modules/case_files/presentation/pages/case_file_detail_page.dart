@@ -231,6 +231,7 @@ class _CaseFileDetailView extends StatelessWidget {
                 isBusy: controller.isBusy,
                 onPublish: () => _handlePublication(context, publish: true),
                 onUnpublish: () => _handlePublication(context, publish: false),
+                onPreparePublication: () => _showStatusSheet(context, caseFile),
                 onOpenRepository: () {
                   Navigator.of(context)
                       .pushNamed(AppRoutes.knowledgeRepository);
@@ -247,6 +248,7 @@ class _CaseFileDetailView extends StatelessWidget {
     final strings = context.strings;
     final selectedStatus = await showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       showDragHandle: true,
       builder: (context) {
         return _CaseStatusSheet(currentStatus: caseFile.status);
@@ -430,6 +432,7 @@ class _KnowledgeRepositoryCard extends StatelessWidget {
     required this.isBusy,
     required this.onPublish,
     required this.onUnpublish,
+    required this.onPreparePublication,
     required this.onOpenRepository,
   });
 
@@ -437,6 +440,7 @@ class _KnowledgeRepositoryCard extends StatelessWidget {
   final bool isBusy;
   final Future<void> Function() onPublish;
   final Future<void> Function() onUnpublish;
+  final Future<void> Function() onPreparePublication;
   final VoidCallback onOpenRepository;
 
   @override
@@ -502,11 +506,15 @@ class _KnowledgeRepositoryCard extends StatelessWidget {
                     icon: const Icon(Icons.unpublished_rounded),
                     label: Text(strings.unpublishCaseAction),
                   ),
-                if (caseFile.knowledgeStatus != 'PUBLISHED' &&
+                if (caseFile.knowledgeStatus == 'DRAFT' &&
                     caseFile.status != 'CLOSED' &&
                     caseFile.status != 'ARCHIVED')
                   OutlinedButton.icon(
-                    onPressed: null,
+                    onPressed: isBusy
+                        ? null
+                        : () async {
+                            await onPreparePublication();
+                          },
                     icon: const Icon(Icons.lock_clock_outlined),
                     label: Text(strings.closeCaseToPublishAction),
                   ),

@@ -48,9 +48,11 @@ class PrimeBottomNav extends StatelessWidget {
                       activeIcon: Icons.groups_2_rounded,
                       label: context.strings.isSpanish ? 'Clientes' : 'Clients',
                       isActive: currentTab == PrimeRootTab.clients,
-                      onTap: currentTab == PrimeRootTab.clients
-                          ? null
-                          : () => openTab(context, PrimeRootTab.clients),
+                      onTap: () => openTab(
+                        context,
+                        PrimeRootTab.clients,
+                        isCurrentTab: currentTab == PrimeRootTab.clients,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -59,9 +61,11 @@ class PrimeBottomNav extends StatelessWidget {
                       activeIcon: Icons.work_rounded,
                       label: context.strings.isSpanish ? 'Casos' : 'Cases',
                       isActive: currentTab == PrimeRootTab.caseFiles,
-                      onTap: currentTab == PrimeRootTab.caseFiles
-                          ? null
-                          : () => openTab(context, PrimeRootTab.caseFiles),
+                      onTap: () => openTab(
+                        context,
+                        PrimeRootTab.caseFiles,
+                        isCurrentTab: currentTab == PrimeRootTab.caseFiles,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 86),
@@ -73,9 +77,11 @@ class PrimeBottomNav extends StatelessWidget {
                           ? 'Marketplace'
                           : 'Marketplace',
                       isActive: currentTab == PrimeRootTab.marketplace,
-                      onTap: currentTab == PrimeRootTab.marketplace
-                          ? null
-                          : () => openTab(context, PrimeRootTab.marketplace),
+                      onTap: () => openTab(
+                        context,
+                        PrimeRootTab.marketplace,
+                        isCurrentTab: currentTab == PrimeRootTab.marketplace,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -84,9 +90,11 @@ class PrimeBottomNav extends StatelessWidget {
                       activeIcon: Icons.person_rounded,
                       label: context.strings.isSpanish ? 'Perfil' : 'Profile',
                       isActive: currentTab == PrimeRootTab.profile,
-                      onTap: currentTab == PrimeRootTab.profile
-                          ? null
-                          : () => openTab(context, PrimeRootTab.profile),
+                      onTap: () => openTab(
+                        context,
+                        PrimeRootTab.profile,
+                        isCurrentTab: currentTab == PrimeRootTab.profile,
+                      ),
                     ),
                   ),
                 ],
@@ -98,9 +106,11 @@ class PrimeBottomNav extends StatelessWidget {
             child: _PrimeHomeButton(
               isActive: currentTab == PrimeRootTab.home,
               label: context.strings.isSpanish ? 'Inicio' : 'Home',
-              onTap: currentTab == PrimeRootTab.home
-                  ? null
-                  : () => openTab(context, PrimeRootTab.home),
+              onTap: () => openTab(
+                context,
+                PrimeRootTab.home,
+                isCurrentTab: currentTab == PrimeRootTab.home,
+              ),
             ),
           ),
         ],
@@ -108,16 +118,35 @@ class PrimeBottomNav extends StatelessWidget {
     );
   }
 
-  static void openTab(BuildContext context, PrimeRootTab tab) {
-    final route = _routeForTab(tab);
-
-    if (ModalRoute.of(context)?.settings.name == route) {
+  static void openTab(
+    BuildContext context,
+    PrimeRootTab tab, {
+    bool isCurrentTab = false,
+  }) {
+    if (isCurrentTab) {
+      _scrollCurrentTabToTop(context);
       return;
     }
+
+    final route = _routeForTab(tab);
 
     Navigator.of(context).pushNamedAndRemoveUntil(
       route,
       (existingRoute) => existingRoute.isFirst,
+    );
+  }
+
+  static void _scrollCurrentTabToTop(BuildContext context) {
+    final scrollController = PrimaryScrollController.maybeOf(context);
+
+    if (scrollController == null || !scrollController.hasClients) {
+      return;
+    }
+
+    scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
     );
   }
 

@@ -75,9 +75,14 @@ class _CaseFilesViewState extends State<_CaseFilesView> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => controller.hasClients
-            ? _openCreateCaseFileSheet(context)
-            : _showCreateClientRequiredMessage(context),
+        onPressed: () async {
+          if (controller.hasClients) {
+            await _openCreateCaseFileSheet(context);
+            return;
+          }
+
+          await _showCreateClientRequiredMessage(context);
+        },
         icon: const Icon(Icons.create_new_folder_outlined),
         label: Text(strings.newCaseFile),
       ),
@@ -306,6 +311,7 @@ class _CaseFilesViewState extends State<_CaseFilesView> {
     final strings = context.strings;
     final selected = await showModalBottomSheet<String?>(
       context: context,
+      useRootNavigator: true,
       showDragHandle: true,
       builder: (context) {
         return SafeArea(
@@ -363,7 +369,9 @@ class _CaseFilesViewState extends State<_CaseFilesView> {
 
     return showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (_) => ChangeNotifierProvider<CaseFilesController>.value(
         value: controller,
         child: Consumer<CaseFilesController>(
@@ -392,10 +400,34 @@ class _CaseFilesViewState extends State<_CaseFilesView> {
     );
   }
 
-  void _showCreateClientRequiredMessage(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.strings.createClientBeforeCaseFile)),
+  Future<void> _showCreateClientRequiredMessage(BuildContext context) async {
+    final strings = context.strings;
+    final shouldOpenClients = await showDialog<bool>(
+      context: context,
+      useRootNavigator: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(strings.newCaseFile),
+          content: Text(strings.createClientBeforeCaseFile),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(strings.cancelAction),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(strings.manageClients),
+            ),
+          ],
+        );
+      },
     );
+
+    if (!context.mounted || shouldOpenClients != true) {
+      return;
+    }
+
+    PrimeBottomNav.openTab(context, PrimeRootTab.clients);
   }
 }
 
